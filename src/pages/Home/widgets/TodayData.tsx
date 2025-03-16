@@ -118,6 +118,15 @@ const TodayData: React.FC = () => {
 const Container = styled(motion.div)`
   width: 100%;
   padding: 20px;
+  border: 1px solid ${({ theme }) => theme.colors.neon};
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  div {
+    display: flex;
+    align-items: center;
+  }
 `;
 const ChartContainer = styled.div``;
 

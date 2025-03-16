@@ -9,6 +9,8 @@ import Widget from './Widget';
 import { LuBadge } from 'react-icons/lu';
 import { useWorkouts } from '../../context/WorkoutContext';
 import TodayData from './widgets/TodayData';
+import WeeklyStats from './widgets/WeeklyStats';
+import WorkoutHistory from './widgets/WorkoutHistory';
 
 function Home() {
   const { workouts } = useWorkouts();
@@ -100,6 +102,18 @@ function Home() {
               <div className='details'>5/7 giorni</div>
             </div>
           </div>
+        </Widget>
+        <Widget
+          title='statistiche settimanali'
+          index={2}
+        >
+          <WeeklyStats />
+        </Widget>
+        <Widget
+          title='storico allenamenti'
+          index={3}
+        >
+          <WorkoutHistory />
         </Widget>
       </div>
     </Container>

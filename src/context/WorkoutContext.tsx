@@ -14,6 +14,7 @@ interface Workout {
   date?: Date;
   name: string;
   completed?: boolean;
+  notes: string;
 }
 
 interface WorkoutContextType {

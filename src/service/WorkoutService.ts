@@ -10,6 +10,7 @@ interface Workout {
   reps: number;
   date?: Date;
   user_id?: string;
+  notes: string;
 }
 
 export const getWorkouts = async (token: string): Promise<Workout[] | null> => {
@@ -40,6 +41,7 @@ interface WorkoutResponse {
   user_id: string;
 
   completed?: boolean;
+  notes: string;
 }
 
 interface WorkoutData {

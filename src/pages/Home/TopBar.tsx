@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useGlobalContext } from '../../context/GlobalContext';
 import { BiBell } from 'react-icons/bi';
 import styled from 'styled-components';
@@ -9,12 +9,36 @@ import { AnimatePresence, motion } from 'framer-motion';
 function TopBar() {
   const { user } = useGlobalContext();
   const [notificationPanelOpen, setNotificationPanelOpen] = useState(false);
+  const [notBadge, setNotBadge] = useState(false);
+  const [notification, setNotification] = useState([
+    {
+      text: 'Testo della notifica, saranno notifiche social, integratori, allenamenti, idratazione',
+      time: '24 minuti fa',
+    },
+    {
+      text: 'Testo della notifica, saranno notifiche social, integratori, allenamenti, idratazione',
+      time: '1 ora fa',
+    },
+    {
+      text: 'Testo della notifica, saranno notifiche social, integratori, allenamenti, idratazione',
+      time: '2 giorni fa',
+    },
+  ]);
+  useEffect(() => {
+    if (notification.length > 0) {
+      setNotBadge(true);
+    } else {
+      setNotBadge(false);
+    }
+  }, [notification]);
   return (
     <Container
       as={motion.div}
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: 'easeOut' }}
+      notbadge={notBadge}
+      notopen={notificationPanelOpen}
     >
       <div className='left'>
         <div className='img'></div>
@@ -46,7 +70,13 @@ function TopBar() {
         {!notificationPanelOpen && <BiBell size='30px' />}
         {notificationPanelOpen && <CgClose size='30px' />}
         <AnimatePresence>
-          {notificationPanelOpen && <NotificationPanel />}
+          {notificationPanelOpen && (
+            <NotificationPanel
+              notification={notification}
+              setNotification={setNotification}
+              setNotificationPanelOpen={setNotificationPanelOpen}
+            />
+          )}
         </AnimatePresence>
       </div>
     </Container>
@@ -54,7 +84,12 @@ function TopBar() {
 }
 
 export default TopBar;
-const Container = styled.div`
+interface ContainerProps {
+  notbadge: boolean;
+  notopen: boolean;
+}
+
+const Container = styled.div<ContainerProps>`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -97,5 +132,17 @@ const Container = styled.div`
   }
   .notification-icon {
     position: relative;
+    &::before {
+      content: '';
+      display: ${({ notopen, notbadge }) =>
+        !notopen && notbadge ? 'block' : 'none'};
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      width: 8px;
+      height: 8px;
+      background-color: red;
+      border-radius: 50%;
+    }
   }
 `;
