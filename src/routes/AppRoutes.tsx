@@ -16,71 +16,74 @@ import { AuthProvider } from '../context/AuthContext';
 import Test from '../pages/Test';
 import Navbar from '../components/Navbar';
 import { AnimatePresence } from 'framer-motion';
+import { WorkoutProvider } from '../context/WorkoutContext';
 
 const AppRoutes = () => {
   return (
     <Router basename='/fitappv2'>
       <AuthProvider>
-        <AnimatePresence>
-          <Navbar />
-        </AnimatePresence>
+        <WorkoutProvider>
+          <AnimatePresence>
+            <Navbar />
+          </AnimatePresence>
 
-        <Routes>
-          <Route
-            path='/login'
-            element={<Login />}
-          />
-          <Route
-            path='/register'
-            element={<Register />}
-          />
-          <Route
-            path='/test'
-            element={<Test />}
-          />
+          <Routes>
+            <Route
+              path='/login'
+              element={<Login />}
+            />
+            <Route
+              path='/register'
+              element={<Register />}
+            />
+            <Route
+              path='/test'
+              element={<Test />}
+            />
 
-          {/* 🔐 Pagine protette */}
-          <Route
-            path='/home'
-            element={
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path='/workout-assistant'
-            element={
-              <ProtectedRoute>
-                <WorkoutAssistant />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path='/workout-planner'
-            element={
-              <ProtectedRoute>
-                <WorkoutPlanner />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path='/meal-planner'
-            element={
-              <ProtectedRoute>
-                <MealPlanner />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path='/account'
-            element={
-              <ProtectedRoute>
-                <Account />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
+            {/* 🔐 Pagine protette */}
+            <Route
+              path='/home'
+              element={
+                <ProtectedRoute>
+                  <Home />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='/workout-assistant'
+              element={
+                <ProtectedRoute>
+                  <WorkoutAssistant />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='/workout-planner'
+              element={
+                <ProtectedRoute>
+                  <WorkoutPlanner />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='/meal-planner'
+              element={
+                <ProtectedRoute>
+                  <MealPlanner />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='/account'
+              element={
+                <ProtectedRoute>
+                  <Account />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </WorkoutProvider>
       </AuthProvider>
     </Router>
   );

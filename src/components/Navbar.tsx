@@ -129,7 +129,7 @@ const Indicator = styled.div`
   bottom: 5px;
   width: 60px;
   height: 40px;
-  background: linear-gradient(135deg, #5ee7df, #b490ca);
+  background: linear-gradient(180deg, #00736e, #00c6be);
   border-radius: 25px;
   transition: left 0.3s ease-in-out, transform 0.3s ease-in-out;
   transform: translateX(-25%);

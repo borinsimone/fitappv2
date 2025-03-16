@@ -1,9 +1,19 @@
+import { motion } from 'framer-motion';
 import React, { PropsWithChildren } from 'react';
 import styled from 'styled-components';
 
-function Widget({ title, children }: PropsWithChildren<{ title: string }>) {
+function Widget({
+  title,
+  children,
+  index,
+}: PropsWithChildren<{ title: string; index: number }>) {
   return (
-    <Container>
+    <Container
+      as={motion.div}
+      initial={{ opacity: 0, x: -100 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.3, delay: index * 0.3 }}
+    >
       <div className='title'>{title}</div>
       <div className='content'>{children}</div>
     </Container>
@@ -21,6 +31,7 @@ const Container = styled.div`
     top: 0;
     width: 100%;
     background-color: ${({ theme }) => theme.colors.dark};
+    z-index: 10;
   }
   .content {
   }

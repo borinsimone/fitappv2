@@ -4,13 +4,18 @@ import { BiBell } from 'react-icons/bi';
 import styled from 'styled-components';
 import NotificationPanel from './NotificationPanel';
 import { CgClose } from 'react-icons/cg';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 function TopBar() {
   const { user } = useGlobalContext();
   const [notificationPanelOpen, setNotificationPanelOpen] = useState(false);
   return (
-    <Container>
+    <Container
+      as={motion.div}
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+    >
       <div className='left'>
         <div className='img'></div>
         <div className='main-text'>

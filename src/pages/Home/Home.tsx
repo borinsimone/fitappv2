@@ -1,4 +1,3 @@
-import { BiBadge, BiBadgeCheck, BiBell } from 'react-icons/bi';
 import styled from 'styled-components';
 import { useGlobalContext } from '../../context/GlobalContext';
 import { useEffect } from 'react';
@@ -6,10 +5,13 @@ import { jwtDecode } from 'jwt-decode';
 import TopBar from './TopBar';
 import { AnimatePresence, motion } from 'framer-motion';
 import Widget from './Widget';
-import { BsBadgeWc } from 'react-icons/bs';
+
 import { LuBadge } from 'react-icons/lu';
+import { useWorkouts } from '../../context/WorkoutContext';
+import TodayData from './widgets/TodayData';
 
 function Home() {
+  const { workouts } = useWorkouts();
   const { user, setUser } = useGlobalContext();
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -19,6 +21,8 @@ function Home() {
       setUser(decoded);
     }
   }, []);
+  // console.log(workouts);
+
   return (
     <Container
       as={motion.div}
@@ -27,10 +31,21 @@ function Home() {
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
     >
-      <TopBar />
+      <AnimatePresence>
+        <TopBar />
+      </AnimatePresence>
 
       <div className='widgetContainer'>
-        <Widget title='traguardi'>
+        <Widget
+          index={0}
+          title='oggi'
+        >
+          <TodayData />
+        </Widget>
+        <Widget
+          index={1}
+          title='traguardi'
+        >
           <div className='achievement-container'>
             <div className='fade'></div>
             <div className='fade'></div>
