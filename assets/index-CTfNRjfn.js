@@ -341,12 +341,13 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
   }
 `;function nse(){const{workouts:e}=ew();return $.jsx(rse,{children:e==null?void 0:e.map(t=>$.jsxs("div",{className:"workout-container",children:[$.jsx("div",{className:"icon",children:$.jsx(yS,{color:"#8248AC",size:"20px"})}),$.jsxs("div",{className:"text",children:[$.jsx("div",{className:"name",children:t.name}),$.jsx("div",{className:"notes",children:t.notes})]}),$.jsxs("div",{className:"days-ago",children:[Math.floor((Date.now()-(t.date?new Date(t.date).getTime():Date.now()))/(1e3*60*60*24))," ","giorni fa"]}),$.jsx("div",{className:"completed",children:t.completed?$.jsx(jU,{}):$.jsx(Q5,{})})]},t._id))})}const rse=an.div`
   width: 100%;
-  padding: 20px;
+  padding: 20px 0;
   display: flex;
   flex-direction: column;
   gap: 10px;
 
   .workout-container {
+    width: 100%;
     display: flex;
     gap: 10px;
     align-items: end;
