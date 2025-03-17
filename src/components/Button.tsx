@@ -3,6 +3,7 @@ import styled from 'styled-components';
 interface ButtonProps {
   variant?: 'primary' | 'secondary' | 'disabled';
   type?: string;
+  className?: string;
 }
 
 const StyledButton = styled.button<ButtonProps>`
@@ -25,12 +26,14 @@ const Button = ({
   children,
   variant = 'primary',
   type,
+  className,
   ...props
 }: ButtonProps & { children: React.ReactNode }) => {
   return (
     <StyledButton
       variant={variant}
       type={type}
+      className={className}
       {...props}
     >
       {children}

@@ -5,6 +5,7 @@ import {
   getWorkouts,
   updateWorkout,
 } from '../service/WorkoutService';
+import { useGlobalContext } from './GlobalContext';
 
 interface Workout {
   _id: string;
@@ -23,6 +24,7 @@ interface WorkoutContextType {
   addWorkout: (workout: Omit<Workout, '_id'>) => Promise<void>;
   removeWorkout: (id: string) => Promise<void>;
   editWorkout: (id: string, updatedData: Partial<Workout>) => Promise<void>;
+  loadWorkouts: () => Promise<void>;
 }
 
 const WorkoutContext = createContext<WorkoutContextType | undefined>(undefined);
@@ -32,6 +34,7 @@ export const WorkoutProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
+  const { setIsLoading } = useGlobalContext();
   const [workouts, setWorkouts] = useState<Workout[] | null>(null);
 
   const fetchWorkouts = async () => {
@@ -62,8 +65,16 @@ export const WorkoutProvider = ({
     fetchWorkouts(); // Ricarica i dati dopo la modifica
   };
 
+  const loadWorkouts = async () => {
+    setIsLoading(true);
+    try {
+      await fetchWorkouts(); // Attende la fine della chiamata
+    } finally {
+      setIsLoading(false); // Assicura che venga eseguito sempre
+    }
+  };
   useEffect(() => {
-    fetchWorkouts(); // Recupera i workout all'avvio
+    loadWorkouts();
   }, []);
 
   return (
@@ -74,6 +85,7 @@ export const WorkoutProvider = ({
         addWorkout,
         removeWorkout,
         editWorkout,
+        loadWorkouts,
       }}
     >
       {children}

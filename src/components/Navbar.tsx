@@ -11,7 +11,7 @@ const Navbar = () => {
   const location = useLocation();
   const [indicatorX, setIndicatorX] = useState(0);
   const iconRefs = useRef<Array<HTMLLIElement | null>>([]);
-  const routes = ['/home', '/workout-assistant', '/meal-planner', '/account'];
+  const routes = ['/home', '/workout-planner', '/meal-planner', '/account'];
 
   useEffect(() => {
     const index = routes.indexOf(location.pathname);
@@ -55,7 +55,7 @@ const Navbar = () => {
                   size='30px'
                   style={{ transition: '300ms', transitionDelay: '400ms' }}
                   color={
-                    location.pathname === '/workout-assistant'
+                    location.pathname === '/workout-planner'
                       ? '#1e1e1e'
                       : '#d0d0d0'
                   }

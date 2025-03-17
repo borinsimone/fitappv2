@@ -13,7 +13,7 @@ import WeeklyStats from './widgets/WeeklyStats';
 import WorkoutHistory from './widgets/WorkoutHistory';
 
 function Home() {
-  const { workouts } = useWorkouts();
+  const { workouts, loadWorkouts } = useWorkouts();
   const { user, setUser } = useGlobalContext();
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -24,7 +24,9 @@ function Home() {
     }
   }, []);
   // console.log(workouts);
-
+  useEffect(() => {
+    loadWorkouts();
+  }, []);
   return (
     <Container
       as={motion.div}

@@ -17,8 +17,11 @@ import Test from '../pages/Test';
 import Navbar from '../components/Navbar';
 import { AnimatePresence } from 'framer-motion';
 import { WorkoutProvider } from '../context/WorkoutContext';
+import Loading from '../components/ui/Loading';
+import { useGlobalContext } from '../context/GlobalContext';
 
 const AppRoutes = () => {
+  const { isLoading } = useGlobalContext();
   return (
     <Router basename='/fitappv2'>
       <AuthProvider>
@@ -26,7 +29,9 @@ const AppRoutes = () => {
           <AnimatePresence>
             <Navbar />
           </AnimatePresence>
-
+          <AnimatePresence mode='wait'>
+            {isLoading && <Loading />}
+          </AnimatePresence>
           <Routes>
             <Route
               path='/login'
