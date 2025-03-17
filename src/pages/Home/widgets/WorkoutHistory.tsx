@@ -47,12 +47,13 @@ function WorkoutHistory() {
 export default WorkoutHistory;
 const Container = styled.div`
   width: 100%;
-  padding: 20px;
+  padding: 20px 0;
   display: flex;
   flex-direction: column;
   gap: 10px;
 
   .workout-container {
+    width: 100%;
     display: flex;
     gap: 10px;
     align-items: end;
