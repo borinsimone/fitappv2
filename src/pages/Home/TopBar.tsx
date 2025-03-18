@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import NotificationPanel from './NotificationPanel';
 import { CgClose } from 'react-icons/cg';
 import { AnimatePresence, motion } from 'framer-motion';
+import { jwtDecode } from 'jwt-decode';
 
 function TopBar() {
   const { user } = useGlobalContext();
@@ -41,7 +42,19 @@ function TopBar() {
       notopen={notificationPanelOpen}
     >
       <div className='left'>
-        <div className='img'></div>
+        <div
+          className='img'
+          onClick={() => {
+            const token = localStorage.getItem('token');
+            if (token) {
+              const decoded: { exp: number } = jwtDecode(token);
+              const timeLeft = decoded.exp * 1000 - Date.now();
+              console.log(
+                `Token expires in ${Math.floor(timeLeft / 1000)} seconds`
+              );
+            }
+          }}
+        ></div>
         <div className='main-text'>
           <div className='greets'>
             {(() => {

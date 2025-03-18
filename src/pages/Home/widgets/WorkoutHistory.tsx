@@ -19,6 +19,20 @@ function WorkoutHistory() {
       document.body.style.overflow = 'unset';
     };
   }, [selectedWorkout]);
+  interface DateCalculator {
+    (date: string | Date | undefined): string;
+  }
+
+  const getDaysAgo: DateCalculator = (date) => {
+    const workoutDate = date ? new Date(date).getTime() : Date.now();
+    const diffInDays =
+      Math.floor((Date.now() - workoutDate) / (1000 * 60 * 60 * 24)) + 1;
+
+    return new Intl.RelativeTimeFormat('it', { numeric: 'auto' }).format(
+      -diffInDays,
+      'day'
+    );
+  };
   return (
     <Container>
       <AnimatePresence>
@@ -48,7 +62,9 @@ function WorkoutHistory() {
               </div>
               <div className='details'>
                 <div className='date'>
-                  {new Date(selectedWorkout.date).toLocaleDateString()}
+                  {new Date(selectedWorkout.date).toLocaleDateString('it-IT', {
+                    timeZone: 'UTC',
+                  })}
                 </div>
                 <div className='status'>
                   {selectedWorkout.completed ? 'Completed' : 'Incomplete'}
@@ -84,14 +100,7 @@ function WorkoutHistory() {
             <div className='notes'>{workout.notes}</div>
           </div>
           <div className='days-ago'>
-            {Math.floor(
-              (Date.now() -
-                (workout.date
-                  ? new Date(workout.date).getTime()
-                  : Date.now())) /
-                (1000 * 60 * 60 * 24)
-            )}{' '}
-            giorni fa
+            <span>{getDaysAgo(workout.date)}</span>
           </div>
           <div className='completed'>
             {workout.completed ? <BiCheck /> : <CgClose />}

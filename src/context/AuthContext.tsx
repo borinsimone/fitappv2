@@ -53,9 +53,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           const now = Math.floor(Date.now() / 1000); // Tempo attuale in secondi
 
           if (decoded.exp < now) {
+            alert('Token scaduto, rimuovendo...');
             console.log('Token scaduto, rimuovendo...');
             localStorage.removeItem('token'); // Cancella il token scaduto
-            window.location.href = '/login'; // Reindirizza alla login
+            navigate('/login');
           }
         } catch (error) {
           console.error('Errore nella decodifica del token', error);

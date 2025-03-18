@@ -14,8 +14,6 @@ const TodayData: React.FC = () => {
     return workoutDate.toDateString() === today.toDateString();
   });
 
-  console.log("Today's workout:", todayWorkout);
-
   const today = new Date();
 
   // Get current week range

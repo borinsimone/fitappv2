@@ -15,15 +15,12 @@ interface Workout {
 
 export const getWorkouts = async (token: string): Promise<Workout[] | null> => {
   try {
-    console.log('Fetching workouts with token:', token); // Debug log
-
     const response = await axios.get<Workout[]>(`${API_URL}/workouts`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
 
-    console.log('Response data:', response.data); // Debug log
     const data = response.data;
     return data;
   } catch (error) {

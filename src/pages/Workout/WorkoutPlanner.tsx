@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useWorkouts } from '../../context/WorkoutContext';
-import doggoimg from '../../assets/sad-doggo.png';
-import Button from '../../components/Button';
+
+import NoWorkoutPage from './NoWorkoutPage';
+import WorkoutPreview from './WorkoutPreview';
 function WorkoutPlanner() {
-  const { workouts } = useWorkouts();
+  const { workouts, loadWorkouts } = useWorkouts();
   const today = new Date();
   const [selectedDate, setSelectedDate] = useState(today);
   const formattedDate = today.toLocaleDateString('en-US', {
@@ -19,6 +20,7 @@ function WorkoutPlanner() {
     const today = new Date();
     return workoutDate.toDateString() === today.toDateString();
   });
+
   return (
     <Container>
       <Agenda>agenda qui</Agenda>
@@ -35,19 +37,8 @@ function WorkoutPlanner() {
           })}
         </div>
       </div>
-      {todayWorkout && <>workout</>}
-      {!todayWorkout && (
-        <NoWorkoutPage>
-          <div className='text'>
-            non hai ancora un allenamento programmato..
-          </div>
-          <img
-            src={doggoimg}
-            alt=''
-          />
-          <Button className='add'> crea workout</Button>
-        </NoWorkoutPage>
-      )}
+      {todayWorkout && <WorkoutPreview todayWorkout={todayWorkout} />}
+      {!todayWorkout && <NoWorkoutPage />}
     </Container>
   );
 }
@@ -87,31 +78,4 @@ const Agenda = styled.div`
   width: 100%;
   padding: 20px;
   text-align: center;
-`;
-const NoWorkoutPage = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  .text {
-    font-size: 40px;
-    text-align: center;
-    text-transform: uppercase;
-    font-weight: 700;
-    opacity: 0.5;
-    margin-top: auto;
-  }
-  img {
-    margin-bottom: auto;
-  }
-  .add {
-    text-transform: uppercase;
-    color: ${({ theme }) => theme.colors.dark};
-    font-weight: 700;
-    font-size: 24px;
-    padding: 10px;
-    margin-top: auto;
-    margin-bottom: 20px;
-  }
 `;

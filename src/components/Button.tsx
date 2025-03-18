@@ -4,6 +4,7 @@ interface ButtonProps {
   variant?: 'primary' | 'secondary' | 'disabled';
   type?: string;
   className?: string;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
 }
 
 const StyledButton = styled.button<ButtonProps>`
@@ -27,6 +28,7 @@ const Button = ({
   variant = 'primary',
   type,
   className,
+  onClick,
   ...props
 }: ButtonProps & { children: React.ReactNode }) => {
   return (
@@ -34,6 +36,7 @@ const Button = ({
       variant={variant}
       type={type}
       className={className}
+      onClick={onClick}
       {...props}
     >
       {children}
