@@ -13,8 +13,8 @@ import WeeklyStats from './widgets/WeeklyStats';
 import WorkoutHistory from './widgets/WorkoutHistory';
 
 function Home() {
-  const { workouts, loadWorkouts } = useWorkouts();
-  const { user, setUser } = useGlobalContext();
+  const { loadWorkouts } = useWorkouts();
+  const { setUser } = useGlobalContext();
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {

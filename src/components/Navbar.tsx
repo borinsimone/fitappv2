@@ -7,7 +7,6 @@ import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
 const Navbar = () => {
-  let base = '/fitappv2';
   const location = useLocation();
   const [indicatorX, setIndicatorX] = useState(0);
   const iconRefs = useRef<Array<HTMLLIElement | null>>([]);
@@ -93,7 +92,9 @@ export default Navbar;
 const Container = styled.nav`
   position: fixed;
   width: 100%;
-  bottom: 20px;
+  height: 10vh;
+  /* bottom: 20px; */
+  bottom: 0;
   z-index: 10;
   display: ${(props) => (props.hidden ? 'none' : 'flex')};
 
@@ -126,7 +127,7 @@ const Container = styled.nav`
 `;
 const Indicator = styled.div`
   position: absolute;
-  bottom: 5px;
+  /* bottom: 5px; */
   width: 60px;
   height: 40px;
   background: linear-gradient(180deg, #00736e, #00c6be);

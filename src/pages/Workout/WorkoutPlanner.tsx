@@ -1,19 +1,14 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
 import { useWorkouts } from '../../context/WorkoutContext';
 
 import NoWorkoutPage from './NoWorkoutPage';
 import WorkoutPreview from './WorkoutPreview';
 function WorkoutPlanner() {
-  const { workouts, loadWorkouts } = useWorkouts();
+  const { workouts } = useWorkouts();
   const today = new Date();
   const [selectedDate, setSelectedDate] = useState(today);
-  const formattedDate = today.toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+
   const todayWorkout = workouts?.find((workout) => {
     if (!workout.date) return false;
     const workoutDate = new Date(workout.date);
@@ -23,22 +18,44 @@ function WorkoutPlanner() {
 
   return (
     <Container>
-      <Agenda>agenda qui</Agenda>
-
-      <div className='header'>
-        <div className='workout-title'>
-          {todayWorkout ? todayWorkout.name : '-'}
-        </div>
-        <div className='date'>
-          {selectedDate.toLocaleDateString('it-IT', {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
+      <Agenda>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          {[...Array(7)].map((_, index) => {
+            const date = new Date();
+            date.setDate(today.getDate() - today.getDay() + index + 1);
+            const dayNames = ['lun', 'mar', 'mer', 'gio', 'ven', 'sab', 'dom'];
+            return (
+              <div
+                key={index}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                }}
+              >
+                <div>{date.getDate()}</div>
+                <div>{dayNames[index]}</div>
+              </div>
+            );
           })}
         </div>
+      </Agenda>
+      <div className='main-container'>
+        <div className='header'>
+          <div className='workout-title'>
+            {todayWorkout ? todayWorkout.name : '-'}
+          </div>
+          <div className='date'>
+            {selectedDate.toLocaleDateString('it-IT', {
+              weekday: 'long',
+              day: 'numeric',
+              month: 'long',
+            })}
+          </div>
+        </div>
+        {todayWorkout && <WorkoutPreview todayWorkout={todayWorkout} />}
+        {!todayWorkout && <NoWorkoutPage />}
       </div>
-      {todayWorkout && <WorkoutPreview todayWorkout={todayWorkout} />}
-      {!todayWorkout && <NoWorkoutPage />}
     </Container>
   );
 }
@@ -54,9 +71,15 @@ const Container = styled.div`
   align-items: center;
   padding-bottom: 10vh;
   padding: 20px;
-  gap: 20px;
+  gap: 10px;
   padding-bottom: 10vh;
   overflow: hidden;
+  .main-container {
+    width: 100%;
+    flex: 1;
+    overflow: scroll;
+    position: relative;
+  }
   .header {
     display: flex;
     flex-direction: column;
@@ -74,8 +97,7 @@ const Container = styled.div`
   }
 `;
 const Agenda = styled.div`
-  background-color: #ffffff10;
   width: 100%;
-  padding: 20px;
+  padding: 10px 20px;
   text-align: center;
 `;
