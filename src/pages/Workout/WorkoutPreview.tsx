@@ -49,9 +49,15 @@ const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({ todayWorkout }) => {
     exercise.exerciseSets.push(newSet);
     setWorkout(newWorkout);
   };
+  const [expandedExercise, setExpandedExercise] = useState<string | null>(null);
+  const handleExerciseClick = (exerciseName: string) => {
+    setExpandedExercise(
+      expandedExercise === exerciseName ? null : exerciseName
+    );
+  };
 
   return (
-    <Container>
+    <Container expanded={expandedExercise !== null}>
       {todayWorkout.sections.map((section, sectionIndex) => (
         <div className='section-container'>
           <div className='section-name'>{section.name}</div>
@@ -62,6 +68,7 @@ const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({ todayWorkout }) => {
                 key={exercise.name}
                 onClick={() => {
                   console.log(exercise);
+                  handleExerciseClick(exercise.name);
                 }}
               >
                 <div className='exercise'>
@@ -75,9 +82,13 @@ const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({ todayWorkout }) => {
                   <BiChevronRight
                     className='chevron'
                     size='30px'
+                    data-expanded={expandedExercise === exercise.name}
                   />
                 </div>
-                <div className='ex-details'>
+                <div
+                  className='ex-details'
+                  data-expanded={expandedExercise === exercise.name}
+                >
                   <div className='ex-detail-content'>
                     <div className='ex-notes'>
                       {exercise.notes
@@ -255,7 +266,11 @@ const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({ todayWorkout }) => {
 };
 
 export default WorkoutPreview;
-const Container = styled.div`
+interface ContainerProps {
+  expanded?: boolean;
+}
+
+const Container = styled.div<ContainerProps>`
   height: 60vh;
   width: 100%;
 
@@ -322,21 +337,28 @@ const Container = styled.div`
             margin-left: auto;
             margin-right: 20px;
             transition: 200ms;
+            &[data-expanded='true'] {
+              transform: rotate(90deg);
+            }
           }
         }
-        &:hover {
+        /* &:hover {
           .ex-details {
             grid-template-rows: 1fr;
           }
           .chevron {
             transform: rotate(90deg);
           }
-        }
+        } */
         .ex-details {
           display: grid;
           grid-template-rows: 0fr; //frfrfrfrfrfr
           transition: 500ms;
           transition-delay: 200ms;
+          &[data-expanded='true'] {
+            grid-template-rows: 1fr;
+          }
+
           .ex-detail-content {
             overflow: hidden;
             display: flex;
