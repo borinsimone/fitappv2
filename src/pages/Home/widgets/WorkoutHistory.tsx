@@ -2,12 +2,18 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useWorkouts } from '../../../context/WorkoutContext';
 
-import { BiCheck, BiCloset, BiCross, BiDumbbell } from 'react-icons/bi';
+import {
+  BiCheck,
+  BiCloset,
+  BiCross,
+  BiDumbbell,
+  BiTrash,
+} from 'react-icons/bi';
 import { CgClose } from 'react-icons/cg';
 import { AnimatePresence, motion } from 'framer-motion';
 
 function WorkoutHistory() {
-  const { workouts } = useWorkouts();
+  const { workouts, removeWorkout } = useWorkouts();
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
   React.useEffect(() => {
     if (selectedWorkout) {
@@ -75,6 +81,23 @@ function WorkoutHistory() {
                 <p>{selectedWorkout.notes}</p>
               </div>
               <div className='exercises'></div>
+              <div
+                className='delete'
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      'Are you sure you want to remove this workout?'
+                    )
+                  ) {
+                    console.log('Removing workout:', selectedWorkout._id);
+                    removeWorkout(selectedWorkout._id);
+                    console.debug('Workout removed successfully');
+                    setSelectedWorkout(null);
+                  }
+                }}
+              >
+                <BiTrash />
+              </div>
             </div>
           </motion.div>
         )}

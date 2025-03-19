@@ -1,36 +1,42 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { BiChevronRight, BiPlus, BiTrash } from 'react-icons/bi';
 import Button from '../../components/Button';
 import { CiCircleMinus } from 'react-icons/ci';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useWorkouts } from '../../context/WorkoutContext';
+import { useNavigate } from 'react-router-dom';
 
 interface WorkoutPreviewProps {
-  todayWorkout: {
+  workout: {
+    _id: string;
     name: string;
-    sections: Array<{
+    sections?: {
       name: string;
-      exercises: Array<{
+      exercises: {
         name: string;
         notes?: string;
         timeBased: boolean;
-        exerciseSets: Array<{
+        exerciseSets: {
           time: number;
           weight: number;
           reps: number;
           rest: number;
-        }>;
-      }>;
-    }>;
+        }[];
+      }[];
+    }[];
   };
 }
 
-const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({ todayWorkout }) => {
-  const [workout, setWorkout] = useState(todayWorkout);
+const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({ workout }) => {
+  const { removeWorkout, setActiveWorkout } = useWorkouts();
 
+  const [selectedWorkout, setSelectedWorkout] = useState(workout);
+  const navigate = useNavigate();
   const handleAddSet = (sectionIndex: number, exerciseIndex: number) => {
     const newWorkout = { ...workout };
+    if (!newWorkout.sections) return;
     const exercise = newWorkout.sections[sectionIndex].exercises[exerciseIndex];
 
     // Get the last set or use default values if no sets exist
@@ -38,16 +44,19 @@ const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({ todayWorkout }) => {
     const newSet = exercise.timeBased
       ? {
           time: lastSet?.time || 30,
+          weight: 0,
+          reps: 0,
           rest: lastSet?.rest || 60,
         }
       : {
+          time: 0,
           reps: lastSet?.reps || 12,
           weight: lastSet?.weight || 0,
           rest: lastSet?.rest || 60,
         };
 
     exercise.exerciseSets.push(newSet);
-    setWorkout(newWorkout);
+    setSelectedWorkout(newWorkout);
   };
   const [expandedExercise, setExpandedExercise] = useState<string | null>(null);
   const handleExerciseClick = (exerciseName: string) => {
@@ -57,8 +66,28 @@ const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({ todayWorkout }) => {
   };
 
   return (
-    <Container expanded={expandedExercise !== null}>
-      {todayWorkout.sections.map((section, sectionIndex) => (
+    <Container
+      as={motion.div}
+      key='workout'
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.2 }}
+    >
+      <div
+        className='delete'
+        onClick={() => {
+          console.log('Removing workout:', selectedWorkout._id);
+          try {
+            removeWorkout(selectedWorkout._id);
+          } catch (error) {
+            console.error('Error removing workout:', error);
+          }
+        }}
+      >
+        <BiTrash color='red' />
+      </div>
+      {selectedWorkout.sections?.map((section, sectionIndex) => (
         <div className='section-container'>
           <div className='section-name'>{section.name}</div>
           <div className='exercise-container'>
@@ -143,12 +172,14 @@ const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({ todayWorkout }) => {
                                   <td
                                     onClick={() => {
                                       const newWorkout = { ...workout };
-                                      newWorkout.sections[
-                                        sectionIndex
-                                      ].exercises[
-                                        exerciseIndex
-                                      ].exerciseSets.splice(index, 1);
-                                      setWorkout(newWorkout);
+                                      if (newWorkout.sections) {
+                                        newWorkout.sections[
+                                          sectionIndex
+                                        ].exercises[
+                                          exerciseIndex
+                                        ].exerciseSets.splice(index, 1);
+                                        setSelectedWorkout(newWorkout);
+                                      }
                                     }}
                                   >
                                     <CiCircleMinus
@@ -221,12 +252,15 @@ const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({ todayWorkout }) => {
                                   ''
                                 </td>
                                 <td
-                                  onClick={() => {
+                                  onClick={(e) => {
+                                    e.stopPropagation();
                                     const newWorkout = { ...workout };
-                                    newWorkout.sections[sectionIndex].exercises[
+                                    newWorkout.sections?.[
+                                      sectionIndex
+                                    ].exercises[
                                       exerciseIndex
                                     ].exerciseSets.splice(index, 1);
-                                    setWorkout(newWorkout);
+                                    setSelectedWorkout(newWorkout);
                                   }}
                                 >
                                   <CiCircleMinus
@@ -260,17 +294,29 @@ const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({ todayWorkout }) => {
           </div>
         </div>
       ))}
-      <Button className='btn'>inizia workout</Button>
+      <Button
+        className='btn'
+        onClick={() => {
+          setActiveWorkout({
+            ...workout,
+            title: workout.name,
+            load: 0,
+            reps: 0,
+            notes: '',
+          });
+
+          navigate('/workout-assistant');
+        }}
+      >
+        inizia workout
+      </Button>
     </Container>
   );
 };
 
 export default WorkoutPreview;
-interface ContainerProps {
-  expanded?: boolean;
-}
 
-const Container = styled.div<ContainerProps>`
+const Container = styled.div`
   height: 60vh;
   width: 100%;
 

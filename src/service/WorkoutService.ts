@@ -4,13 +4,23 @@ const API_URL = 'https://fit-app-backend-babz.onrender.com';
 // const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 
 interface Workout {
-  _id?: string;
-  title: string;
-  load: number;
-  reps: number;
+  _id: string;
+  name: string;
   date?: Date;
-  user_id?: string;
-  notes: string;
+  sections: {
+    name: string;
+    exercises: {
+      name: string;
+      notes?: string;
+      timeBased: boolean;
+      exerciseSets: {
+        time: number;
+        weight: number;
+        reps: number;
+        rest: number;
+      }[];
+    }[];
+  }[];
 }
 
 export const getWorkouts = async (token: string): Promise<Workout[] | null> => {

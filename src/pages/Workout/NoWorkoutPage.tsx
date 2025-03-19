@@ -3,11 +3,11 @@ import styled from 'styled-components';
 import doggoimg from '../../assets/sad-doggo.png';
 import Button from '../../components/Button';
 import { MdClose } from 'react-icons/md';
-import { addWorkouts } from '../../service/WorkoutService';
+
 import { useWorkouts } from '../../context/WorkoutContext';
 import { AnimatePresence, motion } from 'framer-motion';
 function NoWorkoutPage() {
-  const { workouts, loadWorkouts } = useWorkouts();
+  const { workouts, addWorkout } = useWorkouts();
   const [addWorkoutDialog, setAddWorkoutDialog] = useState(false);
   const [repeatWorkout, setRepeatWorkout] = useState(false);
   interface Workout {
@@ -33,18 +33,18 @@ function NoWorkoutPage() {
     newWorkout.feedback.feeling = null;
     newWorkout.feedback.notes = '';
     console.log(newWorkout);
-    const response = await addWorkouts(newWorkout);
-
-    // await refreshWorkouts();
-    console.log(response);
-    if (response?.status === 200) {
-      alert('Workout aggiunto');
-      setRepeatWorkout(false);
-      loadWorkouts();
-    }
+    addWorkout(newWorkout);
+    setAddWorkoutDialog(false);
   };
   return (
-    <Container>
+    <Container
+      as={motion.div}
+      key='no-workout'
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.2 }}
+    >
       <div className='text'>non hai ancora un allenamento programmato..</div>
       <img
         src={doggoimg}
@@ -116,10 +116,12 @@ function NoWorkoutPage() {
 export default NoWorkoutPage;
 const Container = styled.div`
   flex: 1;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  position: relative;
   .text {
     font-size: 40px;
     text-align: center;
@@ -144,12 +146,13 @@ const Container = styled.div`
 const AddDialog = styled.div`
   position: fixed;
   top: 0;
+  left: 0;
   z-index: 99999;
   background-color: ${({ theme }) => `${theme.colors.dark}10`};
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   height: 100%;
-  width: 100%;
+  width: 100vw;
   display: flex;
   flex-direction: column;
   align-items: center;

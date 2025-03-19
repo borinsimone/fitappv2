@@ -25,6 +25,8 @@ interface WorkoutContextType {
   removeWorkout: (id: string) => Promise<void>;
   editWorkout: (id: string, updatedData: Partial<Workout>) => Promise<void>;
   loadWorkouts: () => Promise<void>;
+  activeWorkout: Workout | null;
+  setActiveWorkout: React.Dispatch<React.SetStateAction<Workout | null>>;
 }
 
 const WorkoutContext = createContext<WorkoutContextType | undefined>(undefined);
@@ -54,8 +56,10 @@ export const WorkoutProvider = ({
   const removeWorkout = async (id: string) => {
     const token = localStorage.getItem('token');
     if (!token) return;
+    setIsLoading(true);
     await deleteWorkout(id, token);
-    fetchWorkouts(); // Ricarica i dati dopo la rimozione
+    await fetchWorkouts(); // Ricarica i dati dopo la rimozione
+    setIsLoading(false);
   };
 
   const editWorkout = async (id: string, updatedData: Partial<Workout>) => {
@@ -76,6 +80,14 @@ export const WorkoutProvider = ({
   useEffect(() => {
     loadWorkouts();
   }, []);
+  const [activeWorkout, setActiveWorkout] = useState<Workout | null>(
+    localStorage.getItem('activeWorkout')
+      ? JSON.parse(localStorage.getItem('activeWorkout')!)
+      : null
+  );
+  useEffect(() => {
+    localStorage.setItem('activeWorkout', JSON.stringify(activeWorkout));
+  }, [activeWorkout]);
 
   return (
     <WorkoutContext.Provider
@@ -86,6 +98,8 @@ export const WorkoutProvider = ({
         removeWorkout,
         editWorkout,
         loadWorkouts,
+        activeWorkout,
+        setActiveWorkout,
       }}
     >
       {children}
