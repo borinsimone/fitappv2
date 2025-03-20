@@ -100,15 +100,16 @@ const Container = styled.nav`
 
   align-items: center;
   justify-content: center;
+  background-color: ${({ theme }) => theme.colors.dark};
 
   ul {
     display: flex;
     justify-content: space-evenly;
     align-items: center;
     padding: 10px 0;
-    background-color: ${({ theme }) => theme.colors.white10};
+    /* background-color: ${({ theme }) => theme.colors.white10}; */
     border-radius: 100px;
-    width: 90%;
+    width: 100%;
 
     li {
       display: flex;

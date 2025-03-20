@@ -1,256 +1,467 @@
-import { JSX, useState } from 'react';
-import { BiDumbbell } from 'react-icons/bi';
+import React, { useState, useEffect } from 'react';
+import { BiDumbbell, BiCheck } from 'react-icons/bi';
 import { BsClock } from 'react-icons/bs';
 import { CgCalendar, CgOptions } from 'react-icons/cg';
 import { GiFlame } from 'react-icons/gi';
 import { MdClose } from 'react-icons/md';
-
 import styled from 'styled-components';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const WeeklyStats = () => {
-  const iconSize = '30px';
-  type Stat = {
-    name: string;
-    icon: JSX.Element;
-    value: string;
-    label: string;
-    id: number;
-  };
+type Stat = {
+  name: string;
+  icon: React.ReactNode;
+  value: string;
+  label: string;
+  id: number;
+  color: string;
+};
+
+const WeeklyStats: React.FC = () => {
+  const iconSize = 24;
 
   const stats: Stat[] = [
     {
-      name: 'kg-volume',
+      name: 'Volume',
       icon: <BiDumbbell size={iconSize} />,
-      value: '1200',
+      value: '1,200',
       label: 'kg',
       id: 0,
+      color: '#00C6BE',
     },
     {
-      name: 'calories-burned',
+      name: 'Calories',
       icon: <GiFlame size={iconSize} />,
-      value: '3200',
+      value: '3,200',
       label: 'kcal',
       id: 1,
+      color: '#FF5F5F',
     },
     {
-      name: 'clock',
+      name: 'Time',
       icon: <BsClock size={iconSize} />,
       value: '6',
-      label: 'ore',
+      label: 'hours',
       id: 2,
+      color: '#FFD166',
     },
     {
-      name: 'days',
+      name: 'Days Active',
       icon: <CgCalendar size={iconSize} />,
       value: '5/7',
-      label: 'giorni',
+      label: 'days',
       id: 3,
+      color: '#4ECDC4',
     },
   ];
-  const [activeStats, setActiveStats] = useState(
-    JSON.parse(localStorage.getItem('weekly-active-stats') || '[]')
-  );
-  const [statsBuffer, setStatsBuffer] = useState<Stat[]>(activeStats || []);
 
+  const [activeStats, setActiveStats] = useState<{ id: number }[]>([]);
+  const [statsBuffer, setStatsBuffer] = useState<Stat[]>([]);
   const [optionPanel, setOptionPanel] = useState(false);
+
+  // Load saved stats on component mount
+  useEffect(() => {
+    const savedStats = JSON.parse(
+      localStorage.getItem('weekly-active-stats') || '[]'
+    );
+    setActiveStats(savedStats);
+
+    // Populate statsBuffer with actual stat objects
+    const initialBuffer = stats.filter((stat) =>
+      savedStats.some((activeStat: { id: number }) => activeStat.id === stat.id)
+    );
+    setStatsBuffer(initialBuffer);
+
+    // Show options panel if no stats are selected
+    if (savedStats.length === 0) {
+      setOptionPanel(true);
+    }
+  }, []);
+
+  const toggleStat = (stat: Stat) => {
+    const isSelected = statsBuffer.some((item) => item.id === stat.id);
+
+    if (isSelected) {
+      setStatsBuffer(statsBuffer.filter((item) => item.id !== stat.id));
+    } else {
+      setStatsBuffer([...statsBuffer, stat]);
+    }
+  };
+
+  const saveStats = () => {
+    const statsToStore = statsBuffer.map(({ id }) => ({ id }));
+    localStorage.setItem('weekly-active-stats', JSON.stringify(statsToStore));
+    setActiveStats(statsToStore);
+    setOptionPanel(false);
+  };
+
+  const filteredStats = stats.filter((stat) =>
+    activeStats.some((activeStat) => activeStat.id === stat.id)
+  );
+
   return (
     <Container>
-      <div
-        className='option-icon'
-        onClick={() => setOptionPanel(!optionPanel)}
-      >
-        {optionPanel ? <MdClose /> : <CgOptions />}
-      </div>
-      {(optionPanel || activeStats.length === 0) && (
-        <div className='option-panel'>
-          <div className='label'>Che traguardi vuoi mostrare?</div>
-          <div className='chice-container'>
-            {stats.map((stat) => (
-              <StatChoice
-                selected={statsBuffer.some(
-                  (activeStat: Stat) => activeStat.id === stat.id
-                )}
-                key={stat.id}
-                onClick={() => {
-                  const isStatAlreadyAdded: boolean = statsBuffer.some(
-                    (bufferedStat: Stat) => bufferedStat.id === stat.id
-                  );
-                  if (isStatAlreadyAdded) {
-                    setStatsBuffer(
-                      statsBuffer.filter((item: Stat) => item.id !== stat.id)
-                    );
-                  } else {
-                    setStatsBuffer([...statsBuffer, stat]);
-                  }
-                }}
-              >
-                <div className='icon'>{stat.icon}</div>
-                <div className='name'>{stat.name}</div>
-              </StatChoice>
-            ))}
-          </div>
-          {/* {statsBuffer.map((k) => (
-            <div>{k.name}</div>
-          ))} */}
-          <button
-            onClick={() => {
-              const statsToStore = statsBuffer.map(({ id }) => ({
-                id,
-              }));
-              localStorage.setItem(
-                'weekly-active-stats',
-                JSON.stringify(statsToStore)
-              );
-              setActiveStats(statsToStore);
-              setOptionPanel(false);
-            }}
+      <Header>
+        <Title>Weekly Stats</Title>
+        <OptionButton
+          onClick={() => setOptionPanel(!optionPanel)}
+          as={motion.button}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          $isActive={optionPanel}
+        >
+          {optionPanel ? <MdClose size={20} /> : <CgOptions size={20} />}
+        </OptionButton>
+      </Header>
+
+      <AnimatePresence>
+        {optionPanel ? (
+          <OptionPanel
+            as={motion.div}
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
           >
-            ok
-          </button>
-        </div>
-      )}
-      {!optionPanel &&
-        stats
-          .filter((stat: Stat) =>
-            activeStats.some(
-              (activeStat: { id: number }) => activeStat.id === stat.id
-            )
-          )
-          .map((stat: Stat) => (
-            <div
-              className='stat-container'
-              key={stat.id}
-            >
-              <div className='icon'>{stat.icon}</div>
-              <div className='text'>
-                <div className='value'>{stat.value}</div>
-                <div className='label'>{stat.label}</div>
-              </div>
-            </div>
-          ))}
+            <OptionLabel>Select stats to display</OptionLabel>
+
+            <ChoiceContainer>
+              {stats.map((stat) => {
+                const isSelected = statsBuffer.some(
+                  (item) => item.id === stat.id
+                );
+                return (
+                  <StatChoice
+                    key={stat.id}
+                    onClick={() => toggleStat(stat)}
+                    $selected={isSelected}
+                    $color={stat.color}
+                    as={motion.div}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <IconWrapper
+                      $selected={isSelected}
+                      $color={stat.color}
+                    >
+                      {stat.icon}
+                      {isSelected && (
+                        <SelectionIndicator>
+                          <BiCheck size={12} />
+                        </SelectionIndicator>
+                      )}
+                    </IconWrapper>
+                    <StatName>{stat.name}</StatName>
+                  </StatChoice>
+                );
+              })}
+            </ChoiceContainer>
+
+            <ButtonContainer>
+              <CancelButton
+                onClick={() => setOptionPanel(false)}
+                as={motion.button}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Cancel
+              </CancelButton>
+              <SaveButton
+                onClick={saveStats}
+                as={motion.button}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                disabled={statsBuffer.length === 0}
+              >
+                Save
+              </SaveButton>
+            </ButtonContainer>
+          </OptionPanel>
+        ) : (
+          <StatsContainer
+            as={motion.div}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {filteredStats.length > 0 ? (
+              filteredStats.map((stat) => (
+                <StatItem
+                  key={stat.id}
+                  as={motion.div}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <StatIconContainer $color={stat.color}>
+                    {stat.icon}
+                  </StatIconContainer>
+                  <StatContent>
+                    <StatValue>{stat.value}</StatValue>
+                    <StatLabel>{stat.label}</StatLabel>
+                  </StatContent>
+                </StatItem>
+              ))
+            ) : (
+              <EmptyState>
+                <EmptyIcon>
+                  <BiDumbbell
+                    size={28}
+                    opacity={0.4}
+                  />
+                </EmptyIcon>
+                <EmptyText>No stats selected</EmptyText>
+                <EmptyAction onClick={() => setOptionPanel(true)}>
+                  Select Stats
+                </EmptyAction>
+              </EmptyState>
+            )}
+          </StatsContainer>
+        )}
+      </AnimatePresence>
     </Container>
   );
 };
 
 export default WeeklyStats;
+
+// Styled Components
 const Container = styled.div`
   width: 100%;
-  padding: 20px;
-  border: 1px solid ${({ theme }) => theme.colors.neon};
-  border-radius: 10px;
-  /* display: flex;
-  align-items: center;
-  justify-content: space-around;
-  */
-  position: relative;
-  display: flex;
-  justify-content: space-evenly;
-  transition: 300ms;
+  background: ${({ theme }) => theme.colors.white05};
+  border-radius: 16px;
   overflow: hidden;
-  .option-icon {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-  }
-  .stat-container {
-    display: flex;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+`;
 
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    .icon {
-      background-color: ${({ theme }) => theme.colors.white10};
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px;
-      border-radius: 50%;
-    }
-    .text {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-    }
-    .value {
-      font-family: Roboto Mono;
-      font-size: 18px;
-      font-weight: bold;
-      line-height: 1em;
-    }
-    .label {
-      font-weight: 300;
-      line-height: 1em;
-    }
-  }
-  .option-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+const Header = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.white10};
+`;
 
-    .label {
-      font-size: 16px;
-      font-weight: 500;
-      color: ${({ theme }) => theme.colors.white};
-    }
+const Title = styled.h2`
+  font-size: 18px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.neon};
+  margin: 0;
+`;
 
-    .chice-container {
-      display: flex;
-      justify-content: space-evenly;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
+const OptionButton = styled(motion.button)<{ $isActive: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: ${({ $isActive, theme }) =>
+    $isActive ? theme.colors.neon : theme.colors.white10};
+  color: ${({ $isActive, theme }) =>
+    $isActive ? theme.colors.dark : theme.colors.white70};
+  cursor: pointer;
+  transition: all 0.2s ease;
 
-    button {
-      align-self: flex-end;
-      padding: 8px 24px;
-      border-radius: 6px;
-      background: ${({ theme }) => theme.colors.neon};
-      color: ${({ theme }) => theme.colors.background};
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-      transition: opacity 0.2s ease-in-out;
-
-      &:hover {
-        opacity: 0.9;
-      }
-    }
+  &:hover {
+    background: ${({ $isActive, theme }) =>
+      $isActive ? theme.colors.neon : theme.colors.white20};
   }
 `;
-interface StatChoiceProps {
-  selected?: boolean;
-}
 
-const StatChoice = styled.div<StatChoiceProps>`
+const OptionPanel = styled(motion.div)`
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow: hidden;
+`;
+
+const OptionLabel = styled.div`
+  font-size: 16px;
+  font-weight: 500;
+  color: ${({ theme }) => theme.colors.white};
+`;
+
+const ChoiceContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 16px;
+`;
+
+const StatChoice = styled(motion.div)<{ $selected: boolean; $color: string }>`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-evenly;
-  flex-wrap: wrap;
-  border-radius: 8px;
+  gap: 8px;
+  padding: 12px 8px;
+  border-radius: 12px;
+  background: ${({ $selected, $color }) =>
+    $selected ? `${$color}20` : 'transparent'};
   cursor: pointer;
-  background: ${({ theme, selected }) =>
-    selected ? `${theme.colors.neon}40` : 'transparent'};
-  padding: 10px;
-  transition: all 0.4s ease-in-out;
-  .icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: ${({ theme }) => theme.colors.white10};
-    padding: 8px;
-    border-radius: 50%;
-    opacity: ${({ selected }) => (selected ? 1 : 0.6)};
-    transition: opacity 0.2s ease-in-out;
-  }
+  transition: all 0.2s ease;
 
-  .name {
-    font-size: 14px;
-    font-weight: ${({ selected }) => (selected ? '600' : '400')};
-    color: ${({ theme, selected }) =>
-      selected ? theme.colors.neon : theme.colors.white};
-    text-transform: capitalize;
+  &:hover {
+    background: ${({ $selected, $color, theme }) =>
+      $selected ? `${$color}30` : theme.colors.white05};
+  }
+`;
+
+const IconWrapper = styled.div<{ $selected: boolean; $color: string }>`
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: ${({ $selected, $color, theme }) =>
+    $selected ? `${$color}30` : theme.colors.white10};
+  color: ${({ $selected, $color, theme }) =>
+    $selected ? $color : theme.colors.white50};
+`;
+
+const SelectionIndicator = styled.div`
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: ${({ theme }) => theme.colors.neon};
+  color: ${({ theme }) => theme.colors.dark};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const StatName = styled.div`
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  color: ${({ theme }) => theme.colors.white};
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 4px;
+`;
+
+const Button = styled(motion.button)`
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+`;
+
+const CancelButton = styled(Button)`
+  background: transparent;
+  border: 1px solid ${({ theme }) => theme.colors.white20};
+  color: ${({ theme }) => theme.colors.white};
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.white10};
+  }
+`;
+
+const SaveButton = styled(Button)`
+  background: ${({ theme }) => theme.colors.neon};
+  color: ${({ theme }) => theme.colors.dark};
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const StatsContainer = styled(motion.div)`
+  display: flex;
+  justify-content: space-evenly;
+  padding: 24px 16px;
+  gap: 16px;
+  flex-wrap: wrap;
+`;
+
+const StatItem = styled(motion.div)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  min-width: 70px;
+`;
+
+const StatIconContainer = styled.div<{ $color: string }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: ${({ $color }) => `${$color}20`};
+  color: ${({ $color }) => $color};
+`;
+
+const StatContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+`;
+
+const StatValue = styled.div`
+  font-family: 'Roboto Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.white};
+`;
+
+const StatLabel = styled.div`
+  font-size: 14px;
+  color: ${({ theme }) => theme.colors.white50};
+`;
+
+const EmptyState = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  width: 100%;
+`;
+
+const EmptyIcon = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: ${({ theme }) => theme.colors.white05};
+  margin-bottom: 16px;
+`;
+
+const EmptyText = styled.div`
+  font-size: 16px;
+  color: ${({ theme }) => theme.colors.white50};
+  margin-bottom: 12px;
+`;
+
+const EmptyAction = styled.button`
+  background: ${({ theme }) => theme.colors.white10};
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  color: ${({ theme }) => theme.colors.white};
+  font-size: 14px;
+  cursor: pointer;
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.white20};
   }
 `;

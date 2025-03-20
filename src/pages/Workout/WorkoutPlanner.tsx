@@ -26,7 +26,7 @@ function WorkoutPlanner() {
       <div className='main-container'>
         <div className='header'>
           <div className='workout-title'>
-            {selectedWorkout ? selectedWorkout.name : '-'}
+            {selectedWorkout ? selectedWorkout.name : ''}
           </div>
           <div className='date'>
             {selectedDate?.toLocaleDateString('it-IT', {
@@ -58,7 +58,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-
+  padding-top: 30px;
   gap: 10px;
   padding-bottom: 10vh;
   /* overflow: hidden; */

@@ -11,6 +11,7 @@ import { useWorkouts } from '../../context/WorkoutContext';
 import TodayData from './widgets/TodayData';
 import WeeklyStats from './widgets/WeeklyStats';
 import WorkoutHistory from './widgets/WorkoutHistory';
+import Achievements from './widgets/Achievements';
 
 function Home() {
   const { loadWorkouts } = useWorkouts();
@@ -40,81 +41,16 @@ function Home() {
       </AnimatePresence>
 
       <div className='widgetContainer'>
-        <Widget
-          index={0}
-          title='oggi'
-        >
+        <Widget index={0}>
           <TodayData />
         </Widget>
-        <Widget
-          index={1}
-          title='traguardi'
-        >
-          <div className='achievement-container'>
-            <div className='fade'></div>
-            <div className='fade'></div>
-            <div className='single-achievement'>
-              <div className='badge-container'>
-                <LuBadge
-                  color='purple'
-                  size='30px'
-                />
-              </div>
-              <div className='name'>traguardo</div>
-              <div className='details'>5/7 giorni</div>
-            </div>
-            <div className='single-achievement'>
-              <div className='badge-container'>
-                <LuBadge
-                  color='purple'
-                  size='30px'
-                />
-              </div>
-              <div className='name'>traguardo</div>
-              <div className='details'>5/7 giorni</div>
-            </div>
-            <div className='single-achievement'>
-              <div className='badge-container'>
-                <LuBadge
-                  color='purple'
-                  size='30px'
-                />
-              </div>
-              <div className='name'>traguardo</div>
-              <div className='details'>5/7 giorni</div>
-            </div>
-            <div className='single-achievement'>
-              <div className='badge-container'>
-                <LuBadge
-                  color='purple'
-                  size='30px'
-                />
-              </div>
-              <div className='name'>traguardo</div>
-              <div className='details'>5/7 giorni</div>
-            </div>
-            <div className='single-achievement'>
-              <div className='badge-container'>
-                <LuBadge
-                  color='purple'
-                  size='30px'
-                />
-              </div>
-              <div className='name'>traguardo</div>
-              <div className='details'>5/7 giorni</div>
-            </div>
-          </div>
+        <Widget index={1}>
+          <Achievements />
         </Widget>
-        <Widget
-          title='statistiche settimanali'
-          index={2}
-        >
+        <Widget index={2}>
           <WeeklyStats />
         </Widget>
-        <Widget
-          title='storico allenamenti'
-          index={3}
-        >
+        <Widget index={3}>
           <WorkoutHistory />
         </Widget>
       </div>
@@ -147,55 +83,5 @@ const Container = styled.div`
     /* background-color: #ffffff10; */
     position: relative;
     overflow: scroll;
-    .achievement-container {
-      display: flex;
-      gap: 20px;
-      padding: 20px 0;
-      overflow-x: scroll;
-      position: relative;
-      .fade {
-        position: fixed;
-        height: 150px;
-
-        width: 30px;
-        background: linear-gradient(90deg, #16181f, #16181f00);
-
-        left: 0px;
-        &:nth-child(2) {
-          transform: rotate(180deg);
-          left: auto;
-
-          right: 10px;
-        }
-      }
-      .single-achievement {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        padding: 20px;
-        border: 2px solid ${({ theme }) => theme.colors.neon};
-        border-radius: 10px;
-        .badge-container {
-          background-color: ${({ theme }) => theme.colors.white10};
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          height: 50px;
-          width: 50px;
-          border-radius: 50%;
-        }
-        .name {
-          text-transform: capitalize;
-          font-size: 18px;
-          font-weight: 700;
-          font-size: 20px;
-          line-height: 1em;
-        }
-        .details {
-          line-height: 1em;
-          font-weight: 300;
-        }
-      }
-    }
   }
 `;

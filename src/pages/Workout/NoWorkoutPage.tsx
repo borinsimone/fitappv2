@@ -3,9 +3,12 @@ import styled from 'styled-components';
 import doggoimg from '../../assets/sad-doggo.png';
 import Button from '../../components/Button';
 import { MdClose } from 'react-icons/md';
+import { BiRepeat, BiPlus } from 'react-icons/bi';
 
 import { useWorkouts } from '../../context/WorkoutContext';
 import { AnimatePresence, motion } from 'framer-motion';
+import WorkoutForm from './WorkoutForm';
+import RepeatWorkout from './RepeatWorkout';
 function NoWorkoutPage() {
   const { workouts, addWorkout } = useWorkouts();
   const [addWorkoutDialog, setAddWorkoutDialog] = useState(false);
@@ -19,23 +22,8 @@ function NoWorkoutPage() {
       notes: string;
     };
   }
-  const today = new Date();
 
-  const handleAddWorkout = async (workout: Workout) => {
-    const newDate = new Date(today);
-    newDate.setMinutes(today.getMinutes() - today.getTimezoneOffset());
-    newDate.toISOString();
-    // console.log(newDate, workout.date);
-
-    const newWorkout = { ...workout };
-    newWorkout.date = newDate.toISOString();
-    newWorkout.completed = false;
-    newWorkout.feedback.feeling = null;
-    newWorkout.feedback.notes = '';
-    console.log(newWorkout);
-    addWorkout(newWorkout);
-    setAddWorkoutDialog(false);
-  };
+  const [formOpen, setFormOpen] = useState(false);
   return (
     <Container
       as={motion.div}
@@ -54,7 +42,6 @@ function NoWorkoutPage() {
         className='add'
         onClick={() => setAddWorkoutDialog(true)}
       >
-        {' '}
         crea workout
       </Button>
       <AnimatePresence>
@@ -69,43 +56,73 @@ function NoWorkoutPage() {
               className='close'
               onClick={() => setAddWorkoutDialog(false)}
             >
-              <MdClose color='red' />
+              <MdClose
+                color='red'
+                size='30px'
+              />
             </div>
-            {!repeatWorkout && (
-              <>
-                <button
-                  className='choice'
-                  onClick={() => setRepeatWorkout(true)}
+            <AnimatePresence>
+              {!repeatWorkout && (
+                <ChoicesContainer
+                  as={motion.div}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
                 >
-                  aggiungi da esitenti
-                </button>
-                <button className='choice'>aggiungi nuovo</button>
-              </>
-            )}
-            {repeatWorkout && (
-              <div className='repeat'>
-                <button
-                  onClick={() => {
-                    setRepeatWorkout(false);
-                  }}
-                >
-                  back
-                </button>
-                {[...new Set(workouts?.map((workout) => workout.name))].map(
-                  (name) => (
-                    <div
-                      key={name}
-                      onClick={() => {
-                        const workout = workouts?.find((w) => w.name === name);
-                        if (workout) handleAddWorkout(workout);
-                      }}
-                    >
-                      {name}
-                    </div>
-                  )
-                )}
-              </div>
-            )}
+                  <ChoiceTitle>Seleziona un opzione</ChoiceTitle>
+
+                  <ChoiceButton
+                    onClick={() => setRepeatWorkout(true)}
+                    whileHover={{
+                      scale: 1.02,
+                      boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)',
+                    }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <ChoiceIcon>
+                      <BiRepeat size={24} />
+                    </ChoiceIcon>
+                    <ChoiceInfo>
+                      <ChoiceName>Aggiungi da Esistenti</ChoiceName>
+                      <ChoiceDescription>
+                        Usa un allenamento che hai già creato
+                      </ChoiceDescription>
+                    </ChoiceInfo>
+                  </ChoiceButton>
+
+                  <ChoiceButton
+                    onClick={() => setFormOpen(true)}
+                    whileHover={{
+                      scale: 1.02,
+                      boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)',
+                    }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <ChoiceIcon>
+                      <BiPlus size={24} />
+                    </ChoiceIcon>
+                    <ChoiceInfo>
+                      <ChoiceName>Aggiungi Nuovo</ChoiceName>
+                      <ChoiceDescription>
+                        Crea un allenamento personalizzato
+                      </ChoiceDescription>
+                    </ChoiceInfo>
+                  </ChoiceButton>
+                </ChoicesContainer>
+              )}
+            </AnimatePresence>
+            <AnimatePresence>
+              {repeatWorkout && (
+                <RepeatWorkout
+                  workouts={workouts ?? []}
+                  setRepeatWorkout={setRepeatWorkout}
+                  setAddWorkoutDialog={setAddWorkoutDialog}
+                />
+              )}
+            </AnimatePresence>
+            <AnimatePresence>
+              {formOpen && <WorkoutForm closeForm={() => setFormOpen(false)} />}
+            </AnimatePresence>
           </AddDialog>
         )}
       </AnimatePresence>
@@ -122,8 +139,9 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   position: relative;
+
   .text {
-    font-size: 40px;
+    font-size: 30px;
     text-align: center;
     text-transform: uppercase;
     font-weight: 700;
@@ -141,6 +159,8 @@ const Container = styled.div`
     padding: 10px;
     margin-top: auto;
     margin-bottom: 20px;
+    position: sticky;
+    bottom: 0;
   }
 `;
 const AddDialog = styled.div`
@@ -172,4 +192,66 @@ const AddDialog = styled.div`
     text-transform: capitalize;
     font-weight: 700;
   }
+`;
+
+// Add these styled components
+const ChoicesContainer = styled(motion.div)`
+  display: flex;
+  flex-direction: column;
+  width: 90%;
+  max-width: 400px;
+  gap: 16px;
+`;
+
+const ChoiceTitle = styled.h2`
+  color: ${({ theme }) => theme.colors.neon};
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  text-align: center;
+`;
+
+const ChoiceButton = styled(motion.button)`
+  display: flex;
+  align-items: center;
+  background-color: ${({ theme }) => theme.colors.white10};
+  border: 2px solid ${({ theme }) => theme.colors.white20};
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: ${({ theme }) => theme.colors.neon};
+    background-color: ${({ theme }) => `${theme.colors.neon}10`};
+  }
+`;
+
+const ChoiceIcon = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: ${({ theme }) => theme.colors.neon};
+  color: ${({ theme }) => theme.colors.dark};
+  margin-right: 16px;
+  flex-shrink: 0;
+`;
+
+const ChoiceInfo = styled.div`
+  flex: 1;
+`;
+
+const ChoiceName = styled.div`
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 4px;
+`;
+
+const ChoiceDescription = styled.div`
+  font-size: 14px;
+  color: ${({ theme }) => theme.colors.white70};
 `;

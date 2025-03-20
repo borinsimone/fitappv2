@@ -1,6 +1,11 @@
 import { jwtDecode } from 'jwt-decode';
 import { createContext, useContext, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+
+interface UserData {
+  exp: number;
+  // Add other JWT payload fields here
+}
 
 interface AuthContextType {
   token: string | null;
@@ -8,6 +13,7 @@ interface AuthContextType {
   login: (token: string) => void;
   logout: () => void;
   isAuthenticated: boolean;
+  user: UserData | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,10 +31,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.getItem('token')
   );
   const navigate = useNavigate();
-
+  const location = useLocation();
   useEffect(() => {
-    if (!token) {
-      navigate('/login'); // Usa il percorso giusto
+    if (
+      !token &&
+      location.pathname !== '/register' &&
+      location.pathname !== '/forgot-password'
+    ) {
+      navigate('/login');
     }
   }, [token, navigate]);
 
@@ -72,10 +82,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     return () => clearInterval(interval); // Pulisce l'intervallo quando il componente viene smontato
   }, []);
-
+  const user: UserData | null = token ? jwtDecode<UserData>(token) : null;
   return (
     <AuthContext.Provider
-      value={{ token, setToken, login, logout, isAuthenticated: !!token }}
+      value={{ user, token, setToken, login, logout, isAuthenticated: !!token }}
     >
       {children}
     </AuthContext.Provider>

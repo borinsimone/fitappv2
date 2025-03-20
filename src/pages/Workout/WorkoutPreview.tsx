@@ -1,12 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-
-import { BiChevronRight, BiPlus, BiTrash } from 'react-icons/bi';
-import Button from '../../components/Button';
-import { CiCircleMinus } from 'react-icons/ci';
-import { AnimatePresence, motion } from 'framer-motion';
+import {
+  BiChevronDown,
+  BiPlus,
+  BiTrash,
+  BiDumbbell,
+  BiPlay,
+  BiTime,
+  BiEdit,
+  BiPencil,
+} from 'react-icons/bi';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useWorkouts } from '../../context/WorkoutContext';
 import { useNavigate } from 'react-router-dom';
+import Button from '../../components/Button';
 
 interface WorkoutPreviewProps {
   workout: {
@@ -31,16 +38,23 @@ interface WorkoutPreviewProps {
 
 const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({ workout }) => {
   const { removeWorkout, setActiveWorkout } = useWorkouts();
-
   const [selectedWorkout, setSelectedWorkout] = useState(workout);
+  const [expandedExercise, setExpandedExercise] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  const handleExerciseClick = (exerciseName: string) => {
+    setExpandedExercise(
+      expandedExercise === exerciseName ? null : exerciseName
+    );
+  };
+
   const handleAddSet = (sectionIndex: number, exerciseIndex: number) => {
     const newWorkout = { ...workout };
     if (!newWorkout.sections) return;
-    const exercise = newWorkout.sections[sectionIndex].exercises[exerciseIndex];
 
-    // Get the last set or use default values if no sets exist
+    const exercise = newWorkout.sections[sectionIndex].exercises[exerciseIndex];
     const lastSet = exercise.exerciseSets[exercise.exerciseSets.length - 1];
+
     const newSet = exercise.timeBased
       ? {
           time: lastSet?.time || 30,
@@ -58,257 +72,292 @@ const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({ workout }) => {
     exercise.exerciseSets.push(newSet);
     setSelectedWorkout(newWorkout);
   };
-  const [expandedExercise, setExpandedExercise] = useState<string | null>(null);
-  const handleExerciseClick = (exerciseName: string) => {
-    setExpandedExercise(
-      expandedExercise === exerciseName ? null : exerciseName
-    );
+
+  const handleRemoveSet = (
+    sectionIndex: number,
+    exerciseIndex: number,
+    setIndex: number
+  ) => {
+    const newWorkout = { ...workout };
+    if (!newWorkout.sections) return;
+
+    newWorkout.sections[sectionIndex].exercises[
+      exerciseIndex
+    ].exerciseSets.splice(setIndex, 1);
+    setSelectedWorkout(newWorkout);
+  };
+
+  const handleDeleteWorkout = () => {
+    try {
+      removeWorkout(selectedWorkout._id);
+    } catch (error) {
+      console.error('Error removing workout:', error);
+    }
+  };
+
+  const startWorkout = () => {
+    setActiveWorkout({
+      ...workout,
+      title: workout.name,
+      load: 0,
+      reps: 0,
+      notes: '',
+    });
+    navigate('/workout-assistant');
   };
 
   return (
     <Container
       as={motion.div}
-      key='workout'
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.2 }}
     >
-      <div
-        className='delete'
-        onClick={() => {
-          console.log('Removing workout:', selectedWorkout._id);
-          try {
-            removeWorkout(selectedWorkout._id);
-          } catch (error) {
-            console.error('Error removing workout:', error);
-          }
-        }}
-      >
-        <BiTrash color='red' />
-      </div>
-      {selectedWorkout.sections?.map((section, sectionIndex) => (
-        <div className='section-container'>
-          <div className='section-name'>{section.name}</div>
-          <div className='exercise-container'>
-            {section.exercises.map((exercise, exerciseIndex) => (
-              <div
-                className='ex-wrapper'
-                key={exercise.name}
-                onClick={() => {
-                  console.log(exercise);
-                  handleExerciseClick(exercise.name);
-                }}
-              >
-                <div className='exercise'>
-                  <div className='img'></div>
-                  <div className='ex-text'>
-                    <div className='ex-name'>{exercise.name}</div>
-                    <div className='ex-type'>
-                      aggiungere tipo di esercizio da backend
-                    </div>
-                  </div>
-                  <BiChevronRight
-                    className='chevron'
-                    size='30px'
-                    data-expanded={expandedExercise === exercise.name}
-                  />
-                </div>
-                <div
-                  className='ex-details'
-                  data-expanded={expandedExercise === exercise.name}
-                >
-                  <div className='ex-detail-content'>
-                    <div className='ex-notes'>
-                      {exercise.notes
-                        ? exercise.notes
-                        : 'Aggiungi delle note qui..'}
-                    </div>
-                    <div className='ex-sets-info'>
-                      {exercise.timeBased && (
-                        <table>
-                          <thead>
-                            <tr>
-                              <th>Set</th>
-                              <th>Time</th>
-                              <th>Rest</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <AnimatePresence mode='wait'>
-                              {exercise.exerciseSets.map((set, index) => (
-                                <tr key={index}>
-                                  <td>{index + 1}</td>
-                                  <td>
-                                    <span
-                                      contentEditable
-                                      suppressContentEditableWarning
-                                      onInput={(e) => {
-                                        const target = e.currentTarget;
-                                        target.textContent = (
-                                          target.textContent ?? ''
-                                        ).replace(/[^0-9]/g, '');
-                                      }}
-                                    >
-                                      {set.time}
-                                    </span>
-                                    ''
-                                  </td>
-                                  <td>
-                                    <span
-                                      contentEditable
-                                      suppressContentEditableWarning
-                                      onInput={(e) => {
-                                        const target = e.currentTarget;
-                                        target.textContent = (
-                                          target.textContent ?? ''
-                                        ).replace(/[^0-9]/g, '');
-                                      }}
-                                    >
-                                      {set.rest}
-                                    </span>
-                                    ''
-                                  </td>
-                                  <td
-                                    onClick={() => {
-                                      const newWorkout = { ...workout };
-                                      if (newWorkout.sections) {
-                                        newWorkout.sections[
-                                          sectionIndex
-                                        ].exercises[
-                                          exerciseIndex
-                                        ].exerciseSets.splice(index, 1);
-                                        setSelectedWorkout(newWorkout);
-                                      }
-                                    }}
-                                  >
-                                    <CiCircleMinus
-                                      color='red'
-                                      size='20px'
-                                    />
-                                  </td>
-                                </tr>
-                              ))}
-                            </AnimatePresence>
-                          </tbody>
-                        </table>
-                      )}
-                      {!exercise.timeBased && (
-                        <table>
-                          <thead>
-                            <tr>
-                              <th>Set</th>
-                              <th>Reps</th>
-                              <th>Weight</th>
-                              <th>Rest</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {exercise.exerciseSets.map((set, index) => (
-                              <tr key={index}>
-                                <td>{index + 1}</td>
-                                <td>
-                                  <span
-                                    contentEditable
-                                    suppressContentEditableWarning={true}
-                                    onInput={(e) => {
-                                      const target = e.currentTarget;
-                                      target.textContent = (
-                                        target.textContent ?? ''
-                                      ).replace(/[^0-9]/g, '');
-                                    }}
-                                  >
-                                    {set.reps}
-                                  </span>
-                                </td>
-                                <td>
-                                  <span
-                                    contentEditable
-                                    suppressContentEditableWarning
-                                    onInput={(e) => {
-                                      const target = e.currentTarget;
-                                      target.textContent = (
-                                        target.textContent ?? ''
-                                      ).replace(/[^0-9]/g, '');
-                                    }}
-                                  >
-                                    {set.weight}
-                                  </span>
-                                  kg
-                                </td>
-                                <td>
-                                  <span
-                                    contentEditable
-                                    suppressContentEditableWarning
-                                    onInput={(e) => {
-                                      const target = e.currentTarget;
-                                      target.textContent = (
-                                        target.textContent ?? ''
-                                      ).replace(/[^0-9]/g, '');
-                                    }}
-                                  >
-                                    {set.rest}
-                                  </span>
-                                  ''
-                                </td>
-                                <td
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const newWorkout = { ...workout };
-                                    newWorkout.sections?.[
-                                      sectionIndex
-                                    ].exercises[
-                                      exerciseIndex
-                                    ].exerciseSets.splice(index, 1);
-                                    setSelectedWorkout(newWorkout);
-                                  }}
-                                >
-                                  <CiCircleMinus
-                                    color='red'
-                                    size='20px'
-                                  />
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      )}
-                    </div>
-                    <div className='add-delete'>
-                      <div
-                        className='add-exercise-btn'
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAddSet(sectionIndex, exerciseIndex);
-                        }}
-                      >
-                        <BiPlus />
-                        aggiungi set
-                      </div>
-                      <BiTrash color='red' />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
-      <Button
-        className='btn'
-        onClick={() => {
-          setActiveWorkout({
-            ...workout,
-            title: workout.name,
-            load: 0,
-            reps: 0,
-            notes: '',
-          });
+      <Header>
+        <WorkoutTitle>{selectedWorkout.name}</WorkoutTitle>
+        <DeleteButton onClick={handleDeleteWorkout}>
+          <BiTrash />
+        </DeleteButton>
+      </Header>
 
-          navigate('/workout-assistant');
-        }}
+      <WorkoutContent>
+        {selectedWorkout.sections?.map((section, sectionIndex) => (
+          <SectionCard key={`section-${sectionIndex}`}>
+            <SectionHeader>
+              <SectionTitle>{section.name}</SectionTitle>
+            </SectionHeader>
+
+            <ExerciseList>
+              {section.exercises.map((exercise, exerciseIndex) => (
+                <ExerciseCard key={`exercise-${exerciseIndex}`}>
+                  <ExerciseHeader
+                    onClick={() => handleExerciseClick(exercise.name)}
+                    whileHover={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    }}
+                  >
+                    <ExerciseIcon>
+                      {exercise.timeBased ? (
+                        <BiTime size={20} />
+                      ) : (
+                        <BiDumbbell size={20} />
+                      )}
+                    </ExerciseIcon>
+
+                    <ExerciseInfo>
+                      <ExerciseName>{exercise.name}</ExerciseName>
+                      <ExerciseMeta>
+                        {exercise.exerciseSets.length} sets •
+                        {exercise.timeBased
+                          ? ` ${exercise.exerciseSets[0]?.time || 0}s`
+                          : ` ${exercise.exerciseSets[0]?.reps || 0} reps`}
+                      </ExerciseMeta>
+                    </ExerciseInfo>
+
+                    <ExpandButton
+                      isExpanded={expandedExercise === exercise.name}
+                    >
+                      <BiChevronDown size={24} />
+                    </ExpandButton>
+                  </ExerciseHeader>
+
+                  <AnimatePresence>
+                    {expandedExercise === exercise.name && (
+                      <ExerciseDetails
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        {exercise.notes && (
+                          <ExerciseNotes>
+                            <NotesTitle>
+                              <BiPencil size={16} />
+                              Notes
+                            </NotesTitle>
+                            <NotesContent>{exercise.notes}</NotesContent>
+                          </ExerciseNotes>
+                        )}
+
+                        <SetsTableWrapper>
+                          {exercise.timeBased ? (
+                            <SetsTable>
+                              <thead>
+                                <tr>
+                                  <th>Set</th>
+                                  <th>Time (s)</th>
+                                  <th>Rest (s)</th>
+                                  <th></th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {exercise.exerciseSets.map((set, index) => (
+                                  <tr key={`set-${index}`}>
+                                    <td>{index + 1}</td>
+                                    <td>
+                                      <EditableValue
+                                        contentEditable
+                                        suppressContentEditableWarning
+                                        onInput={(e) => {
+                                          const target = e.currentTarget;
+                                          target.textContent = (
+                                            target.textContent ?? ''
+                                          ).replace(/[^0-9]/g, '');
+                                        }}
+                                      >
+                                        {set.time}
+                                      </EditableValue>
+                                    </td>
+                                    <td>
+                                      <EditableValue
+                                        contentEditable
+                                        suppressContentEditableWarning
+                                        onInput={(e) => {
+                                          const target = e.currentTarget;
+                                          target.textContent = (
+                                            target.textContent ?? ''
+                                          ).replace(/[^0-9]/g, '');
+                                        }}
+                                      >
+                                        {set.rest}
+                                      </EditableValue>
+                                    </td>
+                                    <td>
+                                      <RemoveSetButton
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleRemoveSet(
+                                            sectionIndex,
+                                            exerciseIndex,
+                                            index
+                                          );
+                                        }}
+                                        disabled={
+                                          exercise.exerciseSets.length <= 1
+                                        }
+                                      >
+                                        <BiTrash size={16} />
+                                      </RemoveSetButton>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </SetsTable>
+                          ) : (
+                            <SetsTable>
+                              <thead>
+                                <tr>
+                                  <th>Set</th>
+                                  <th>Reps</th>
+                                  <th>Weight (kg)</th>
+                                  <th>Rest (s)</th>
+                                  <th></th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {exercise.exerciseSets.map((set, index) => (
+                                  <tr key={`set-${index}`}>
+                                    <td>{index + 1}</td>
+                                    <td>
+                                      <EditableValue
+                                        contentEditable
+                                        suppressContentEditableWarning
+                                        onInput={(e) => {
+                                          const target = e.currentTarget;
+                                          target.textContent = (
+                                            target.textContent ?? ''
+                                          ).replace(/[^0-9]/g, '');
+                                        }}
+                                      >
+                                        {set.reps}
+                                      </EditableValue>
+                                    </td>
+                                    <td>
+                                      <EditableValue
+                                        contentEditable
+                                        suppressContentEditableWarning
+                                        onInput={(e) => {
+                                          const target = e.currentTarget;
+                                          target.textContent = (
+                                            target.textContent ?? ''
+                                          ).replace(/[^0-9]/g, '');
+                                        }}
+                                      >
+                                        {set.weight}
+                                      </EditableValue>
+                                    </td>
+                                    <td>
+                                      <EditableValue
+                                        contentEditable
+                                        suppressContentEditableWarning
+                                        onInput={(e) => {
+                                          const target = e.currentTarget;
+                                          target.textContent = (
+                                            target.textContent ?? ''
+                                          ).replace(/[^0-9]/g, '');
+                                        }}
+                                      >
+                                        {set.rest}
+                                      </EditableValue>
+                                    </td>
+                                    <td>
+                                      <RemoveSetButton
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleRemoveSet(
+                                            sectionIndex,
+                                            exerciseIndex,
+                                            index
+                                          );
+                                        }}
+                                        disabled={
+                                          exercise.exerciseSets.length <= 1
+                                        }
+                                      >
+                                        <BiTrash size={16} />
+                                      </RemoveSetButton>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </SetsTable>
+                          )}
+                        </SetsTableWrapper>
+
+                        <ActionBar>
+                          <AddSetButton
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAddSet(sectionIndex, exerciseIndex);
+                            }}
+                          >
+                            <BiPlus size={16} />
+                            Add Set
+                          </AddSetButton>
+
+                          <EditExerciseButton>
+                            <BiEdit size={16} />
+                            Edit
+                          </EditExerciseButton>
+                        </ActionBar>
+                      </ExerciseDetails>
+                    )}
+                  </AnimatePresence>
+                </ExerciseCard>
+              ))}
+            </ExerciseList>
+          </SectionCard>
+        ))}
+      </WorkoutContent>
+
+      <Button
+        onClick={startWorkout}
+        // whileHover={{ scale: 1.02 }}
+        // whileTap={{ scale: 0.98 }}
       >
-        inizia workout
+        <BiPlay size={24} />
+        Inizia Allenamento
       </Button>
     </Container>
   );
@@ -316,169 +365,294 @@ const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({ workout }) => {
 
 export default WorkoutPreview;
 
-const Container = styled.div`
-  height: 60vh;
-  width: 100%;
-
+// Styled Components
+const Container = styled(motion.div)`
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  .section-container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    position: relative;
-    .add-exercise-btn {
-      background-color: ${({ theme }) => theme.colors.white10};
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      justify-content: center;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 0 24px;
+  /* overflow: hidden; */
+  position: relative;
+`;
 
-      margin: 0 auto;
-      border-radius: 10px;
-      padding: 5px 30px;
-      text-transform: capitalize;
-    }
-    .section-name {
-      text-transform: uppercase;
-      color: ${({ theme }) => theme.colors.neon};
-      background-color: ${({ theme }) => theme.colors.dark};
-      font-weight: 700;
-      font-size: 24px;
-      display: flex;
-      justify-content: space-between;
-      padding: 5px 0;
-      position: sticky;
-      top: 0;
-    }
-    .exercise-container {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      .ex-wrapper {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        .exercise {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          .img {
-            height: 50px;
-            background-color: #fff;
-            aspect-ratio: 1;
-            border-radius: 5px;
-          }
-          .ex-name {
-            font-size: 18px;
-          }
-          .ex-type {
-            font-size: 12px;
-            color: ${({ theme }) => theme.colors.neon};
-            text-transform: uppercase;
-          }
-          .chevron {
-            color: ${({ theme }) => theme.colors.neon};
-            margin-left: auto;
-            margin-right: 20px;
-            transition: 200ms;
-            &[data-expanded='true'] {
-              transform: rotate(90deg);
-            }
-          }
-        }
-        /* &:hover {
-          .ex-details {
-            grid-template-rows: 1fr;
-          }
-          .chevron {
-            transform: rotate(90deg);
-          }
-        } */
-        .ex-details {
-          display: grid;
-          grid-template-rows: 0fr; //frfrfrfrfrfr
-          transition: 500ms;
-          transition-delay: 200ms;
-          &[data-expanded='true'] {
-            grid-template-rows: 1fr;
-          }
+const Header = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.white10};
+  margin-bottom: 24px;
+  position: sticky;
+  top: 0;
+  background: ${({ theme }) => theme.colors.dark};
+  z-index: 10;
+`;
 
-          .ex-detail-content {
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            .ex-notes {
-              white-space: pre-wrap;
-              word-wrap: break-word;
-              font-size: 14px;
-              opacity: 0.8;
-            }
-            .ex-sets-info {
-              display: flex;
-              flex-direction: column;
-              gap: 10px;
-              table {
-                width: 100%;
-                border-collapse: collapse;
-                thead {
-                  color: ${({ theme }) => `${theme.colors.white}80`};
-                  text-transform: uppercase;
-                  th {
-                    font-size: 16px;
-                    font-weight: 500;
-                  }
-                }
-                tbody {
-                  tr {
-                    font-size: 12px;
-                  }
-                  td {
-                    span {
-                      padding: 0;
+const WorkoutTitle = styled.h1`
+  font-size: 24px;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.neon};
+  margin: 0;
+`;
 
-                      border: 1px solid transparent;
-                      transition: 200ms;
-                      &:focus {
-                        all: unset;
-                        border: 1px solid ${({ theme }) => theme.colors.neon};
-                        padding: 1px 3px;
-                      }
-                    }
-                  }
-                }
-                th,
-                td {
-                  padding: 5px;
-                  text-align: center;
-                }
+const DeleteButton = styled.button`
+  all: unset;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: ${({ theme }) => theme.colors.white10};
+  color: ${({ theme }) => theme.colors.error};
+  transition: all 0.2s ease;
 
-                tr:nth-child(even) {
-                  background-color: ${({ theme }) => theme.colors.white10};
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    .add-delete {
-      display: flex;
-      align-items: center;
-    }
+  &:hover {
+    background: ${({ theme }) => theme.colors.error};
+    color: white;
   }
+`;
 
-  .btn {
+const WorkoutContent = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  overflow-y: auto;
+  padding: 0 0 80px;
+`;
+
+const SectionCard = styled.div`
+  background: ${({ theme }) => theme.colors.white05};
+  border-radius: 16px;
+  overflow: hidden;
+`;
+
+const SectionHeader = styled.div`
+  background: ${({ theme }) => theme.colors.white10};
+  padding: 16px;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.white10};
+  position: sticky;
+  top: 0;
+`;
+
+const SectionTitle = styled.h2`
+  font-size: 18px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.neon};
+  margin: 0;
+  text-transform: uppercase;
+`;
+
+const ExerciseList = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const ExerciseCard = styled.div`
+  border-bottom: 1px solid ${({ theme }) => theme.colors.white10};
+
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const ExerciseHeader = styled(motion.div)`
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+`;
+
+const ExerciseIcon = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: ${({ theme }) => theme.colors.white10};
+  color: ${({ theme }) => theme.colors.neon};
+  margin-right: 16px;
+  flex-shrink: 0;
+`;
+
+const ExerciseInfo = styled.div`
+  flex: 1;
+`;
+
+const ExerciseName = styled.div`
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 4px;
+`;
+
+const ExerciseMeta = styled.div`
+  font-size: 13px;
+  color: ${({ theme }) => theme.colors.white50};
+`;
+
+const ExpandButton = styled.div<{ isExpanded: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+  transform: rotate(${({ isExpanded }) => (isExpanded ? '180deg' : '0deg')});
+  color: ${({ theme }) => theme.colors.white50};
+`;
+
+const ExerciseDetails = styled(motion.div)`
+  padding: 0 16px 16px;
+  overflow: hidden;
+`;
+
+const ExerciseNotes = styled.div`
+  margin-bottom: 16px;
+  background: ${({ theme }) => theme.colors.white05};
+  border-radius: 8px;
+  padding: 12px;
+`;
+
+const NotesTitle = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: ${({ theme }) => theme.colors.white70};
+  margin-bottom: 8px;
+`;
+
+const NotesContent = styled.div`
+  font-size: 14px;
+  line-height: 1.5;
+  color: ${({ theme }) => theme.colors.white};
+  white-space: pre-wrap;
+`;
+
+const SetsTableWrapper = styled.div`
+  overflow-x: auto;
+  margin-bottom: 16px;
+`;
+
+const SetsTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+
+  th {
+    text-align: left;
+    padding: 12px 8px;
+    font-weight: 500;
+    color: ${({ theme }) => theme.colors.white70};
     text-transform: uppercase;
-    color: ${({ theme }) => theme.colors.dark};
-    font-weight: 700;
-    font-size: 24px;
-    padding: 10px;
-    margin-top: auto;
-    /* margin-bottom: 20px; */
-    position: sticky;
-    bottom: 0;
+    font-size: 12px;
   }
+
+  td {
+    padding: 10px 8px;
+    text-align: left;
+  }
+
+  tbody tr {
+    border-top: 1px solid ${({ theme }) => theme.colors.white10};
+
+    &:hover {
+      background: ${({ theme }) => theme.colors.white05};
+    }
+  }
+`;
+
+const EditableValue = styled.span`
+  padding: 4px 8px;
+  border-radius: 4px;
+  min-width: 30px;
+  display: inline-block;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+
+  &:focus {
+    outline: none;
+    border-color: ${({ theme }) => theme.colors.neon};
+    background: ${({ theme }) => theme.colors.white10};
+  }
+`;
+
+const RemoveSetButton = styled.button<{ disabled: boolean }>`
+  all: unset;
+  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
+  opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: ${({ theme }) => theme.colors.white10};
+  color: ${({ theme }) => theme.colors.error};
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: ${({ theme }) => theme.colors.error};
+    color: white;
+  }
+`;
+
+const ActionBar = styled.div`
+  display: flex;
+  gap: 12px;
+`;
+
+const AddSetButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: ${({ theme }) => theme.colors.white10};
+  color: ${({ theme }) => theme.colors.white};
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.white20};
+  }
+`;
+
+const EditExerciseButton = styled(AddSetButton)`
+  background: transparent;
+  border: 1px solid ${({ theme }) => theme.colors.white20};
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.white10};
+  }
+`;
+
+const StartWorkoutButton = styled(motion.button)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: calc(100% - 32px);
+  /* margin: 0 16px; */
+  padding: 16px;
+  border-radius: 12px;
+  background: ${({ theme }) => theme.colors.neon};
+  color: ${({ theme }) => theme.colors.dark};
+  border: none;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  position: fixed;
+  bottom: 80px;
+  max-width: 768px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  z-index: 100;
 `;
