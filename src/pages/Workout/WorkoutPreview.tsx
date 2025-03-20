@@ -634,25 +634,3 @@ const EditExerciseButton = styled(AddSetButton)`
     background: ${({ theme }) => theme.colors.white10};
   }
 `;
-
-const StartWorkoutButton = styled(motion.button)`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  width: calc(100% - 32px);
-  /* margin: 0 16px; */
-  padding: 16px;
-  border-radius: 12px;
-  background: ${({ theme }) => theme.colors.neon};
-  color: ${({ theme }) => theme.colors.dark};
-  border: none;
-  font-size: 18px;
-  font-weight: 600;
-  cursor: pointer;
-  position: fixed;
-  bottom: 80px;
-  max-width: 768px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  z-index: 100;
-`;

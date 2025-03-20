@@ -18,6 +18,9 @@ const StyledButton = styled.button<ButtonProps>`
   background-color: ${({ theme }) => theme.colors.neon};
   width: 100%;
   color: ${({ theme }) => theme.colors.white};
+  display: flex;
+  align-items: center;
+  justify-content: center;
   &:hover {
     opacity: ${({ variant }) => (variant === 'disabled' ? '1' : '0.8')};
   }
