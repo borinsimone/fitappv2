@@ -3,16 +3,29 @@ import { useWorkouts } from '../../../context/WorkoutContext';
 import { BiChevronLeft, BiChevronRight } from 'react-icons/bi';
 import styled from 'styled-components';
 import ActiveExercise from './ActiveExercise';
+import ExerciseSummary from './ExerciseSummary';
+import { MdClose } from 'react-icons/md';
+import { useNavigate } from 'react-router-dom';
 interface CompletedSets {
   [key: string]: boolean[];
 }
 const WorkoutAssistant = () => {
-  const { activeWorkout } = useWorkouts();
+  const { activeWorkout, setActiveWorkout, editWorkout } = useWorkouts();
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
 
   const currentSection = activeWorkout?.sections?.[currentSectionIndex];
-  const currentExercise = currentSection?.exercises?.[currentExerciseIndex];
+  const [currentExercise, setCurrentExercise] = useState(
+    currentSection?.exercises?.[currentExerciseIndex]
+  );
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!activeWorkout) {
+      navigate('/workout-planner');
+    }
+  }, [activeWorkout]);
+
+  // const currentExercise = currentSection?.exercises?.[currentExerciseIndex];
   const nextExercises =
     currentSection?.exercises.slice(currentExerciseIndex + 1) || [];
   const prevExercises =
@@ -32,8 +45,22 @@ const WorkoutAssistant = () => {
     }
   };
 
-  // Add this function to handle set completion
-
+  useEffect(() => {
+    if (activeWorkout && currentExercise) {
+      const updatedWorkout = { ...activeWorkout };
+      updatedWorkout.sections[currentSectionIndex].exercises[
+        currentExerciseIndex
+      ] = currentExercise;
+      setActiveWorkout(updatedWorkout);
+      localStorage.setItem('activeWorkout', JSON.stringify(updatedWorkout));
+    }
+  }, [
+    currentExercise,
+    activeWorkout,
+    currentSectionIndex,
+    currentExerciseIndex,
+    setActiveWorkout,
+  ]);
   return (
     <Container>
       <SectionInfo>
@@ -58,52 +85,45 @@ const WorkoutAssistant = () => {
             <BiChevronRight size='24px' />
           </NavButton>
         </NavigationBar>
-        <CloseButton>&times;</CloseButton>
+        <CloseButton
+          onClick={() => {
+            if (window.confirm('Are you sure you want to leave?')) {
+              localStorage.removeItem('activeWorkout');
+              setActiveWorkout(null);
+            }
+          }}
+        >
+          <MdClose
+            size='30px'
+            color='red'
+          />
+        </CloseButton>
       </Header>
 
       <ActiveExercise
         currentExercise={currentExercise}
+        setCurrentExercise={setCurrentExercise}
         currentSectionIndex={currentSectionIndex}
         currentExerciseIndex={currentExerciseIndex}
       />
-      <ExerciseSummary>
-        {nextExercises.map((exercise, index) => (
-          <ExerciseItem
-            key={index}
-            onClick={() =>
-              setCurrentExerciseIndex(currentExerciseIndex + index + 1)
-            }
-          >
-            <ExerciseIcon />
-            <ExerciseDetails>
-              <ExerciseName>{exercise.name}</ExerciseName>
-              <ExerciseInfo>{exercise.exerciseSets.length} SERIE</ExerciseInfo>
-              <ExerciseInfo>
-                {exercise.timeBased
-                  ? `${exercise.exerciseSets[0]?.time}"`
-                  : `${exercise.exerciseSets[0]?.reps} REPS`}
-              </ExerciseInfo>
-            </ExerciseDetails>
-          </ExerciseItem>
-        ))}
-        {prevExercises?.map((exercise, index) => (
-          <ExerciseItem
-            key={index}
-            className='disabled'
-          >
-            <ExerciseIcon />
-            <ExerciseDetails>
-              <ExerciseName>{exercise.name}</ExerciseName>
-              <ExerciseInfo>{exercise.exerciseSets.length} SERIE</ExerciseInfo>
-              <ExerciseInfo>
-                {exercise.timeBased
-                  ? `${exercise.exerciseSets[0]?.time}"`
-                  : `${exercise.exerciseSets[0]?.reps} REPS`}
-              </ExerciseInfo>
-            </ExerciseDetails>
-          </ExerciseItem>
-        ))}
-      </ExerciseSummary>
+      <ExerciseSummary
+        nextExercises={nextExercises}
+        prevExercises={prevExercises}
+        currentExerciseIndex={currentExerciseIndex}
+        setCurrentExerciseIndex={setCurrentExerciseIndex}
+        setCurrentExercise={setCurrentExercise}
+      />
+      <EndButton
+        onClick={() => {
+          if (window.confirm('Are you sure you want to end this workout?')) {
+            localStorage.removeItem('activeWorkout');
+            setActiveWorkout(null);
+            navigate('/workout-planner');
+          }
+        }}
+      >
+        Fine Allenamento
+      </EndButton>
     </Container>
   );
 };
@@ -119,6 +139,7 @@ const Container = styled.div`
   background: ${({ theme }) => theme.colors.dark};
   height: 100vh;
   width: 100vw;
+  overflow-y: auto;
 `;
 
 const Header = styled.div`
@@ -127,7 +148,7 @@ const Header = styled.div`
   align-items: center;
 
   border-radius: 100px;
-  margin-bottom: 20px;
+
   padding: 5px 16px;
   background-color: ${({ theme }) => `${theme.colors.neon}10`};
 `;
@@ -146,88 +167,6 @@ const SectionTitle = styled.div`
   color: ${({ theme }) => theme.colors.neon};
 `;
 
-const ExerciseSummary = styled.div`
-  width: 100%;
-  max-width: 400px;
-  .disabled {
-    all: unset;
-    background-color: ${({ theme }) => `${theme.colors.white}30`};
-    user-select: none;
-    display: flex;
-    align-items: center;
-
-    border-radius: 12px;
-    padding: 10px;
-    margin-bottom: 10px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    position: relative;
-  }
-`;
-const ExerciseItem = styled.div`
-  display: flex;
-  align-items: center;
-  background: ${({ theme }) => theme.colors.white10};
-  border: 1px solid ${({ theme }) => theme.colors.neon};
-  border-radius: 12px;
-  padding: 10px;
-  margin-bottom: 10px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-
-  &:hover {
-    background: ${({ theme }) => theme.colors.white20};
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 100%;
-    width: 4px;
-    background: ${({ theme }) => theme.colors.neon};
-    border-top-left-radius: 12px;
-    border-bottom-left-radius: 12px;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-  }
-
-  &:hover::before {
-    opacity: 1;
-  }
-`;
-
-const ExerciseIcon = styled.div`
-  width: 40px;
-  height: 40px;
-  background: ${({ theme }) => theme.colors.white};
-  border-radius: 50%;
-  margin-right: 10px;
-`;
-
-const ExerciseDetails = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const ExerciseName = styled.div`
-  font-size: 14px;
-  color: ${({ theme }) => theme.colors.white};
-`;
-
-const ExerciseInfo = styled.div`
-  font-size: 12px;
-  color: ${({ theme }) => theme.colors.white};
-  opacity: 0.8;
-`;
 const NavigationBar = styled.div`
   display: flex;
   align-items: center;
@@ -261,4 +200,22 @@ const SectionInfo = styled.div`
   font-size: 18px;
   color: ${({ theme }) => theme.colors.white};
   font-weight: 700;
+`;
+const EndButton = styled.button`
+  all: unset;
+  cursor: pointer;
+  padding: 12px 24px;
+  border-radius: 100px;
+  background: ${({ theme }) => theme.colors.error};
+  color: ${({ theme }) => theme.colors.white};
+  font-weight: 600;
+  transition: all 0.2s ease;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
 `;

@@ -3,6 +3,7 @@ import { BiCheckCircle, BiMinusCircle } from 'react-icons/bi';
 import styled from 'styled-components';
 import { useWorkouts } from '../../../context/WorkoutContext';
 import Timer from './Timer';
+import SetActive from './SetActive';
 
 interface WorkoutSection {
   exercises: Exercise[];
@@ -19,24 +20,28 @@ interface Exercise {
   }>;
 }
 
+type CurrentExerciseType =
+  | {
+      name: string;
+      timeBased: boolean;
+      exerciseSets: Array<{
+        weight?: number;
+        reps?: number;
+        time?: number;
+        rest: number;
+      }>;
+    }
+  | undefined;
+
 interface ActiveExerciseProps {
-  currentExercise:
-    | {
-        name: string;
-        timeBased: boolean;
-        exerciseSets: Array<{
-          weight?: number;
-          reps?: number;
-          time?: number;
-          rest: number;
-        }>;
-      }
-    | undefined;
+  currentExercise: CurrentExerciseType;
+  setCurrentExercise: React.Dispatch<React.SetStateAction<CurrentExerciseType>>;
   currentSectionIndex: number;
   currentExerciseIndex: number;
 }
 function ActiveExercise({
   currentExercise,
+  setCurrentExercise,
   currentSectionIndex,
   currentExerciseIndex,
 }: ActiveExerciseProps) {
@@ -92,100 +97,26 @@ function ActiveExercise({
   const handleSetClick = (set: ExerciseSet | number): void => {
     setActiveSet(set);
   };
+  useEffect(() => {
+    if (currentExercise?.exerciseSets) {
+      setActiveSet(currentExercise.exerciseSets[0]);
+    }
+  }, [currentExercise]);
   return (
     <Container>
       <Timer
         activeSet={activeSet}
         name={currentExercise?.name}
       />
-      <SetTable>
-        <thead>
-          {currentExercise?.timeBased ? (
-            <tr>
-              <th>Set</th>
-              <th>Time</th>
-              <th>Rest</th>
-              <th></th>
-              <th>Completed</th>
-            </tr>
-          ) : (
-            <tr>
-              <th>Set</th>
-              <th>Weight</th>
-              <th>Reps</th>
-              <th>Rest</th>
-              <th></th>
-              <th>Completed</th>
-            </tr>
-          )}
-        </thead>
-        <tbody>
-          {currentExercise?.timeBased
-            ? currentExercise?.exerciseSets.map((set, index) => (
-                <tr
-                  key={index}
-                  data-active={activeSet === set}
-                >
-                  <td>{index + 1}</td>
-                  <td>{set.time}"</td>
-                  <td>{set.rest}"</td>
-                  <td onClick={() => handleSetClick(set)}>
-                    {activeSet === set ? 'attivo' : 'scegli'}
-                  </td>
-                  <td>
-                    <CompletionButton
-                      onClick={() => handleSetComplete(index)}
-                      completed={
-                        completedSets[
-                          `${currentSectionIndex}-${currentExerciseIndex}`
-                        ]?.[index]
-                      }
-                    >
-                      {completedSets[
-                        `${currentSectionIndex}-${currentExerciseIndex}`
-                      ]?.[index] ? (
-                        <BiCheckCircle />
-                      ) : (
-                        <BiMinusCircle />
-                      )}
-                    </CompletionButton>
-                  </td>
-                </tr>
-              ))
-            : currentExercise?.exerciseSets.map((set, index) => (
-                <tr
-                  key={index}
-                  data-active={activeSet === set}
-                >
-                  <td>{index + 1}</td>
-                  <td>{set.weight}kg</td>
-                  <td>{set.reps}</td>
-                  <td>{set.rest}"</td>
-                  <td onClick={() => handleSetClick(set)}>
-                    {activeSet === set ? 'attivo' : 'scegli'}
-                  </td>
-                  <td>
-                    <CompletionButton
-                      onClick={() => handleSetComplete(index)}
-                      completed={
-                        completedSets[
-                          `${currentSectionIndex}-${currentExerciseIndex}`
-                        ]?.[index]
-                      }
-                    >
-                      {completedSets[
-                        `${currentSectionIndex}-${currentExerciseIndex}`
-                      ]?.[index] ? (
-                        <BiCheckCircle />
-                      ) : (
-                        <BiMinusCircle />
-                      )}
-                    </CompletionButton>
-                  </td>
-                </tr>
-              ))}
-        </tbody>
-      </SetTable>
+      <SetActive
+        currentExercise={currentExercise}
+        updateExercise={setCurrentExercise}
+        activeSet={activeSet}
+        handleSetClick={handleSetClick}
+        handleSetComplete={handleSetComplete}
+        completedSets={completedSets}
+        currentSectionIndex={currentSectionIndex}
+      />
     </Container>
   );
 }
@@ -195,65 +126,16 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 15px;
   background-color: ${({ theme }) => theme.colors.white10};
   width: 100%;
-
   border-radius: 10px;
   border: 1px solid ${({ theme }) => theme.colors.neon};
+  padding: 20px;
 `;
 const ExerciseTitle = styled.div`
   font-size: 16px;
   color: ${({ theme }) => theme.colors.white};
   text-align: center;
   margin-bottom: 20px;
-`;
-
-const SetTable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  th,
-  td {
-    padding: 8px;
-    text-align: center;
-    color: ${({ theme }) => theme.colors.white};
-    button {
-      margin: 0 auto;
-    }
-  }
-  th {
-    font-size: 14px;
-    opacity: 0.8;
-  }
-  td {
-    font-size: 14px;
-  }
-  tr {
-    cursor: pointer;
-    transition: all 0.2s ease;
-
-    &[data-active='true'] {
-      background: ${({ theme }) => `${theme.colors.neon}20`};
-      border-left: 4px solid ${({ theme }) => theme.colors.neon};
-    }
-  }
-`;
-const CompletionButton = styled.button<{ completed: boolean }>`
-  all: unset;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px;
-  border-radius: 50%;
-  transition: all 0.2s ease;
-  color: ${({ completed, theme }) =>
-    completed ? theme.colors.success : theme.colors.error};
-
-  &:hover {
-    transform: scale(1.1);
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
 `;

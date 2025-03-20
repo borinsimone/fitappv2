@@ -352,6 +352,7 @@ const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({ workout }) => {
       </WorkoutContent>
 
       <Button
+        className='btn'
         onClick={startWorkout}
         // whileHover={{ scale: 1.02 }}
         // whileTap={{ scale: 0.98 }}
@@ -372,9 +373,13 @@ const Container = styled(motion.div)`
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
-  padding: 0 0 24px;
+  padding: 0;
   /* overflow: hidden; */
   position: relative;
+  .btn {
+    position: sticky;
+    bottom: 0;
+  }
 `;
 
 const Header = styled.div`

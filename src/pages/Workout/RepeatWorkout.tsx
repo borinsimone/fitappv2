@@ -40,12 +40,22 @@ function RepeatWorkout({
     const newDate = new Date(today);
     newDate.setMinutes(today.getMinutes() - today.getTimezoneOffset());
 
-    const newWorkout = { ...workout };
-    newWorkout.date = newDate.toISOString();
-    newWorkout.completed = false;
-    newWorkout.feedback.feeling = null;
-    newWorkout.feedback.notes = '';
+    // Crea una nuova copia del workout omettendo l'ID
+    const { _id, ...workoutWithoutId } = workout;
 
+    const newWorkout = {
+      ...workoutWithoutId,
+      date: newDate.toISOString(),
+      completed: false,
+      // Gestisci correttamente il feedback che potrebbe non esistere
+      feedback: {
+        feeling: undefined, // Usa undefined invece di null per rispettare il tipo
+        notes: '',
+      },
+      notes: workout.notes || '', // Preserva le note o imposta stringa vuota
+    };
+
+    // Assicurati che tutte le sezioni ed esercizi siano copiati correttamente
     addWorkout(newWorkout);
     setAddWorkoutDialog(false);
   };
