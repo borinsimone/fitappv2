@@ -1,257 +1,467 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import doggoimg from '../../assets/sad-doggo.png';
-import Button from '../../components/Button';
-import { MdClose } from 'react-icons/md';
-import { BiRepeat, BiPlus } from 'react-icons/bi';
-
+import { MdClose, MdFitness, MdOutlineAutoAwesome } from 'react-icons/md';
+import { BiRepeat, BiPlus, BiDumbbell, BiCalendarPlus } from 'react-icons/bi';
+import { FiArrowLeft } from 'react-icons/fi';
 import { useWorkouts } from '../../context/WorkoutContext';
 import { AnimatePresence, motion } from 'framer-motion';
 import WorkoutForm from './WorkoutForm';
 import RepeatWorkout from './RepeatWorkout';
+
 function NoWorkoutPage() {
-  const { workouts, addWorkout } = useWorkouts();
+  const { workouts } = useWorkouts();
   const [addWorkoutDialog, setAddWorkoutDialog] = useState(false);
   const [repeatWorkout, setRepeatWorkout] = useState(false);
-  interface Workout {
-    date: string;
-    name: string;
-    completed: boolean;
-    feedback: {
-      feeling: number | null;
-      notes: string;
-    };
-  }
-
   const [formOpen, setFormOpen] = useState(false);
+
+  const openDialog = () => {
+    setAddWorkoutDialog(true);
+    setRepeatWorkout(false);
+    setFormOpen(false);
+  };
+
+  const closeDialog = () => {
+    setAddWorkoutDialog(false);
+    setTimeout(() => {
+      setRepeatWorkout(false);
+      setFormOpen(false);
+    }, 300);
+  };
+
   return (
-    <Container
+    <PageContainer
       as={motion.div}
-      key='no-workout'
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.2 }}
+      key='no-workout-page'
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
     >
-      <div className='text'>non hai ancora un allenamento programmato..</div>
-      <img
-        src={doggoimg}
-        alt=''
-      />
-      <Button
-        className='add'
-        onClick={() => setAddWorkoutDialog(true)}
+      <EmptyStateContainer
+        as={motion.div}
+        key='empty-state'
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        transition={{ duration: 0.3 }}
       >
-        crea workout
-      </Button>
+        <IllustrationWrapper>
+          <motion.img
+            src={doggoimg}
+            alt='No workout scheduled'
+            initial={{ scale: 0.8, opacity: 0.8 }}
+            animate={{
+              scale: [0.8, 0.85, 0.8],
+              opacity: [0.8, 1, 0.8],
+            }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              repeatType: 'reverse',
+            }}
+          />
+        </IllustrationWrapper>
+
+        <EmptyStateContent>
+          <EmptyStateTitle>Nessun allenamento programmato</EmptyStateTitle>
+          <EmptyStateDescription>
+            Crea il tuo primo allenamento o scegli tra quelli già creati per
+            iniziare a tracciare i tuoi progressi
+          </EmptyStateDescription>
+        </EmptyStateContent>
+
+        <CreateWorkoutButton
+          onClick={openDialog}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+        >
+          <BiDumbbell size={20} />
+          <span>Crea Allenamento</span>
+        </CreateWorkoutButton>
+      </EmptyStateContainer>
+
       <AnimatePresence>
         {addWorkoutDialog && (
-          <AddDialog
+          <ModalOverlay
             as={motion.div}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            onClick={closeDialog}
           >
-            <div
-              className='close'
-              onClick={() => setAddWorkoutDialog(false)}
+            <ModalContent
+              as={motion.div}
+              initial={{ y: 50, opacity: 0, scale: 0.9 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: 20, opacity: 0, scale: 0.9 }}
+              transition={{ type: 'spring', damping: 25 }}
+              onClick={(e) => e.stopPropagation()}
             >
-              <MdClose
-                color='red'
-                size='30px'
-              />
-            </div>
-            <AnimatePresence>
-              {!repeatWorkout && (
-                <ChoicesContainer
-                  as={motion.div}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                >
-                  <ChoiceTitle>Seleziona un opzione</ChoiceTitle>
-
-                  <ChoiceButton
-                    onClick={() => setRepeatWorkout(true)}
-                    whileHover={{
-                      scale: 1.02,
-                      boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)',
+              <ModalHeader>
+                {repeatWorkout || formOpen ? (
+                  <BackButton
+                    onClick={() => {
+                      setRepeatWorkout(false);
+                      setFormOpen(false);
                     }}
-                    whileTap={{ scale: 0.98 }}
                   >
-                    <ChoiceIcon>
-                      <BiRepeat size={24} />
-                    </ChoiceIcon>
-                    <ChoiceInfo>
-                      <ChoiceName>Aggiungi da Esistenti</ChoiceName>
-                      <ChoiceDescription>
-                        Usa un allenamento che hai già creato
-                      </ChoiceDescription>
-                    </ChoiceInfo>
-                  </ChoiceButton>
+                    <FiArrowLeft size={20} />
+                  </BackButton>
+                ) : (
+                  <div /> // Placeholder for flex spacing
+                )}
 
-                  <ChoiceButton
-                    onClick={() => setFormOpen(true)}
-                    whileHover={{
-                      scale: 1.02,
-                      boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)',
-                    }}
-                    whileTap={{ scale: 0.98 }}
+                <ModalTitle>
+                  {formOpen
+                    ? 'Nuovo Allenamento'
+                    : repeatWorkout
+                    ? 'Seleziona Allenamento'
+                    : 'Aggiungi Allenamento'}
+                </ModalTitle>
+
+                <CloseButton onClick={closeDialog}>
+                  <MdClose size={20} />
+                </CloseButton>
+              </ModalHeader>
+
+              <AnimatePresence mode='wait'>
+                {!repeatWorkout && !formOpen && (
+                  <OptionsContainer
+                    as={motion.div}
+                    key='options'
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
                   >
-                    <ChoiceIcon>
-                      <BiPlus size={24} />
-                    </ChoiceIcon>
-                    <ChoiceInfo>
-                      <ChoiceName>Aggiungi Nuovo</ChoiceName>
-                      <ChoiceDescription>
-                        Crea un allenamento personalizzato
-                      </ChoiceDescription>
-                    </ChoiceInfo>
-                  </ChoiceButton>
-                </ChoicesContainer>
-              )}
-            </AnimatePresence>
-            <AnimatePresence>
-              {repeatWorkout && (
-                <RepeatWorkout
-                  workouts={workouts ?? []}
-                  setRepeatWorkout={setRepeatWorkout}
-                  setAddWorkoutDialog={setAddWorkoutDialog}
-                />
-              )}
-            </AnimatePresence>
-            <AnimatePresence>
-              {formOpen && <WorkoutForm closeForm={() => setFormOpen(false)} />}
-            </AnimatePresence>
-          </AddDialog>
+                    <OptionCard
+                      onClick={() => setFormOpen(true)}
+                      whileHover={{
+                        y: -4,
+                        boxShadow: '0 10px 25px rgba(0, 198, 190, 0.2)',
+                      }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <OptionIconWrapper accent='primary'>
+                        <BiPlus size={24} />
+                      </OptionIconWrapper>
+                      <OptionContent>
+                        <OptionTitle>Crea nuovo</OptionTitle>
+                        <OptionDescription>
+                          Crea un nuovo allenamento personalizzato
+                        </OptionDescription>
+                      </OptionContent>
+                    </OptionCard>
+
+                    <OptionCard
+                      onClick={() => setRepeatWorkout(true)}
+                      whileHover={{
+                        y: -4,
+                        boxShadow: '0 10px 25px rgba(0, 198, 190, 0.2)',
+                      }}
+                      whileTap={{ scale: 0.98 }}
+                      disabled={!workouts || workouts.length === 0}
+                    >
+                      <OptionIconWrapper accent='secondary'>
+                        <BiRepeat size={24} />
+                      </OptionIconWrapper>
+                      <OptionContent>
+                        <OptionTitle>Usa esistente</OptionTitle>
+                        <OptionDescription>
+                          {workouts && workouts.length > 0
+                            ? `Scegli tra ${workouts.length} allenamenti esistenti`
+                            : 'Non hai ancora allenamenti salvati'}
+                        </OptionDescription>
+                      </OptionContent>
+                    </OptionCard>
+
+                    <OptionCard
+                      whileHover={{
+                        y: -4,
+                        boxShadow: '0 10px 25px rgba(0, 198, 190, 0.2)',
+                      }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <OptionIconWrapper accent='tertiary'>
+                        <MdOutlineAutoAwesome size={24} />
+                      </OptionIconWrapper>
+                      <OptionContent>
+                        <OptionTitle>Suggerisci allenamento</OptionTitle>
+                        <OptionDescription>
+                          Fatti suggerire un allenamento in base ai tuoi
+                          obiettivi
+                        </OptionDescription>
+                        <ComingSoonBadge>Presto disponibile</ComingSoonBadge>
+                      </OptionContent>
+                    </OptionCard>
+                  </OptionsContainer>
+                )}
+
+                {repeatWorkout && (
+                  <motion.div
+                    key='repeat'
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    style={{ width: '100%' }}
+                  >
+                    <RepeatWorkout
+                      workouts={workouts ?? []}
+                      setRepeatWorkout={setRepeatWorkout}
+                      setAddWorkoutDialog={setAddWorkoutDialog}
+                    />
+                  </motion.div>
+                )}
+
+                {formOpen && (
+                  <motion.div
+                    key='form'
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    style={{ width: '100%' }}
+                  >
+                    <WorkoutForm closeForm={() => setFormOpen(false)} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </ModalContent>
+          </ModalOverlay>
         )}
       </AnimatePresence>
-    </Container>
+    </PageContainer>
   );
 }
 
 export default NoWorkoutPage;
-const Container = styled.div`
+
+// Styled Components
+const PageContainer = styled.div`
   flex: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+`;
+
+const EmptyStateContainer = styled.div`
+  max-width: 480px;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  position: relative;
+  text-align: center;
+  padding: 20px;
+`;
 
-  .text {
-    font-size: 30px;
-    text-align: center;
-    text-transform: uppercase;
-    font-weight: 700;
-    opacity: 0.5;
-    margin-top: auto;
-  }
+const IllustrationWrapper = styled.div`
+  width: 220px;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+
   img {
-    margin-bottom: auto;
-  }
-  .add {
-    text-transform: uppercase;
-    color: ${({ theme }) => theme.colors.dark};
-    font-weight: 700;
-    font-size: 24px;
-    padding: 10px;
-    margin-top: auto;
-    margin-bottom: 20px;
-    position: sticky;
-    bottom: 0;
+    width: 100%;
+    height: auto;
   }
 `;
-const AddDialog = styled.div`
+
+const EmptyStateContent = styled.div`
+  margin-bottom: 32px;
+`;
+
+const EmptyStateTitle = styled.h2`
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: ${({ theme }) => theme.colors.white};
+`;
+
+const EmptyStateDescription = styled.p`
+  font-size: 16px;
+  line-height: 1.5;
+  color: ${({ theme }) => theme.colors.white70};
+  max-width: 350px;
+  margin: 0 auto;
+`;
+
+const CreateWorkoutButton = styled(motion.button)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: ${({ theme }) => theme.colors.neon};
+  color: ${({ theme }) => theme.colors.dark};
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 16px;
+  padding: 16px 32px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 198, 190, 0.3);
+`;
+
+const ModalOverlay = styled.div`
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 99999;
-  background-color: ${({ theme }) => `${theme.colors.dark}10`};
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
-  height: 100%;
-  width: 100vw;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  .close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-  }
-  .choice {
-    background-color: ${({ theme }) => theme.colors.dark};
-    border: 2px solid ${({ theme }) => theme.colors.neon};
-    width: 90%;
-    border-radius: 10px;
-    padding: 20px;
-    text-transform: capitalize;
-    font-weight: 700;
-  }
+  padding: 16px;
+  z-index: 1000;
 `;
 
-// Add these styled components
-const ChoicesContainer = styled(motion.div)`
+const ModalContent = styled.div`
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  background: ${({ theme }) => theme.colors.dark};
+  border-radius: 20px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  width: 90%;
-  max-width: 400px;
-  gap: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 `;
 
-const ChoiceTitle = styled.h2`
-  color: ${({ theme }) => theme.colors.neon};
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  text-align: center;
-`;
-
-const ChoiceButton = styled(motion.button)`
+const ModalHeader = styled.div`
   display: flex;
   align-items: center;
-  background-color: ${({ theme }) => theme.colors.white10};
-  border: 2px solid ${({ theme }) => theme.colors.white20};
-  border-radius: 12px;
-  padding: 16px;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.white10};
+`;
+
+const ModalTitle = styled.h3`
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  color: ${({ theme }) => theme.colors.white};
+`;
+
+const CloseButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: ${({ theme }) => theme.colors.white10};
+  color: ${({ theme }) => theme.colors.white};
   cursor: pointer;
-  text-align: left;
   transition: all 0.2s ease;
 
   &:hover {
-    border-color: ${({ theme }) => theme.colors.neon};
-    background-color: ${({ theme }) => `${theme.colors.neon}10`};
+    background: ${({ theme }) => theme.colors.white20};
   }
 `;
 
-const ChoiceIcon = styled.div`
+const BackButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: ${({ theme }) => theme.colors.neon};
-  color: ${({ theme }) => theme.colors.dark};
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: ${({ theme }) => theme.colors.white10};
+  color: ${({ theme }) => theme.colors.white};
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.white20};
+  }
+`;
+
+const OptionsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  overflow-y: auto;
+`;
+
+const OptionCard = styled(motion.div)<{ disabled?: boolean }>`
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background: ${({ theme }) => theme.colors.white05};
+  border-radius: 16px;
+  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
+  opacity: ${({ disabled }) => (disabled ? 0.6 : 1)};
+  position: relative;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: ${({ theme, disabled }) =>
+      disabled ? theme.colors.white05 : theme.colors.white10};
+  }
+`;
+
+const OptionIconWrapper = styled.div<{
+  accent: 'primary' | 'secondary' | 'tertiary';
+}>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
   margin-right: 16px;
   flex-shrink: 0;
+
+  background: ${({ theme, accent }) =>
+    accent === 'primary'
+      ? `${theme.colors.neon}20`
+      : accent === 'secondary'
+      ? `${theme.colors.white20}`
+      : `${theme.colors.white10}`};
+
+  color: ${({ theme, accent }) =>
+    accent === 'primary'
+      ? theme.colors.neon
+      : accent === 'secondary'
+      ? theme.colors.white
+      : theme.colors.white70};
 `;
 
-const ChoiceInfo = styled.div`
+const OptionContent = styled.div`
   flex: 1;
+  position: relative;
 `;
 
-const ChoiceName = styled.div`
-  font-size: 18px;
+const OptionTitle = styled.h4`
+  font-size: 16px;
   font-weight: 600;
-  margin-bottom: 4px;
+  margin: 0 0 4px 0;
+  color: ${({ theme }) => theme.colors.white};
 `;
 
-const ChoiceDescription = styled.div`
+const OptionDescription = styled.p`
   font-size: 14px;
+  margin: 0;
   color: ${({ theme }) => theme.colors.white70};
+  line-height: 1.4;
+`;
+
+const ComingSoonBadge = styled.div`
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 8px;
+  background: ${({ theme }) => theme.colors.white10};
+  color: ${({ theme }) => theme.colors.white70};
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
 `;

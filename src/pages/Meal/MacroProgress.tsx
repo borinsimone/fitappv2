@@ -11,64 +11,101 @@ interface MacroProgressProps {
 
 const MacroProgress: React.FC<MacroProgressProps> = ({ macro }) => {
   const remaining = macro.total - macro.consumed;
-  const percentage = (macro.consumed / macro.total) * 100;
+  const percentage = Math.min(100, (macro.consumed / macro.total) * 100) || 0;
 
   return (
     <Container>
       <Header>
-        <span className='name'>{macro.name}</span>
-        <span className='remaining'>
-          {remaining}
-          {macro.unit} left
-        </span>
+        <TitleSection>
+          <MacroName>{macro.name}</MacroName>
+          <ConsumedValue>
+            {macro.consumed.toLocaleString()} {macro.unit}
+          </ConsumedValue>
+        </TitleSection>
+        <RemainingSection>
+          <RemainingLabel>
+            {remaining > 0
+              ? `${remaining.toLocaleString()} ${macro.unit} remaining`
+              : 'Daily target reached!'}
+          </RemainingLabel>
+          <TotalValue>
+            of {macro.total.toLocaleString()} {macro.unit}
+          </TotalValue>
+        </RemainingSection>
       </Header>
-      <ProgressBar>
-        <Progress width={percentage} />
-      </ProgressBar>
-      <Values>
-        <span>
-          {macro.consumed}
-          {macro.unit}
-        </span>
-        <span>
-          of {macro.total}
-          {macro.unit}
-        </span>
-      </Values>
+
+      <ProgressBarContainer>
+        <ProgressBar>
+          <Progress width={percentage} />
+        </ProgressBar>
+        <PercentageValue>{Math.round(percentage)}%</PercentageValue>
+      </ProgressBarContainer>
     </Container>
   );
 };
 
 const Container = styled.div`
   background: ${({ theme }) => theme.colors.white10};
-  padding: 16px;
-  border-radius: 8px;
+  padding: 18px;
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 14px;
 `;
 
 const Header = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
+`;
+
+const TitleSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const MacroName = styled.div`
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: capitalize;
+  color: ${({ theme }) => theme.colors.white70};
+`;
+
+const ConsumedValue = styled.div`
+  font-weight: 700;
+  font-size: 24px;
+`;
+
+const RemainingSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: right;
+`;
+
+const RemainingLabel = styled.div`
+  font-weight: 500;
+  font-size: 14px;
+  color: ${({ theme }) => theme.colors.neon};
+`;
+
+const TotalValue = styled.div`
+  font-size: 13px;
+  color: ${({ theme }) => theme.colors.white50};
+`;
+
+const ProgressBarContainer = styled.div`
+  display: flex;
   align-items: center;
-
-  .name {
-    font-weight: 600;
-    text-transform: capitalize;
-  }
-
-  .remaining {
-    font-size: 14px;
-    opacity: 0.8;
-  }
+  gap: 12px;
 `;
 
 const ProgressBar = styled.div`
-  width: 100%;
-  height: 6px;
-  background: ${({ theme }) => theme.colors.white10};
-  border-radius: 3px;
+  flex: 1;
+  height: 8px;
+  background: ${({ theme }) => theme.colors.white05};
+  border-radius: 4px;
   overflow: hidden;
 `;
 
@@ -77,13 +114,14 @@ const Progress = styled.div<{ width: number }>`
   width: ${({ width }) => width}%;
   background: ${({ theme }) => theme.colors.neon};
   transition: width 0.3s ease;
+  border-radius: 4px;
 `;
 
-const Values = styled.div`
-  display: flex;
-  justify-content: space-between;
+const PercentageValue = styled.div`
   font-size: 14px;
-  opacity: 0.8;
+  font-weight: 600;
+  min-width: 40px;
+  text-align: right;
 `;
 
 export default MacroProgress;

@@ -74,7 +74,7 @@ const TodayData: React.FC = () => {
     if (todayWorkout) {
       setActiveWorkout({
         ...todayWorkout,
-        title: todayWorkout.name,
+        name: todayWorkout.name,
       });
       navigate('/workout-assistant');
     }
@@ -109,12 +109,12 @@ const TodayData: React.FC = () => {
                   {todayWorkout.completed ? (
                     <>
                       <BiCheck size={16} />
-                      Completed
+                      Completi
                     </>
                   ) : (
                     <>
                       <BiFlag size={16} />
-                      Scheduled
+                      Programmati
                     </>
                   )}
                 </WorkoutStatus>
@@ -126,7 +126,7 @@ const TodayData: React.FC = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  Start
+                  Inizia
                 </StartButton>
               )}
             </>
@@ -203,17 +203,17 @@ const TodayData: React.FC = () => {
           </ChartContainer>
           <WeeklyStats>
             <StatItem>
-              <StatLabel>Completed</StatLabel>
+              <StatLabel>Completi</StatLabel>
               <StatValue>{completedWorkouts}</StatValue>
             </StatItem>
 
             <StatItem>
-              <StatLabel>Total</StatLabel>
+              <StatLabel>Totali</StatLabel>
               <StatValue>{totalWorkouts}</StatValue>
             </StatItem>
 
             <StatItem>
-              <StatLabel>Remaining</StatLabel>
+              <StatLabel>Rimanenti</StatLabel>
               <StatValue>{totalWorkouts - completedWorkouts}</StatValue>
             </StatItem>
           </WeeklyStats>

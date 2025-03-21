@@ -3,6 +3,7 @@ import {
   Routes,
   Route,
   useLocation,
+  Navigate,
 } from 'react-router-dom';
 import Home from '../pages/Home/Home';
 import Login from '../pages/Auth/Login';
@@ -31,6 +32,16 @@ const AppContent = () => {
       <AnimatePresence>{showNavbar && <Navbar />}</AnimatePresence>
       <AnimatePresence mode='wait'>{isLoading && <Loading />}</AnimatePresence>
       <Routes>
+        <Route
+          path='/'
+          element={
+            <Navigate
+              to='/home'
+              replace
+            />
+          }
+        />
+
         <Route
           path='/login'
           element={<Login />}
