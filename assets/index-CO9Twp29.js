@@ -3039,7 +3039,8 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: 80vh;
+  height: 80dvh;
   background: ${({theme:e})=>e.colors.dark30};
   backdrop-filter: blur(8px);
   display: flex;
