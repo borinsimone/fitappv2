@@ -111,10 +111,16 @@ export const WorkoutProvider = ({
   };
 
   const loadWorkouts = async (): Promise<void> => {
+    console.log('Starting loadWorkouts...');
     setIsLoading(true);
     try {
+      console.log('Fetching workouts...');
       await fetchWorkouts(); // Attende la fine della chiamata
+      console.log('Workouts fetched successfully');
+    } catch (error) {
+      console.error('Error loading workouts:', error);
     } finally {
+      console.log('Finishing loadWorkouts...');
       setIsLoading(false); // Assicura che venga eseguito sempre
     }
   };

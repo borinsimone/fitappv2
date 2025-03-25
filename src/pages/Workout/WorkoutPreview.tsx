@@ -926,7 +926,8 @@ const CompletedBadge = styled.div`
   text-align: center;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   width: 100%;
-
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
   svg {
     flex-shrink: 0;
   }
