@@ -5,7 +5,14 @@ import { BiPlus, BiTrash, BiEdit, BiSave } from 'react-icons/bi';
 import { useWorkouts } from '../../context/WorkoutContext';
 import { useNavigate } from 'react-router-dom';
 import { MdClose } from 'react-icons/md';
-import { AnimatePresence, delay, motion, useIsPresent } from 'framer-motion';
+import {
+  AnimatePresence,
+  delay,
+  motion,
+  Reorder,
+  useIsPresent,
+} from 'framer-motion';
+import SuggestionsInput from './SuggestionsInput';
 
 interface ExerciseSet {
   weight?: number;
@@ -50,7 +57,7 @@ const WorkoutForm = ({ closeForm }) => {
     sections: [
       {
         id: uuidv4(),
-        name: 'Sezione 1',
+        name: '',
         exercises: [],
       },
     ],
@@ -76,11 +83,25 @@ const WorkoutForm = ({ closeForm }) => {
       ),
     }));
   };
+  // Aggiungi questa funzione dopo handleSectionNameChange
+
+  const handleSectionChange = (
+    sectionId: string,
+    field: string,
+    value: string | boolean
+  ) => {
+    setWorkout((prev) => ({
+      ...prev,
+      sections: prev.sections.map((section) =>
+        section.id === sectionId ? { ...section, [field]: value } : section
+      ),
+    }));
+  };
 
   const addSection = () => {
     const newSection: WorkoutSection = {
       id: uuidv4(),
-      name: `Section ${workout.sections.length + 1}`,
+      name: ``,
       exercises: [],
     };
 
@@ -299,7 +320,12 @@ const WorkoutForm = ({ closeForm }) => {
     // Navigate back to the workout planner
     navigate('/workout-planner');
   };
-
+  const handleReorder = (newOrder) => {
+    setWorkout((prev) => ({
+      ...prev,
+      sections: newOrder,
+    }));
+  };
   return (
     <FormContainer
       as={motion.div}
@@ -335,16 +361,18 @@ const WorkoutForm = ({ closeForm }) => {
         <SectionsList>
           <AnimatePresence>
             {workout.sections.map((section) => (
-              <SectionCardItem
+              <SectionCard
                 key={section.id}
-                // as={motion.div}
-                // initial={{ opacity: 0, x: -50 }}
-                // animate={{ opacity: 1, x: 0 }}
-                // exit={{ opacity: 0, x: -50 }}
-                // transition={{ duration: 0.3 }}
+                as={motion.div}
+                layout='position'
+                initial={{ opacity: 0, y: -10, height: 0 }}
+                animate={{ opacity: 1, y: 0, height: 'auto' }}
+                exit={{ opacity: 0, y: -10, height: 0 }}
+                transition={{ duration: 0.2 }}
+                style={{ originY: 0, overflow: 'hidden' }}
               >
                 <SectionHeader>
-                  <input
+                  {/* <input
                     className='input'
                     type='text'
                     value={section.name}
@@ -353,6 +381,14 @@ const WorkoutForm = ({ closeForm }) => {
                     }
                     placeholder='Section Name'
                     required
+                  /> */}
+                  <SuggestionsInput
+                    value={section.name}
+                    onChange={(value) =>
+                      handleSectionChange(section.id, 'name', value)
+                    }
+                    placeholder='Nome sezione'
+                    type='section'
                   />
                   <IconButton onClick={() => removeSection(section.id)}>
                     <BiTrash />
@@ -363,7 +399,7 @@ const WorkoutForm = ({ closeForm }) => {
                   {section.exercises.map((exercise) => (
                     <ExerciseCard key={exercise.id}>
                       <ExerciseHeader>
-                        <input
+                        {/* <input
                           type='text'
                           value={exercise.name}
                           onChange={(e) =>
@@ -376,6 +412,20 @@ const WorkoutForm = ({ closeForm }) => {
                           }
                           placeholder='Exercise Name'
                           required
+                        /> */}
+                        <SuggestionsInput
+                          value={exercise.name}
+                          onChange={(value) =>
+                            handleExerciseChange(
+                              section.id,
+                              exercise.id,
+                              'name',
+                              value
+                            )
+                          }
+                          placeholder='Nome esercizio'
+                          type='exercise'
+                          sectionName={section.name} // Passa il nome della sezione per filtrare gli esercizi
                         />
                         <div>
                           <label>
@@ -525,7 +575,7 @@ const WorkoutForm = ({ closeForm }) => {
                     <BiPlus /> Add Exercise
                   </ActionButton>
                 </ExercisesList>
-              </SectionCardItem>
+              </SectionCard>
             ))}
           </AnimatePresence>
 

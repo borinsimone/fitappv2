@@ -34,9 +34,9 @@ function WorkoutPlanner() {
       />
       <div className='main-container'>
         <div className='header'>
-          <div className='workout-title'>
+          {/* <div className='workout-title'>
             {selectedWorkout ? selectedWorkout.name : ''}
-          </div>
+          </div> */}
           <div className='date'>
             {selectedDate?.toLocaleDateString('it-IT', {
               weekday: 'long',

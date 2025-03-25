@@ -353,7 +353,7 @@ const Overlay = styled(motion.div)`
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 1002;
   padding: 16px;
 `;
 
@@ -363,6 +363,7 @@ const ModalContainer = styled(motion.div)`
   width: 100%;
   max-width: 550px;
   max-height: 90vh;
+  max-height: 90dvh;
   overflow-y: auto;
   display: flex;
   flex-direction: column;

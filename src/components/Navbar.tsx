@@ -95,7 +95,7 @@ const Container = styled.nav`
   height: 10vh;
   /* bottom: 20px; */
   bottom: 0;
-  z-index: 10;
+  z-index: 1001;
   display: ${(props) => (props.hidden ? 'none' : 'flex')};
 
   align-items: center;

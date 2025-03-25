@@ -90,7 +90,7 @@ export const WorkoutCardComponent: React.FC<WorkoutCardProps> = ({
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.5 }}
           >
             <WorkoutSummary>
               <SummaryItem>
@@ -222,6 +222,7 @@ export const WorkoutCardComponent: React.FC<WorkoutCardProps> = ({
 const WorkoutCard = styled.div<{ $isExpanded: boolean }>`
   display: flex;
   flex-direction: column;
+  border-radius: 16px;
   border-bottom: 1px solid ${({ theme }) => theme.colors.white10};
   background: ${({ $isExpanded, theme }) =>
     $isExpanded ? theme.colors.white10 : 'transparent'};
@@ -235,6 +236,7 @@ const WorkoutCard = styled.div<{ $isExpanded: boolean }>`
   &:last-child {
     border-bottom: none;
   }
+  overflow: hidden;
 `;
 
 const WorkoutMain = styled.div`

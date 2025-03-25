@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import doggoimg from '../../assets/sad-doggo.png';
-import { MdClose, MdFitness, MdOutlineAutoAwesome } from 'react-icons/md';
-import { BiRepeat, BiPlus, BiDumbbell, BiCalendarPlus } from 'react-icons/bi';
+import { MdClose, MdOutlineAutoAwesome } from 'react-icons/md';
+import { BiRepeat, BiPlus, BiDumbbell } from 'react-icons/bi';
 import { FiArrowLeft } from 'react-icons/fi';
 import { useWorkouts } from '../../context/WorkoutContext';
 import { AnimatePresence, motion } from 'framer-motion';
 import WorkoutForm from './WorkoutForm';
 import RepeatWorkout from './RepeatWorkout';
+import { TiMessageTyping } from 'react-icons/ti';
 
 function NoWorkoutPage() {
   const { workouts, addWorkout } = useWorkouts();
@@ -306,10 +307,10 @@ function NoWorkoutPage() {
                       whileTap={{ scale: 0.98 }}
                     >
                       <OptionIconWrapper accent='primary'>
-                        <BiPlus size={24} />
+                        <TiMessageTyping size={24} />
                       </OptionIconWrapper>
                       <OptionContent>
-                        <OptionTitle>Test Workout</OptionTitle>
+                        <OptionTitle>Test Workout </OptionTitle>
                         <OptionDescription>
                           Add a test full body workout
                         </OptionDescription>

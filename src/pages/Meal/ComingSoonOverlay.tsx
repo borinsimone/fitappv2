@@ -81,8 +81,8 @@ const OverlayContainer = styled(motion.div)`
   top: 0;
   left: 0;
   width: 100%;
-  height: 80vh;
-  height: 80dvh;
+  height: 100vh;
+  height: 100dvh;
   background: ${({ theme }) => theme.colors.dark30};
   backdrop-filter: blur(8px);
   display: flex;
@@ -101,6 +101,9 @@ const ContentCard = styled.div`
   text-align: center;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
   border: 1px solid ${({ theme }) => theme.colors.white20};
+  max-height: 70vh;
+  max-height: 70dvh;
+  overflow-y: auto;
 `;
 
 const IconRow = styled.div`
