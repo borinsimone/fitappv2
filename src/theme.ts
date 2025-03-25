@@ -11,6 +11,16 @@ export const globalTheme = {
     white80: '#d9d9d980',
     white90: '#d9d9d990',
     dark: '#16181F',
+    dark10: '#16181F10',
+    dark20: '#16181F20',
+    dark30: '#16181F30',
+    dark40: '#16181F40',
+    dark50: '#16181F50',
+    dark60: '#16181F60',
+
+    dark70: '#16181F70',
+    dark80: '#16181F80',
+    dark90: '#16181F90',
 
     neon: '#00C6BE',
     neon10: '#00C6BE10',

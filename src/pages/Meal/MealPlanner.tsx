@@ -3,9 +3,12 @@ import styled from 'styled-components';
 import { format, isSameDay } from 'date-fns';
 import { it } from 'date-fns/locale';
 
-import MealAgenda from './MealAgenda';
-import MacroSummary from './MacroSummary';
-import Meals from './Meals';
+import MealAgenda from './components/agenda/MealAgenda';
+import MacroSummary from './components/metrics/MacroSummary';
+import Meals from './components/meals/Meals';
+import NoMealPlan from './components/empty-states/NoMealPlan';
+import ComingSoonOverlay from './ComingSoonOverlay';
+
 export interface Meal {
   id: string;
   date: string;
@@ -137,43 +140,67 @@ function MealPlanner() {
 
   return (
     <Container>
-      <MealAgenda
-        onSelectDay={setSelectedDate}
-        selectedDate={selectedDate}
-        meals={dummyMeals}
-      />
-      <MainContent>
-        <Header>
-          <h1>{format(selectedDate, 'EEEE d MMMM', { locale: it })}</h1>
-        </Header>
-        {selectedMeal && (
-          <MacroSummary
-            meals={selectedMeal.meals}
-            selectedMeal={selectedMeal}
-          />
-        )}
-        {selectedMeal && (
-          <Meals
-            selectedMeal={selectedMeal}
-            startHour={6}
-            onMealUpdate={(type, items) => {
-              setDummyMeals((prevMeals) =>
-                prevMeals.map((meal) =>
-                  meal.id === selectedMeal.id
-                    ? { ...meal, meals: { ...meal.meals, [type]: items } }
-                    : meal
-                )
-              );
-            }}
-          />
-        )}
-      </MainContent>
+      <Content>
+        <MealAgenda
+          onSelectDay={setSelectedDate}
+          selectedDate={selectedDate}
+          meals={dummyMeals}
+        />
+        <MainContent>
+          <Header>
+            <h1>{format(selectedDate, 'EEEE d MMMM', { locale: it })}</h1>
+          </Header>
+
+          {selectedMeal ? (
+            <>
+              <MacroSummary
+                meals={selectedMeal.meals}
+                selectedMeal={selectedMeal}
+              />
+              <Meals
+                selectedMeal={selectedMeal}
+                startHour={6}
+                onMealUpdate={(type, items) => {
+                  setDummyMeals((prevMeals) =>
+                    prevMeals.map((meal) =>
+                      meal.id === selectedMeal.id
+                        ? { ...meal, meals: { ...meal.meals, [type]: items } }
+                        : meal
+                    )
+                  );
+                }}
+              />
+            </>
+          ) : (
+            <NoMealPlan
+              selectedDate={selectedDate}
+              onCreateMeal={() => {
+                // Funzione per creare un nuovo piano pasti
+                const newMeal = {
+                  id: Date.now().toString(),
+                  date: selectedDate.toISOString().split('T')[0],
+                  meals: {
+                    breakfast: [],
+                    lunch: [],
+                    dinner: [],
+                    snacks: [],
+                  },
+                };
+                setDummyMeals([...dummyMeals, newMeal]);
+              }}
+            />
+          )}
+        </MainContent>
+      </Content>
+      <ComingSoonOverlay />
     </Container>
   );
 }
 
 export default MealPlanner;
-
+const Content = styled.div`
+  padding: 20px;
+`;
 const Container = styled.div`
   height: 100vh;
   height: 100dvh;

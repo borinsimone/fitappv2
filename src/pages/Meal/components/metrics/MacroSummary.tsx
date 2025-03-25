@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import MacroProgress from './MacroProgress';
-import { Meal } from '../../pages/Meal/MealPlanner';
+import { Meal } from '../../MealPlanner';
 
 interface MacroSummaryProps {
   meals: Meal['meals'];

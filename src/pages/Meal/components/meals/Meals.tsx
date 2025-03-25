@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import { Meal } from './MealPlanner';
-import type { MealItem } from './MealPlanner';
+import { Meal } from '../../MealPlanner';
+import type { MealItem } from '../../MealPlanner';
 import { format } from 'date-fns';
 
 import { useState } from 'react';
