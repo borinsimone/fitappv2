@@ -47,7 +47,7 @@ interface Workout {
   completed?: boolean; // Stato di completamento (default: false)
 }
 
-const WorkoutForm = ({ closeForm }) => {
+const WorkoutForm = ({ closeForm, selectedDate }) => {
   const navigate = useNavigate();
   const { addWorkout } = useWorkouts();
   const [workout, setWorkout] = useState<Workout>({
@@ -293,9 +293,11 @@ const WorkoutForm = ({ closeForm }) => {
         }
       }
     }
+    const workoutDate = selectedDate || new Date();
+
     const workoutToSave = {
       name: workout.name,
-      date: workout.date || new Date().toISOString(),
+      date: workoutDate.toISOString(),
       sections: workout.sections.map((section) => ({
         name: section.name,
         exercises: section.exercises.map((exercise) => ({

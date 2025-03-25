@@ -10,7 +10,7 @@ import WorkoutForm from './WorkoutForm';
 import RepeatWorkout from './RepeatWorkout';
 import { TiMessageTyping } from 'react-icons/ti';
 
-function NoWorkoutPage() {
+function NoWorkoutPage({ selectedDate }: { selectedDate?: Date }) {
   const { workouts, addWorkout } = useWorkouts();
   const [addWorkoutDialog, setAddWorkoutDialog] = useState(false);
   const [repeatWorkout, setRepeatWorkout] = useState(false);
@@ -391,6 +391,7 @@ function NoWorkoutPage() {
                       workouts={workouts ?? []}
                       setRepeatWorkout={setRepeatWorkout}
                       setAddWorkoutDialog={setAddWorkoutDialog}
+                      selectedDate={selectedDate} // Passa la data selezionata
                     />
                   </motion.div>
                 )}
@@ -403,7 +404,10 @@ function NoWorkoutPage() {
                     exit={{ opacity: 0 }}
                     style={{ width: '100%' }}
                   >
-                    <WorkoutForm closeForm={() => setFormOpen(false)} />
+                    <WorkoutForm
+                      closeForm={() => setFormOpen(false)}
+                      selectedDate={selectedDate} // Passa la data selezionata
+                    />
                   </motion.div>
                 )}
               </AnimatePresence>

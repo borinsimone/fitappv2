@@ -31,6 +31,7 @@ function RepeatWorkout({
   workouts,
   setAddWorkoutDialog,
   setRepeatWorkout,
+  selectedDate,
 }: RepeatWorkoutProps) {
   const { addWorkout } = useWorkouts();
   const today = new Date();
@@ -40,8 +41,12 @@ function RepeatWorkout({
   const uniqueWorkouts = [...new Set(workouts?.map((workout) => workout.name))];
 
   const handleAddWorkout = (workout: Workout) => {
-    const newDate = new Date(today);
-    newDate.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+    // Usa la data selezionata invece di creare una nuova data
+    const targetDate = selectedDate || new Date();
+
+    // Resetta l'ora mantenendo la data selezionata
+    const newDate = new Date(targetDate);
+    newDate.setHours(0, 0, 0, 0);
 
     // Crea una nuova copia del workout omettendo l'ID
     const { _id, ...workoutWithoutId } = workout;

@@ -50,7 +50,7 @@ function WorkoutPlanner() {
           {selectedWorkout ? (
             <WorkoutPreview workout={selectedWorkout} />
           ) : (
-            <NoWorkoutPage />
+            <NoWorkoutPage selectedDate={selectedDate} />
           )}
         </AnimatePresence>
       </div>
