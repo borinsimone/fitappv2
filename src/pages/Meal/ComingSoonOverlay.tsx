@@ -81,7 +81,8 @@ const OverlayContainer = styled(motion.div)`
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: 80vh;
+  height: 80dvh;
   background: ${({ theme }) => theme.colors.dark30};
   backdrop-filter: blur(8px);
   display: flex;
