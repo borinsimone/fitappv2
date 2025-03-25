@@ -27,10 +27,17 @@ interface WorkoutSection {
   exercises: Exercise[];
 }
 
+// Aggiorna l'interfaccia Workout per allinearla al modello del backend
 interface Workout {
-  id: string;
+  id: string; // Questo verrà mappato a _id nel backend
   name: string;
+  date?: string; // Data dell'allenamento (opzionale, defaults nel backend)
   sections: WorkoutSection[];
+  startTime?: Date | null; // Ora di inizio (verrà impostata quando l'utente inizia)
+  endTime?: Date | null; // Ora di fine (verrà impostata quando l'utente completa)
+  duration?: number | null; // Durata in minuti (calcolata automaticamente)
+  notes?: string; // Note generali dell'allenamento
+  completed?: boolean; // Stato di completamento (default: false)
 }
 
 const WorkoutForm = ({ closeForm }) => {
@@ -39,6 +46,7 @@ const WorkoutForm = ({ closeForm }) => {
   const [workout, setWorkout] = useState<Workout>({
     id: uuidv4(),
     name: '',
+    date: new Date().toISOString(), // Imposta la data corrente
     sections: [
       {
         id: uuidv4(),
@@ -46,8 +54,16 @@ const WorkoutForm = ({ closeForm }) => {
         exercises: [],
       },
     ],
+    startTime: null,
+    endTime: null,
+    duration: null,
+    completed: false, // Inizialmente non completato
   });
-
+  const [workoutNotes, setWorkoutNotes] = useState<string>('');
+  const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setWorkoutNotes(e.target.value);
+    setWorkout((prev) => ({ ...prev, notes: e.target.value }));
+  };
   const handleWorkoutNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setWorkout((prev) => ({ ...prev, name: e.target.value }));
   };
@@ -256,9 +272,29 @@ const WorkoutForm = ({ closeForm }) => {
         }
       }
     }
+    const workoutToSave = {
+      name: workout.name,
+      date: workout.date || new Date().toISOString(),
+      sections: workout.sections.map((section) => ({
+        name: section.name,
+        exercises: section.exercises.map((exercise) => ({
+          name: exercise.name,
+          timeBased: exercise.timeBased,
+          exerciseSets: exercise.exerciseSets.map((set) => ({
+            weight: exercise.timeBased ? undefined : set.weight || 0,
+            reps: exercise.timeBased ? undefined : set.reps || 0,
+            time: exercise.timeBased ? set.time || 0 : undefined,
+            rest: set.rest || 0,
+          })),
+          notes: exercise.notes,
+        })),
+      })),
+      notes: workout.notes,
+      completed: false,
+    };
 
-    // Add the workout
-    addWorkout(workout);
+    console.log('workoutToSave', workoutToSave);
+    addWorkout(workoutToSave);
 
     // Navigate back to the workout planner
     navigate('/workout-planner');
@@ -500,7 +536,16 @@ const WorkoutForm = ({ closeForm }) => {
             <BiPlus /> Add Section
           </ActionButton>
         </SectionsList>
-
+        <FormGroup>
+          <Label htmlFor='workout-notes'>Note (opzionali)</Label>
+          <TextArea
+            id='workout-notes'
+            value={workoutNotes}
+            onChange={handleNotesChange}
+            placeholder='Inserisci note aggiuntive per questo allenamento...'
+            rows={3}
+          />
+        </FormGroup>
         <SubmitButton type='submit'>
           <BiSave /> Save Workout
         </SubmitButton>
@@ -811,3 +856,19 @@ const SectionCardItem = ({
     </SectionCard>
   );
 };
+const TextArea = styled.textarea`
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid ${({ theme }) => theme.colors.white20};
+  background: ${({ theme }) => theme.colors.white10};
+  color: ${({ theme }) => theme.colors.white};
+  font-size: 16px;
+  resize: vertical;
+  min-height: 80px;
+
+  &:focus {
+    outline: none;
+    border-color: ${({ theme }) => theme.colors.neon};
+  }
+`;

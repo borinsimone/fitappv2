@@ -10,7 +10,7 @@ import { LuBadge } from 'react-icons/lu';
 import { useWorkouts } from '../../context/WorkoutContext';
 import TodayData from './widgets/TodayData';
 import WeeklyStats from './widgets/WeeklyStats';
-import WorkoutHistory from './widgets/WorkoutHistory';
+import WorkoutHistory from './widgets/Workout History/WorkoutHistory';
 import Achievements from './widgets/Achievements';
 
 function Home() {
@@ -47,10 +47,10 @@ function Home() {
         <Widget index={1}>
           <Achievements />
         </Widget>
-        <Widget index={2}>
+        {/* <Widget index={2}>
           <WeeklyStats />
-        </Widget>
-        <Widget index={3}>
+        </Widget> */}
+        <Widget index={2}>
           <WorkoutHistory />
         </Widget>
       </div>

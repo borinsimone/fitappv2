@@ -28,8 +28,11 @@ interface Section {
 }
 
 interface WorkoutFeedback {
-  feeling?: 1 | 2 | 3 | 4 | 5;
+  feeling?: number; // 1-5 scale
+  energyLevel?: number; // 1-5 scale
+  difficulty?: number; // 1-5 scale
   notes?: string;
+  completedAt?: string; // Timestamp ISO
 }
 
 interface Workout {
@@ -40,7 +43,10 @@ interface Workout {
   date: string;
   completed: boolean;
   feedback?: WorkoutFeedback;
-  notes?: string;
+  notes?: Date | null;
+  startTime?: Date | null;
+  endTime?: string;
+  duration?: number;
 }
 
 interface WorkoutContextType {
@@ -100,7 +106,7 @@ export const WorkoutProvider = ({
   ): Promise<void> => {
     const token = localStorage.getItem('token');
     if (!token) return;
-    await updateWorkout(id, token, updatedData);
+    await updateWorkout(id, updatedData, token);
     await fetchWorkouts(); // Ricarica i dati dopo la modifica
   };
 

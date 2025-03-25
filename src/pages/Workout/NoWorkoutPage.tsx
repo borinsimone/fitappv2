@@ -10,7 +10,7 @@ import WorkoutForm from './WorkoutForm';
 import RepeatWorkout from './RepeatWorkout';
 
 function NoWorkoutPage() {
-  const { workouts } = useWorkouts();
+  const { workouts, addWorkout } = useWorkouts();
   const [addWorkoutDialog, setAddWorkoutDialog] = useState(false);
   const [repeatWorkout, setRepeatWorkout] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
@@ -134,6 +134,187 @@ function NoWorkoutPage() {
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.2 }}
                   >
+                    <OptionCard
+                      onClick={() => {
+                        console.log('Adding test workout...');
+                        const workoutCompletato = {
+                          name: 'Allenamento Full Body',
+                          date: new Date(
+                            '2025-03-24T10:00:00.000Z'
+                          ).toISOString(),
+
+                          sections: [
+                            {
+                              name: 'Riscaldamento',
+                              exercises: [
+                                {
+                                  name: 'Corsa sul posto',
+                                  notes:
+                                    'Leggera, per aumentare la frequenza cardiaca',
+                                  timeBased: true,
+                                  exerciseSets: [
+                                    {
+                                      time: 300,
+                                      rest: 60,
+                                    },
+                                  ],
+                                },
+                                {
+                                  name: 'Stretching dinamico',
+                                  timeBased: true,
+                                  exerciseSets: [
+                                    {
+                                      time: 180,
+                                      rest: 30,
+                                    },
+                                  ],
+                                },
+                              ],
+                            },
+                            {
+                              name: 'Parte principale',
+                              exercises: [
+                                {
+                                  name: 'Squat',
+                                  notes: 'Mantieni la schiena dritta',
+                                  timeBased: false,
+                                  exerciseSets: [
+                                    {
+                                      weight: 60,
+                                      reps: 12,
+                                      rest: 90,
+                                    },
+                                    {
+                                      weight: 70,
+                                      reps: 10,
+                                      rest: 90,
+                                    },
+                                    {
+                                      weight: 75,
+                                      reps: 8,
+                                      rest: 120,
+                                    },
+                                  ],
+                                },
+                                {
+                                  name: 'Panca piana',
+                                  notes: 'Presa media',
+                                  timeBased: false,
+                                  exerciseSets: [
+                                    {
+                                      weight: 50,
+                                      reps: 12,
+                                      rest: 90,
+                                    },
+                                    {
+                                      weight: 60,
+                                      reps: 10,
+                                      rest: 90,
+                                    },
+                                    {
+                                      weight: 65,
+                                      reps: 8,
+                                      rest: 120,
+                                    },
+                                  ],
+                                },
+                                {
+                                  name: 'Stacchi da terra',
+                                  timeBased: false,
+                                  exerciseSets: [
+                                    {
+                                      weight: 80,
+                                      reps: 10,
+                                      rest: 120,
+                                    },
+                                    {
+                                      weight: 90,
+                                      reps: 8,
+                                      rest: 120,
+                                    },
+                                    {
+                                      weight: 100,
+                                      reps: 6,
+                                      rest: 150,
+                                    },
+                                  ],
+                                },
+                              ],
+                            },
+                            {
+                              name: 'Defaticamento',
+                              exercises: [
+                                {
+                                  name: 'Stretching statico',
+                                  timeBased: true,
+                                  exerciseSets: [
+                                    {
+                                      time: 300,
+                                      rest: 0,
+                                    },
+                                  ],
+                                },
+                              ],
+                            },
+                          ],
+
+                          startTime: new Date(
+                            '2025-03-24T10:00:00.000Z'
+                          ).toISOString(),
+                          endTime: new Date(
+                            '2025-03-24T11:15:00.000Z'
+                          ).toISOString(),
+                          duration: 75,
+
+                          notes:
+                            'Allenamento completato con buona intensità. Da aumentare i carichi la prossima volta.',
+
+                          completed: false,
+
+                          feedback: {
+                            feeling: 4,
+                            energyLevel: 4,
+                            difficulty: 3,
+                            notes:
+                              'Mi sono sentito in forma. Squat particolarmente efficaci oggi.',
+                            completedAt: new Date(
+                              '2025-03-24T11:20:00.000Z'
+                            ).toISOString(),
+                          },
+
+                          createdAt: new Date(
+                            '2025-03-24T09:45:00.000Z'
+                          ).toISOString(),
+                          updatedAt: new Date(
+                            '2025-03-24T11:20:00.000Z'
+                          ).toISOString(),
+                        };
+
+                        try {
+                          console.log('Workout data:', workoutCompletato);
+                          addWorkout(workoutCompletato);
+                          console.log('Workout added successfully');
+                          closeDialog();
+                        } catch (error) {
+                          console.error('Error adding workout:', error);
+                        }
+                      }}
+                      whileHover={{
+                        y: -4,
+                        boxShadow: '0 10px 25px rgba(0, 198, 190, 0.2)',
+                      }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <OptionIconWrapper accent='primary'>
+                        <BiPlus size={24} />
+                      </OptionIconWrapper>
+                      <OptionContent>
+                        <OptionTitle>Test Workout</OptionTitle>
+                        <OptionDescription>
+                          Add a test full body workout
+                        </OptionDescription>
+                      </OptionContent>
+                    </OptionCard>
                     <OptionCard
                       onClick={() => setFormOpen(true)}
                       whileHover={{

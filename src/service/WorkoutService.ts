@@ -30,7 +30,10 @@ interface Workout {
   completed: boolean;
   feedback?: {
     feeling: number;
+    energyLevel?: number; // Nuovo campo
+    difficulty?: number; // Nuovo campo
     notes?: string;
+    completedAt?: string; // Nuovo campo
   };
   createdAt?: string;
   updatedAt?: string;

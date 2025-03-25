@@ -6,6 +6,8 @@ import ActiveExercise from './ActiveExercise';
 import ExerciseSummary from './ExerciseSummary';
 import { MdClose } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
+import FeedBackForm from './FeedBackForm';
+import WorkoutDuration from './WorkoutDuration';
 interface CompletedSets {
   [key: string]: boolean[];
 }
@@ -13,6 +15,7 @@ const WorkoutAssistant = () => {
   const { activeWorkout, setActiveWorkout, editWorkout } = useWorkouts();
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
+  const [feedbackFormOpen, setFeedbackFormOpen] = useState(false);
 
   const currentSection = activeWorkout?.sections?.[currentSectionIndex];
   const [currentExercise, setCurrentExercise] = useState(
@@ -25,7 +28,17 @@ const WorkoutAssistant = () => {
     }
   }, [activeWorkout]);
 
-  // const currentExercise = currentSection?.exercises?.[currentExerciseIndex];
+  useEffect(() => {
+    if (activeWorkout && !activeWorkout.startTime) {
+      const updatedWorkout = {
+        ...activeWorkout,
+        startTime: new Date().toISOString(),
+      };
+      setActiveWorkout(updatedWorkout);
+      localStorage.setItem('activeWorkout', JSON.stringify(updatedWorkout));
+    }
+  }, []);
+
   const nextExercises =
     currentSection?.exercises.slice(currentExerciseIndex + 1) || [];
   const prevExercises =
@@ -45,8 +58,19 @@ const WorkoutAssistant = () => {
     }
   };
 
+  // Modifica questo useEffect che causa il ciclo infinito
   useEffect(() => {
-    if (activeWorkout && currentExercise) {
+    // Aggiungi una condizione per evitare aggiornamenti inutili
+    if (
+      activeWorkout &&
+      currentExercise &&
+      JSON.stringify(
+        activeWorkout.sections[currentSectionIndex].exercises[
+          currentExerciseIndex
+        ]
+      ) !== JSON.stringify(currentExercise)
+    ) {
+      console.log('Updating activeWorkout with currentExercise changes');
       const updatedWorkout = { ...activeWorkout };
       updatedWorkout.sections[currentSectionIndex].exercises[
         currentExerciseIndex
@@ -54,18 +78,47 @@ const WorkoutAssistant = () => {
       setActiveWorkout(updatedWorkout);
       localStorage.setItem('activeWorkout', JSON.stringify(updatedWorkout));
     }
-  }, [
-    currentExercise,
-    activeWorkout,
-    currentSectionIndex,
-    currentExerciseIndex,
-    setActiveWorkout,
-  ]);
+  }, [currentExercise]); // Rimuovi activeWorkout dalla dipendenza
+  const endWorkout = () => {
+    console.log(activeWorkout);
+    setFeedbackFormOpen(true);
+    // if (window.confirm('Are you sure you want to end this workout?')) {
+    //   localStorage.removeItem('activeWorkout');
+    //   setActiveWorkout(null);
+    //   navigate('/workout-planner');
+    // }
+  };
+
   return (
     <Container>
-      <SectionInfo>
+      {/* <button
+        onClick={async () => {
+          console.log(activeWorkout);
+        }}
+      >
+        {new Date(activeWorkout?.startTime ?? '').toLocaleTimeString()}
+        <WorkoutDuration start={activeWorkout?.startTime} />
+      </button> */}
+
+      <Header onClick={() => console.log(activeWorkout)}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            color: '#fff',
+          }}
+        >
+          <span>
+            Start:{' '}
+            {new Date(activeWorkout?.startTime ?? '').toLocaleTimeString()}
+          </span>
+          <WorkoutDuration start={activeWorkout?.startTime} />
+        </div>
+      </Header>
+      {/* <SectionInfo>
         SEZIONE {currentSectionIndex + 1}/{activeWorkout?.sections?.length || 0}
-      </SectionInfo>
+      </SectionInfo> */}
       <Header>
         <NavigationBar>
           <NavButton
@@ -99,7 +152,6 @@ const WorkoutAssistant = () => {
           />
         </CloseButton>
       </Header>
-
       <ActiveExercise
         currentExercise={currentExercise}
         setCurrentExercise={setCurrentExercise}
@@ -115,15 +167,15 @@ const WorkoutAssistant = () => {
       />
       <EndButton
         onClick={() => {
-          if (window.confirm('Are you sure you want to end this workout?')) {
-            localStorage.removeItem('activeWorkout');
-            setActiveWorkout(null);
-            navigate('/workout-planner');
-          }
+          endWorkout();
         }}
       >
         Fine Allenamento
       </EndButton>
+      <FeedBackForm
+        isOpen={feedbackFormOpen}
+        onClose={() => setFeedbackFormOpen(false)}
+      />
     </Container>
   );
 };

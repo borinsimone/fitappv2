@@ -3,19 +3,28 @@ import NoWorkoutPage from './NoWorkoutPage';
 import WeekAgenda from './WeekAgenda';
 import WorkoutPreview from './WorkoutPreview';
 import { useWorkouts } from '../../context/WorkoutContext';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
+import { isSameDay } from 'date-fns';
 
 function WorkoutPlanner() {
   const { workouts } = useWorkouts();
   const today = new Date();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(today);
+  const [selectedWorkout, setSelectedWorkout] = useState<any>(null);
 
-  const selectedWorkout = workouts?.find((workout) => {
-    if (!workout.date || !selectedDate) return false;
-    const workoutDate = new Date(workout.date);
-    return workoutDate.toDateString() === selectedDate.toDateString();
-  });
+  // Usa un useEffect per aggiornare il workout selezionato quando cambia la data
+  useEffect(() => {
+    if (!selectedDate) return;
+
+    const workout = workouts?.find((workout) => {
+      if (!workout.date) return false;
+      const workoutDate = new Date(workout.date);
+      return isSameDay(workoutDate, selectedDate);
+    });
+
+    setSelectedWorkout(workout);
+  }, [selectedDate, workouts]);
 
   return (
     <Container>

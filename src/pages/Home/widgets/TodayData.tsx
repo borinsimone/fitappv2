@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useWorkouts } from '../../../context/WorkoutContext';
 import { PieChart, Pie, Cell } from 'recharts';
 import {
@@ -10,12 +10,64 @@ import {
   BiTrendingUp,
   BiPlus,
 } from 'react-icons/bi';
-
+import { BsClock } from 'react-icons/bs';
+import { CgCalendar, CgOptions } from 'react-icons/cg';
+import { GiFlame } from 'react-icons/gi';
+import { MdClose } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
+
+type Stat = {
+  name: string;
+  icon: React.ReactNode;
+  value: string;
+  label: string;
+  id: number;
+  color: string;
+};
 
 const TodayData: React.FC = () => {
   const { workouts = [], setActiveWorkout } = useWorkouts();
   const navigate = useNavigate();
+  const [activeStats, setActiveStats] = useState<{ id: number }[]>([]);
+  const [statsBuffer, setStatsBuffer] = useState<Stat[]>([]);
+  const [optionPanel, setOptionPanel] = useState(false);
+
+  const iconSize = 24;
+
+  const stats: Stat[] = [
+    {
+      name: 'Volume',
+      icon: <BiDumbbell size={iconSize} />,
+      value: '1,200',
+      label: 'kg',
+      id: 0,
+      color: '#00C6BE',
+    },
+    {
+      name: 'Calories',
+      icon: <GiFlame size={iconSize} />,
+      value: '3,200',
+      label: 'kcal',
+      id: 1,
+      color: '#FF5F5F',
+    },
+    {
+      name: 'Time',
+      icon: <BsClock size={iconSize} />,
+      value: '6',
+      label: 'hours',
+      id: 2,
+      color: '#FFD166',
+    },
+    {
+      name: 'Days Active',
+      icon: <CgCalendar size={iconSize} />,
+      value: '5/7',
+      label: 'days',
+      id: 3,
+      color: '#4ECDC4',
+    },
+  ];
 
   // Get today's workout
   const today = new Date();
@@ -57,6 +109,53 @@ const TodayData: React.FC = () => {
     { name: 'Remaining', value: totalWorkouts - completedWorkouts },
   ];
 
+  // Load saved stats on component mount
+  useEffect(() => {
+    const savedStats = JSON.parse(
+      localStorage.getItem('weekly-active-stats') || '[]'
+    );
+    setActiveStats(savedStats);
+
+    // Populate statsBuffer with actual stat objects
+    const initialBuffer = stats.filter((stat) =>
+      savedStats.some((activeStat: { id: number }) => activeStat.id === stat.id)
+    );
+    setStatsBuffer(initialBuffer);
+
+    // Show options panel if no stats are selected
+    if (savedStats.length === 0) {
+      // Don't auto-open the panel, just have a default state
+      const defaultStats = [stats[0], stats[1]]; // Volume and Calories as default
+      setStatsBuffer(defaultStats);
+      setActiveStats(defaultStats.map((stat) => ({ id: stat.id })));
+      localStorage.setItem(
+        'weekly-active-stats',
+        JSON.stringify(defaultStats.map((stat) => ({ id: stat.id })))
+      );
+    }
+  }, []);
+
+  const toggleStat = (stat: Stat) => {
+    const isSelected = statsBuffer.some((item) => item.id === stat.id);
+
+    if (isSelected) {
+      setStatsBuffer(statsBuffer.filter((item) => item.id !== stat.id));
+    } else {
+      setStatsBuffer([...statsBuffer, stat]);
+    }
+  };
+
+  const saveStats = () => {
+    const statsToStore = statsBuffer.map(({ id }) => ({ id }));
+    localStorage.setItem('weekly-active-stats', JSON.stringify(statsToStore));
+    setActiveStats(statsToStore);
+    setOptionPanel(false);
+  };
+
+  const filteredStats = stats.filter((stat) =>
+    activeStats.some((activeStat) => activeStat.id === stat.id)
+  );
+
   const theme = {
     colors: {
       neon: '#00ff00',
@@ -87,14 +186,7 @@ const TodayData: React.FC = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <CardHeader>
-        {/* <TodayDate>
-          <BiCalendarPlus size={18} />
-          {format(today, 'EEEE, MMM d')}
-        </TodayDate> */}
-        <WeekProgress>Progresso settimanale</WeekProgress>
-      </CardHeader>
-
+      {/* Today's Workout Section */}
       <CardContent>
         <WorkoutInfoSection>
           {todayWorkout ? (
@@ -153,72 +245,190 @@ const TodayData: React.FC = () => {
             </>
           )}
         </WorkoutInfoSection>
-
-        <Divider />
-
-        <WeeklyProgressSection>
-          <ChartContainer>
-            {totalWorkouts > 0 ? (
-              <PieChart
-                width={80}
-                height={80}
-              >
-                <Pie
-                  data={chartData}
-                  cx='50%'
-                  cy='50%'
-                  innerRadius={28}
-                  outerRadius={36}
-                  fill='#8884d8'
-                  paddingAngle={2}
-                  dataKey='value'
-                  startAngle={90}
-                  endAngle={-270}
-                  stroke='none'
-                >
-                  {chartData.map((_, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <text
-                  x='50%'
-                  y='50%'
-                  textAnchor='middle'
-                  dominantBaseline='middle'
-                  fontSize='14px'
-                  fontWeight='600'
-                  fill='#fff'
-                >
-                  {completionPercentage}%
-                </text>
-              </PieChart>
-            ) : (
-              <EmptyChart>
-                <BiTrendingUp size={24} />
-              </EmptyChart>
-            )}
-          </ChartContainer>
-          <WeeklyStats>
-            <StatItem>
-              <StatLabel>Completi</StatLabel>
-              <StatValue>{completedWorkouts}</StatValue>
-            </StatItem>
-
-            <StatItem>
-              <StatLabel>Totali</StatLabel>
-              <StatValue>{totalWorkouts}</StatValue>
-            </StatItem>
-
-            <StatItem>
-              <StatLabel>Rimanenti</StatLabel>
-              <StatValue>{totalWorkouts - completedWorkouts}</StatValue>
-            </StatItem>
-          </WeeklyStats>
-        </WeeklyProgressSection>
       </CardContent>
+
+      <Divider />
+
+      {/* Weekly Stats Section */}
+      <CardHeader>
+        <WeekProgress>Progresso settimanale</WeekProgress>
+        <OptionButton
+          onClick={() => setOptionPanel(!optionPanel)}
+          as={motion.button}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          $isActive={optionPanel}
+        >
+          {optionPanel ? <MdClose size={16} /> : <CgOptions size={16} />}
+        </OptionButton>
+      </CardHeader>
+
+      <AnimatePresence>
+        {optionPanel ? (
+          <OptionPanel
+            as={motion.div}
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <ChoiceContainer>
+              {stats.map((stat) => {
+                const isSelected = statsBuffer.some(
+                  (item) => item.id === stat.id
+                );
+                return (
+                  <StatChoice
+                    key={stat.id}
+                    onClick={() => toggleStat(stat)}
+                    $selected={isSelected}
+                    $color={stat.color}
+                    as={motion.div}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <IconWrapper
+                      $selected={isSelected}
+                      $color={stat.color}
+                    >
+                      {stat.icon}
+                      {isSelected && (
+                        <SelectionIndicator>
+                          <BiCheck size={12} />
+                        </SelectionIndicator>
+                      )}
+                    </IconWrapper>
+                    <StatName>{stat.name}</StatName>
+                  </StatChoice>
+                );
+              })}
+            </ChoiceContainer>
+
+            <ButtonContainer>
+              <CancelButton
+                onClick={() => setOptionPanel(false)}
+                as={motion.button}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Annulla
+              </CancelButton>
+              <SaveButton
+                onClick={saveStats}
+                as={motion.button}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                disabled={statsBuffer.length === 0}
+              >
+                Salva
+              </SaveButton>
+            </ButtonContainer>
+          </OptionPanel>
+        ) : (
+          <WeeklyStatsLayout>
+            {/* Progress Pie Chart */}
+            <ChartSection>
+              <ChartContainer>
+                {totalWorkouts > 0 ? (
+                  <PieChart
+                    width={80}
+                    height={80}
+                  >
+                    <Pie
+                      data={chartData}
+                      cx='50%'
+                      cy='50%'
+                      innerRadius={28}
+                      outerRadius={36}
+                      fill='#8884d8'
+                      paddingAngle={2}
+                      dataKey='value'
+                      startAngle={90}
+                      endAngle={-270}
+                      stroke='none'
+                    >
+                      {chartData.map((_, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={COLORS[index % COLORS.length]}
+                        />
+                      ))}
+                    </Pie>
+                    <text
+                      x='50%'
+                      y='50%'
+                      textAnchor='middle'
+                      dominantBaseline='middle'
+                      fontSize='14px'
+                      fontWeight='600'
+                      fill='#fff'
+                    >
+                      {completionPercentage}%
+                    </text>
+                  </PieChart>
+                ) : (
+                  <EmptyChart>
+                    <BiTrendingUp size={24} />
+                  </EmptyChart>
+                )}
+              </ChartContainer>
+              <BasicStats>
+                <StatItem>
+                  <StatLabel>Completi</StatLabel>
+                  <StatValue>{completedWorkouts}</StatValue>
+                </StatItem>
+
+                <StatItem>
+                  <StatLabel>Totali</StatLabel>
+                  <StatValue>{totalWorkouts}</StatValue>
+                </StatItem>
+
+                <StatItem>
+                  <StatLabel>Rimanenti</StatLabel>
+                  <StatValue>{totalWorkouts - completedWorkouts}</StatValue>
+                </StatItem>
+              </BasicStats>
+            </ChartSection>
+
+            {/* Custom Weekly Stats */}
+            <CustomStatsContainer
+              as={motion.div}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              {filteredStats.length > 0 ? (
+                filteredStats.map((stat) => (
+                  <StatItem
+                    key={stat.id}
+                    as={motion.div}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className='custom-stat'
+                  >
+                    <StatIconContainer $color={stat.color}>
+                      {stat.icon}
+                    </StatIconContainer>
+                    <StatContent>
+                      <StatValue>{stat.value}</StatValue>
+                      <StatLabel>{stat.label}</StatLabel>
+                    </StatContent>
+                  </StatItem>
+                ))
+              ) : (
+                <EmptyState>
+                  <EmptyText>Seleziona statistiche da visualizzare</EmptyText>
+                  <EmptyAction onClick={() => setOptionPanel(true)}>
+                    Seleziona
+                  </EmptyAction>
+                </EmptyState>
+              )}
+            </CustomStatsContainer>
+          </WeeklyStatsLayout>
+        )}
+      </AnimatePresence>
     </Container>
   );
 };
@@ -232,7 +442,7 @@ const Container = styled(motion.div)`
   background: ${({ theme }) => theme.colors.white05};
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  border: 1px solid ${({ theme }) => theme.colors.neon};
+  border: 1px solid ${({ theme }) => theme.colors.white10};
 `;
 
 const CardHeader = styled.div`
@@ -240,22 +450,13 @@ const CardHeader = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 16px;
-  background: ${({ theme }) => theme.colors.neon};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.white10};
 `;
 
-// const TodayDate = styled.div`
-//   display: flex;
-//   align-items: center;
-//   gap: 8px;
-//   font-size: 14px;
-//   font-weight: 500;
-//   color: ${({ theme }) => theme.colors.dark};
-// `;
-
 const WeekProgress = styled.div`
-  font-size: 18px;
-  font-weight: 700;
-  color: ${({ theme }) => theme.colors.dark};
+  font-size: 16px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.white};
 `;
 
 const CardContent = styled.div`
@@ -346,10 +547,18 @@ const AddButton = styled(Button)`
 const Divider = styled.div`
   height: 1px;
   background: ${({ theme }) => theme.colors.white10};
-  margin: 16px 0;
+  margin: 0;
 `;
 
-const WeeklyProgressSection = styled.div`
+const WeeklyStatsLayout = styled.div`
+  padding: 16px 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+const ChartSection = styled.div`
   display: flex;
   align-items: center;
   gap: 24px;
@@ -370,7 +579,7 @@ const EmptyChart = styled.div`
   border-radius: 50%;
 `;
 
-const WeeklyStats = styled.div`
+const BasicStats = styled.div`
   flex: 1;
   display: flex;
   gap: 16px;
@@ -382,6 +591,12 @@ const StatItem = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 4px;
+
+  &.custom-stat {
+    /* padding: 12px; */
+    background: ${({ theme }) => theme.colors.white05};
+    border-radius: 12px;
+  }
 `;
 
 const StatLabel = styled.div`
@@ -390,7 +605,177 @@ const StatLabel = styled.div`
 `;
 
 const StatValue = styled.div`
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: ${({ theme }) => theme.colors.white};
+`;
+
+// Weekly Stats Specific Styles
+const OptionButton = styled(motion.button)<{ $isActive: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: ${({ $isActive, theme }) =>
+    $isActive ? theme.colors.neon : theme.colors.white10};
+  color: ${({ $isActive, theme }) =>
+    $isActive ? theme.colors.dark : theme.colors.white70};
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: ${({ $isActive, theme }) =>
+      $isActive ? theme.colors.neon : theme.colors.white20};
+  }
+`;
+
+const OptionPanel = styled(motion.div)`
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow: hidden;
+`;
+
+const ChoiceContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 16px;
+`;
+
+const StatChoice = styled(motion.div)<{ $selected: boolean; $color: string }>`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 8px;
+  border-radius: 12px;
+  background: ${({ $selected, $color }) =>
+    $selected ? `${$color}20` : 'transparent'};
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: ${({ $selected, $color, theme }) =>
+      $selected ? `${$color}30` : theme.colors.white05};
+  }
+`;
+
+const IconWrapper = styled.div<{ $selected: boolean; $color: string }>`
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: ${({ $selected, $color, theme }) =>
+    $selected ? `${$color}30` : theme.colors.white10};
+  color: ${({ $selected, $color, theme }) =>
+    $selected ? $color : theme.colors.white50};
+`;
+
+const SelectionIndicator = styled.div`
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: ${({ theme }) => theme.colors.neon};
+  color: ${({ theme }) => theme.colors.dark};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const StatName = styled.div`
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+  color: ${({ theme }) => theme.colors.white};
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 4px;
+`;
+
+const CancelButton = styled(Button)`
+  background: transparent;
+  border: 1px solid ${({ theme }) => theme.colors.white20};
+  color: ${({ theme }) => theme.colors.white};
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.white10};
+  }
+`;
+
+const SaveButton = styled(Button)`
+  background: ${({ theme }) => theme.colors.neon};
+  color: ${({ theme }) => theme.colors.dark};
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const CustomStatsContainer = styled(motion.div)`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+`;
+
+const StatIconContainer = styled.div<{ $color: string }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: ${({ $color }) => `${$color}20`};
+  color: ${({ $color }) => $color};
+  margin-bottom: 8px;
+`;
+
+const StatContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+`;
+
+const EmptyState = styled.div`
+  grid-column: 1 / -1;
+  padding: 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+`;
+
+const EmptyText = styled.div`
+  font-size: 14px;
+  color: ${({ theme }) => theme.colors.white50};
+`;
+
+const EmptyAction = styled.button`
+  background: ${({ theme }) => theme.colors.white10};
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  color: ${({ theme }) => theme.colors.white};
+  font-size: 13px;
+  cursor: pointer;
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.white20};
+  }
 `;

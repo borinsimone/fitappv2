@@ -16,6 +16,9 @@ interface Workout {
   load: number;
   reps: number;
   notes: string;
+  startTime: Date | null;
+  endTime: Date | null;
+  duration: number | null;
 }
 
 interface RepeatWorkoutProps {
@@ -43,19 +46,34 @@ function RepeatWorkout({
     // Crea una nuova copia del workout omettendo l'ID
     const { _id, ...workoutWithoutId } = workout;
 
+    // Crea un nuovo workout con i valori corretti secondo lo schema MongoDB
     const newWorkout = {
       ...workoutWithoutId,
       date: newDate.toISOString(),
       completed: false,
-      // Gestisci correttamente il feedback che potrebbe non esistere
+      // Struttura corretta del feedback secondo lo schema
       feedback: {
-        feeling: undefined, // Usa undefined invece di null per rispettare il tipo
+        feeling: 3, // Usa un valore numerico di default (1-5) invece di undefined
+        energyLevel: 3, // Aggiungi questo campo richiesto
+        difficulty: 3, // Aggiungi questo campo richiesto
         notes: '',
       },
-      notes: workout.notes || '', // Preserva le note o imposta stringa vuota
+      // Usa undefined invece di null per questi campi
+      startTime: undefined,
+      endTime: undefined,
+      duration: undefined,
+      notes: workout.notes || '',
     };
 
-    // Assicurati che tutte le sezioni ed esercizi siano copiati correttamente
+    // Rimuovi campi obsoleti che potrebbero esistere nel vecchio workout
+    // ma non sono parte del modello attuale
+    if ('title' in newWorkout) delete newWorkout.title;
+    if ('load' in newWorkout) delete newWorkout.load;
+    if ('reps' in newWorkout) delete newWorkout.reps;
+
+    console.log('Nuovo workout da aggiungere:', newWorkout);
+
+    // Invia il workout aggiornato
     addWorkout(newWorkout);
     setAddWorkoutDialog(false);
   };

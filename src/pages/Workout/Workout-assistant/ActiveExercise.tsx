@@ -64,8 +64,16 @@ function ActiveExercise({
   const [completedSets, setCompletedSets] = useState<CompletedSets>({});
 
   // Add this useEffect to initialize completedSets
+  // Modifica l'initializzazione di completedSets per evitare aggiornamenti continui
   useEffect(() => {
     if (activeWorkout?.sections) {
+      // Controlla se completedSets è già stato inizializzato
+      const isAlreadyInitialized = Object.keys(completedSets).length > 0;
+
+      // Se è già inizializzato, non fare nulla
+      if (isAlreadyInitialized) return;
+
+      console.log('Initializing completedSets');
       const initialCompletedSets: CompletedSets = {};
       activeWorkout.sections.forEach(
         (section: WorkoutSection, sectionIndex: number) => {
@@ -81,7 +89,7 @@ function ActiveExercise({
       );
       setCompletedSets(initialCompletedSets);
     }
-  }, [activeWorkout]);
+  }, [activeWorkout]); // Mantieni activeWorkout come dipendenza
   // Update the state definition with proper type
   const [activeSet, setActiveSet] = useState<number | ExerciseSet | undefined>(
     currentExercise?.exerciseSets[0]
