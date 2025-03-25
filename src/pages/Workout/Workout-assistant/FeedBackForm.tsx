@@ -395,7 +395,7 @@ const TextArea = styled.textarea`
   background: ${({ theme }) => theme.colors.white05};
   border: 1px solid ${({ theme }) => theme.colors.white10};
   padding: 12px;
-  color: ${({ theme }) => theme.colors.white};
+  color: ${({ theme }) => theme.colors.dark};
   font-family: inherit;
   resize: vertical;
 
