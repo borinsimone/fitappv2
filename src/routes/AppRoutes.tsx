@@ -102,13 +102,11 @@ const AppContent = () => {
 };
 const AppRoutes = () => {
   return (
-    <Router basename='/fitappv2'>
-      <AuthProvider>
-        <WorkoutProvider>
-          <AppContent />
-        </WorkoutProvider>
-      </AuthProvider>
-    </Router>
+    <AuthProvider>
+      <WorkoutProvider>
+        <AppContent />
+      </WorkoutProvider>
+    </AuthProvider>
   );
 };
 export default AppRoutes;

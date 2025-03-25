@@ -1,58 +1,75 @@
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
-import { createContext, useContext, useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { login as apiLogin, getUserProfile } from '../service/authService';
 
+// Estendi l'interfaccia UserData per includere più informazioni del profilo
 interface UserData {
-  exp: number;
-  // Add other JWT payload fields here
+  id: string;
+  email: string;
+  name: string;
+  photoURL?: string;
+  // Aggiungi altri campi del profilo se necessario
 }
 
 interface AuthContextType {
+  user: UserData | null;
   token: string | null;
+  userProfile: any | null; // Aggiungi userProfile al contesto
   setToken: (token: string | null) => void;
-  login: (token: string) => void;
+  login: (email: string, password: string) => Promise<any>;
   logout: () => void;
   isAuthenticated: boolean;
-  user: UserData | null;
+  loadUserProfile: () => Promise<void>; // Nuova funzione
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth deve essere usato dentro un AuthProvider');
-  }
-  return context;
-};
-
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [token, setToken] = useState<string | null>(
     localStorage.getItem('token')
   );
+  const [userProfile, setUserProfile] = useState<any | null>(null);
   const navigate = useNavigate();
-  const location = useLocation();
-  useEffect(() => {
-    if (
-      !token &&
-      location.pathname !== '/register' &&
-      location.pathname !== '/forgot-password'
-    ) {
-      navigate('/login');
-    }
-  }, [token, navigate]);
 
-  const login = (newToken: string) => {
+  // Funzione per caricare il profilo utente
+  const loadUserProfile = async (): Promise<void> => {
+    if (!token) return;
+
+    try {
+      const profileData = await getUserProfile(token);
+      console.log('Profilo utente caricato:', profileData);
+      setUserProfile(profileData);
+    } catch (error) {
+      console.error('Errore nel caricamento del profilo:', error);
+      // Non fare logout per evitare cicli, solo log dell'errore
+    }
+  };
+
+  // Modifica la funzione login per caricare il profilo dopo il login
+  const login = async (email: string, password: string) => {
+    const response = await apiLogin({ email, password });
+    const newToken = response.token;
     localStorage.setItem('token', newToken);
     setToken(newToken);
-    navigate('/home'); // Dopo il login, vai alla home
+
+    // Carica il profilo dopo il login
+    await loadUserProfile();
+
+    navigate('/home');
+    return response;
   };
 
   const logout = () => {
     localStorage.removeItem('token');
     setToken(null);
-    navigate('/login'); // Dopo il logout, torna al login
+    setUserProfile(null); // Cancella anche i dati del profilo
+    navigate('/login');
   };
+
+  // Controlla la scadenza del token e carica il profilo utente all'avvio
   useEffect(() => {
     const checkTokenExpiration = () => {
       const token = localStorage.getItem('token');
@@ -75,19 +92,44 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     };
 
-    checkTokenExpiration(); // Controllo immediato all'avvio
+    const initializeAuth = async () => {
+      if (token) {
+        checkTokenExpiration();
+        await loadUserProfile(); // Carica il profilo all'avvio se c'è un token
+      }
+    };
+
+    initializeAuth();
 
     // Controlla il token ogni minuto
     const interval = setInterval(checkTokenExpiration, 60 * 1000);
+    return () => clearInterval(interval);
+  }, [token]); // Aggiungi token come dipendenza
 
-    return () => clearInterval(interval); // Pulisce l'intervallo quando il componente viene smontato
-  }, []);
   const user: UserData | null = token ? jwtDecode<UserData>(token) : null;
+
   return (
     <AuthContext.Provider
-      value={{ user, token, setToken, login, logout, isAuthenticated: !!token }}
+      value={{
+        user,
+        token,
+        userProfile, // Aggiungi userProfile al contesto
+        setToken,
+        login,
+        logout,
+        isAuthenticated: !!token,
+        loadUserProfile, // Esponi la funzione di caricamento
+      }}
     >
       {children}
     </AuthContext.Provider>
   );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };

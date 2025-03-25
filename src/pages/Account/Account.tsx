@@ -86,13 +86,14 @@ function Account() {
       console.error('Error deleting account:', error);
     }
   };
+  const { userProfile } = useAuth();
 
   return (
     <Container>
       <Header>
         <Title
           onClick={() => {
-            console.log(user);
+            console.log(userProfile);
           }}
         >
           Account
@@ -105,10 +106,14 @@ function Account() {
       <Content>
         <ProfileSection>
           <ProfileHeader>
-            <Avatar>
-              {profileData.photoURL ? (
+            <Avatar
+              onClick={() => {
+                console.log(userProfile);
+              }}
+            >
+              {userProfile.photoURL ? (
                 <img
-                  src={profileData.photoURL}
+                  src={userProfile.photoURL}
                   alt='Profile'
                 />
               ) : (
@@ -117,8 +122,8 @@ function Account() {
             </Avatar>
 
             <ProfileInfo>
-              <ProfileName>{profileData.displayName || 'User'}</ProfileName>
-              <ProfileEmail>{profileData.email}</ProfileEmail>
+              <ProfileName>{userProfile.name || 'User'}</ProfileName>
+              <ProfileEmail>{userProfile.email}</ProfileEmail>
             </ProfileInfo>
 
             <EditButton onClick={() => setEditingProfile(true)}>

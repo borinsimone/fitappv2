@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useGlobalContext } from '../../context/GlobalContext';
-import { BiBell, BiX, BiUser, BiChevronDown } from 'react-icons/bi';
+import { BiBell, BiX, BiUser } from 'react-icons/bi';
 import styled from 'styled-components';
-import NotificationPanel from './NotificationPanel';
+// import NotificationPanel from './NotificationPanel';
 import { AnimatePresence, motion, useIsPresent } from 'framer-motion';
-import { jwtDecode } from 'jwt-decode';
+// import { jwtDecode } from 'jwt-decode';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 function TopBar() {
   const { user } = useGlobalContext();
@@ -76,7 +77,10 @@ function TopBar() {
     day: 'numeric',
     month: 'long',
   });
-
+  const { userProfile, loadUserProfile } = useAuth();
+  useEffect(() => {
+    loadUserProfile();
+  }, []);
   return (
     <Container
       as={motion.div}
@@ -85,8 +89,8 @@ function TopBar() {
       transition={{ duration: 0.3, ease: 'easeOut' }}
     >
       <UserSection>
-        <UserAvatar>
-          {user?.photoURL ? (
+        <UserAvatar onClick={() => console.log(userProfile)}>
+          {userProfile?.photoURL ? (
             <img
               src={user.photoURL}
               alt={user?.name}
@@ -95,15 +99,13 @@ function TopBar() {
             <BiUser size={24} />
           )}
         </UserAvatar>
-
         <UserInfo>
           <Greeting>
-            {getGreeting()}, <Username>{user?.name}</Username>
+            {getGreeting()}, <Username>{userProfile?.name}</Username>
           </Greeting>
           <DateDisplay>{formattedDate}</DateDisplay>
         </UserInfo>
       </UserSection>
-
       <Controls>
         <NotificationButton
           ref={notificationRef}
@@ -259,6 +261,7 @@ const Username = styled.span`
   font-size: 1.2em;
   font-weight: 600;
   color: ${({ theme }) => theme.colors.white};
+  text-transform: uppercase;
 `;
 
 const DateDisplay = styled.div`

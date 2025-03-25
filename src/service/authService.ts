@@ -38,3 +38,23 @@ export const testAuth = async (token: string) => {
     },
   });
 };
+
+// Aggiungi questa nuova funzione
+export const getUserProfile = async (token: string) => {
+  if (!token) {
+    throw new Error('Token non fornito');
+  }
+
+  try {
+    return fetchApi('/auth/me', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (error) {
+    console.error('Errore nel recupero del profilo utente:', error);
+    throw new Error('Impossibile recuperare il profilo utente');
+  }
+};
