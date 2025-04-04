@@ -90,6 +90,7 @@ const OverlayContainer = styled(motion.div)`
   justify-content: center;
   z-index: 1000;
   padding: 20px;
+  display: none;
 `;
 
 const ContentCard = styled.div`
