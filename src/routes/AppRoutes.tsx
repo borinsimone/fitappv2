@@ -21,6 +21,7 @@ import { WorkoutProvider } from '../context/WorkoutContext';
 import Loading from '../components/ui/Loading';
 import { useGlobalContext } from '../context/GlobalContext';
 import WorkoutAssistant from '../pages/Workout/Workout-assistant/WorkoutAssistant';
+import MealPlannerPage from '../pages/Meal/MealPlannerPage';
 
 const AppContent = () => {
   const { isLoading } = useGlobalContext();
@@ -41,7 +42,6 @@ const AppContent = () => {
             />
           }
         />
-
         <Route
           path='/login'
           element={<Login />}
@@ -54,7 +54,6 @@ const AppContent = () => {
           path='/test'
           element={<Test />}
         />
-
         {/* 🔐 Pagine protette */}
         <Route
           path='/home'
@@ -80,14 +79,23 @@ const AppContent = () => {
             </ProtectedRoute>
           }
         />
-        <Route
+        {/* <Route
           path='/meal-planner'
           element={
             <ProtectedRoute>
               <MealPlanner />
             </ProtectedRoute>
           }
+        /> */}
+        <Route
+          path='/meal-planner'
+          element={
+            <ProtectedRoute>
+              <MealPlannerPage />
+            </ProtectedRoute>
+          }
         />
+
         <Route
           path='/account'
           element={
