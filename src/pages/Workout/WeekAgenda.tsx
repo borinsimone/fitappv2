@@ -1,10 +1,19 @@
-import React, { useState, useRef, useEffect } from 'react';
-import styled from 'styled-components';
-import { format, addWeeks, startOfWeek, addDays, isSameDay } from 'date-fns';
-import { it } from 'date-fns/locale';
-import { BiChevronLeft, BiChevronRight } from 'react-icons/bi';
-import { useWorkouts } from '../../context/WorkoutContext';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect } from "react";
+import styled from "styled-components";
+import {
+  format,
+  addWeeks,
+  startOfWeek,
+  addDays,
+  isSameDay,
+} from "date-fns";
+import { it } from "date-fns/locale";
+import {
+  BiChevronLeft,
+  BiChevronRight,
+} from "react-icons/bi";
+import { useWorkouts } from "../../context/WorkoutContext";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface WeekAgendaProps {
   onSelectDay: (date: Date) => void;
@@ -16,10 +25,18 @@ const WeekAgenda: React.FC<WeekAgendaProps> = ({
   selectedDate,
 }) => {
   const { workouts } = useWorkouts();
-  const [currentWeek, setCurrentWeek] = useState(new Date());
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = useState<number | null>(null);
-  const [direction, setDirection] = useState<'left' | 'right' | null>(null);
+  const [currentWeek, setCurrentWeek] = useState(
+    new Date()
+  );
+  const [touchStart, setTouchStart] = useState<
+    number | null
+  >(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(
+    null
+  );
+  const [direction, setDirection] = useState<
+    "left" | "right" | null
+  >(null);
   const [isAnimating, setIsAnimating] = useState(false);
 
   // Reset animation state when direction changes
@@ -34,13 +51,15 @@ const WeekAgenda: React.FC<WeekAgendaProps> = ({
   }, [direction]);
 
   const weekDays = [...Array(7)].map((_, i) => {
-    const start = startOfWeek(currentWeek, { weekStartsOn: 1 });
+    const start = startOfWeek(currentWeek, {
+      weekStartsOn: 1,
+    });
     return addDays(start, i);
   });
 
   const handlePrevWeek = () => {
     if (isAnimating) return;
-    setDirection('right');
+    setDirection("right");
     setIsAnimating(true);
     setTimeout(() => {
       setCurrentWeek(addWeeks(currentWeek, -1));
@@ -49,7 +68,7 @@ const WeekAgenda: React.FC<WeekAgendaProps> = ({
 
   const handleNextWeek = () => {
     if (isAnimating) return;
-    setDirection('left');
+    setDirection("left");
     setIsAnimating(true);
     setTimeout(() => {
       setCurrentWeek(addWeeks(currentWeek, 1));
@@ -97,16 +116,16 @@ const WeekAgenda: React.FC<WeekAgendaProps> = ({
 
   // Calculate animation variants
   const variants = {
-    enter: (direction: 'left' | 'right') => ({
-      x: direction === 'right' ? -300 : 300,
+    enter: (direction: "left" | "right") => ({
+      x: direction === "right" ? -300 : 300,
       opacity: 0,
     }),
     center: {
       x: 0,
       opacity: 1,
     },
-    exit: (direction: 'left' | 'right') => ({
-      x: direction === 'right' ? 300 : -300,
+    exit: (direction: "left" | "right") => ({
+      x: direction === "right" ? 300 : -300,
       opacity: 0,
     }),
   };
@@ -119,47 +138,50 @@ const WeekAgenda: React.FC<WeekAgendaProps> = ({
     >
       <header>
         <button onClick={handlePrevWeek}>
-          <BiChevronLeft size='24px' />
+          <BiChevronLeft size="24px" />
         </button>
-        <span className='month'>
-          {format(currentWeek, 'MMMM yyyy', { locale: it })}
+        <span className="month">
+          {format(currentWeek, "MMMM yyyy", { locale: it })}
         </span>
         <button onClick={handleNextWeek}>
-          <BiChevronRight size='24px' />
+          <BiChevronRight size="24px" />
         </button>
       </header>
       <AnimatePresence
         initial={false}
         custom={direction}
-        mode='wait'
+        mode="wait"
       >
         <WeekWrapper
           key={currentWeek.toISOString()}
           custom={direction}
           variants={variants}
-          initial='enter'
-          animate='center'
-          exit='exit'
+          initial="enter"
+          animate="center"
+          exit="exit"
           transition={{
-            type: 'tween',
+            type: "tween",
             duration: 0.3,
           }}
         >
-          <div className='week'>
+          <div className="week">
             {weekDays.map((day) => (
               <div
                 key={day.toString()}
-                className='day'
-                data-selected={selectedDate && isSameDay(day, selectedDate)}
+                className="day"
+                data-selected={
+                  selectedDate &&
+                  isSameDay(day, selectedDate)
+                }
                 onClick={() => onSelectDay(day)}
               >
-                <div className='weekday'>
-                  {format(day, 'EEE', { locale: it })}
+                <div className="weekday">
+                  {format(day, "EEE", { locale: it })}
                 </div>
-                <div className='date'>
-                  {format(day, 'd')}
+                <div className="date">
+                  {format(day, "d")}
                   {hasWorkoutOnDay(day) && (
-                    <span className='workout-indicator' />
+                    <span className="workout-indicator" />
                   )}
                 </div>
               </div>
@@ -235,10 +257,12 @@ const WeekWrapper = styled(motion.div)`
         background: ${({ theme }) => theme.colors.white10};
       }
 
-      &[data-selected='true'] {
-        background: ${({ theme }) => `${theme.colors.neon}10`};
+      &[data-selected="true"] {
+        background: ${({ theme }) =>
+          `${theme.colors.neon}10`};
         color: ${({ theme }) => theme.colors.neon};
-        border: 2px solid ${({ theme }) => theme.colors.neon};
+        border: 2px solid
+          ${({ theme }) => theme.colors.neon};
       }
 
       .weekday {
@@ -258,7 +282,8 @@ const WeekWrapper = styled(motion.div)`
           width: 6px;
           height: 6px;
           border-radius: 50%;
-          background-color: ${({ theme }) => theme.colors.white};
+          background-color: ${({ theme }) =>
+            theme.colors.white};
           position: absolute;
           bottom: -6px;
         }

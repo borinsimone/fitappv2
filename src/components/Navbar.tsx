@@ -1,24 +1,42 @@
-import { motion } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
-import { BiDumbbell, BiHomeAlt, BiUser } from 'react-icons/bi';
-import { FaAppleAlt } from 'react-icons/fa';
+import { motion } from "framer-motion";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import {
+  BiDumbbell,
+  BiHomeAlt,
+  BiUser,
+} from "react-icons/bi";
+import { FaAppleAlt } from "react-icons/fa";
 
-import { Link, useLocation } from 'react-router-dom';
-import styled from 'styled-components';
+import { Link, useLocation } from "react-router-dom";
+import styled from "styled-components";
 
 const Navbar = () => {
   const location = useLocation();
   const [indicatorX, setIndicatorX] = useState(0);
   const iconRefs = useRef<Array<HTMLLIElement | null>>([]);
-  const routes = ['/home', '/workout-planner', '/meal-planner', '/account'];
+  const routes = useMemo(
+    () => [
+      "/home",
+      "/workout-planner",
+      "/meal-planner",
+      "/account",
+    ],
+    []
+  );
 
   useEffect(() => {
     const index = routes.indexOf(location.pathname);
     if (index !== -1 && iconRefs.current[index]) {
-      const iconPosition = iconRefs.current[index]?.offsetLeft || 0;
+      const iconPosition =
+        iconRefs.current[index]?.offsetLeft || 0;
       setIndicatorX(iconPosition);
     }
-  }, [location.pathname]);
+  }, [location.pathname, routes]);
 
   return (
     <Container
@@ -28,10 +46,11 @@ const Navbar = () => {
       exit={{ y: 100, opacity: 0 }}
       transition={{ duration: 0.5 }}
       hidden={
-        location.pathname === '/login' || location.pathname === '/register'
+        location.pathname === "/login" ||
+        location.pathname === "/register"
       }
     >
-      <Indicator style={{ left: indicatorX + 'px' }} />
+      <Indicator style={{ left: indicatorX + "px" }} />
       <ul>
         {routes.map((path, index) => (
           <li
@@ -43,40 +62,58 @@ const Navbar = () => {
             <Link to={path}>
               {index === 0 && (
                 <BiHomeAlt
-                  size='30px'
-                  style={{ transition: '300ms', transitionDelay: '400ms' }}
-                  color={location.pathname === '/home' ? '#1e1e1e' : '#d0d0d0'}
+                  size="30px"
+                  style={{
+                    transition: "300ms",
+                    transitionDelay: "400ms",
+                  }}
+                  color={
+                    location.pathname === "/home"
+                      ? "#1e1e1e"
+                      : "#d0d0d0"
+                  }
                 />
               )}
               {index === 1 && (
                 <BiDumbbell
-                  className='dumbbell'
-                  size='30px'
-                  style={{ transition: '300ms', transitionDelay: '400ms' }}
+                  className="dumbbell"
+                  size="30px"
+                  style={{
+                    transition: "300ms",
+                    transitionDelay: "400ms",
+                  }}
                   color={
-                    location.pathname === '/workout-planner'
-                      ? '#1e1e1e'
-                      : '#d0d0d0'
+                    location.pathname === "/workout-planner"
+                      ? "#1e1e1e"
+                      : "#d0d0d0"
                   }
                 />
               )}
               {index === 2 && (
                 <FaAppleAlt
-                  size='30px'
-                  style={{ transition: '300ms', transitionDelay: '400ms' }}
+                  size="30px"
+                  style={{
+                    transition: "300ms",
+                    transitionDelay: "400ms",
+                  }}
                   color={
-                    location.pathname === '/meal-planner'
-                      ? '#1e1e1e'
-                      : '#d0d0d0'
+                    location.pathname === "/meal-planner"
+                      ? "#1e1e1e"
+                      : "#d0d0d0"
                   }
                 />
               )}
               {index === 3 && (
                 <BiUser
-                  size='30px'
-                  style={{ transition: '300ms', transitionDelay: '400ms' }}
+                  size="30px"
+                  style={{
+                    transition: "300ms",
+                    transitionDelay: "400ms",
+                  }}
                   color={
-                    location.pathname === '/account' ? '#1e1e1e' : '#d0d0d0'
+                    location.pathname === "/account"
+                      ? "#1e1e1e"
+                      : "#d0d0d0"
                   }
                 />
               )}
@@ -96,7 +133,7 @@ const Container = styled.nav`
   /* bottom: 20px; */
   bottom: 0;
   z-index: 1001;
-  display: ${(props) => (props.hidden ? 'none' : 'flex')};
+  display: ${(props) => (props.hidden ? "none" : "flex")};
 
   align-items: center;
   justify-content: center;
@@ -107,7 +144,8 @@ const Container = styled.nav`
     justify-content: space-evenly;
     align-items: center;
     padding: 10px 0;
-    /* background-color: ${({ theme }) => theme.colors.white10}; */
+    /* background-color: ${({ theme }) =>
+      theme.colors.white10}; */
     border-radius: 100px;
     width: 100%;
 
@@ -133,6 +171,7 @@ const Indicator = styled.div`
   height: 40px;
   background: linear-gradient(180deg, #00736e, #00c6be);
   border-radius: 25px;
-  transition: left 0.3s ease-in-out, transform 0.3s ease-in-out;
+  transition: left 0.3s ease-in-out,
+    transform 0.3s ease-in-out;
   transform: translateX(-25%);
 `;

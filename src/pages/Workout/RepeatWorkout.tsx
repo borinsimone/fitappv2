@@ -1,8 +1,12 @@
-import styled from 'styled-components';
-import { useWorkouts } from '../../context/WorkoutContext';
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { BiChevronLeft, BiRepeat, BiDumbbell } from 'react-icons/bi';
+import styled from "styled-components";
+import { useWorkouts } from "../../context/WorkoutContext";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  BiChevronLeft,
+  BiRepeat,
+  BiDumbbell,
+} from "react-icons/bi";
 
 interface Workout {
   name: string;
@@ -34,11 +38,14 @@ function RepeatWorkout({
   selectedDate,
 }: RepeatWorkoutProps) {
   const { addWorkout } = useWorkouts();
-  const today = new Date();
-  const [selectedWorkout, setSelectedWorkout] = useState<string | null>(null);
+  const [selectedWorkout, setSelectedWorkout] = useState<
+    string | null
+  >(null);
 
   // Get unique workout names
-  const uniqueWorkouts = [...new Set(workouts?.map((workout) => workout.name))];
+  const uniqueWorkouts = [
+    ...new Set(workouts?.map((workout) => workout.name)),
+  ];
 
   const handleAddWorkout = (workout: Workout) => {
     // Usa la data selezionata invece di creare una nuova data
@@ -49,7 +56,9 @@ function RepeatWorkout({
     newDate.setHours(0, 0, 0, 0);
 
     // Crea una nuova copia del workout omettendo l'ID
-    const { _id, ...workoutWithoutId } = workout;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { _id: _workoutId, ...workoutWithoutId } =
+      workout;
 
     // Crea un nuovo workout con i valori corretti secondo lo schema MongoDB
     const newWorkout = {
@@ -61,22 +70,22 @@ function RepeatWorkout({
         feeling: 3, // Usa un valore numerico di default (1-5) invece di undefined
         energyLevel: 3, // Aggiungi questo campo richiesto
         difficulty: 3, // Aggiungi questo campo richiesto
-        notes: '',
+        notes: "",
       },
       // Usa undefined invece di null per questi campi
       startTime: undefined,
       endTime: undefined,
       duration: undefined,
-      notes: workout.notes || '',
+      notes: workout.notes || "",
     };
 
     // Rimuovi campi obsoleti che potrebbero esistere nel vecchio workout
     // ma non sono parte del modello attuale
-    if ('title' in newWorkout) delete newWorkout.title;
-    if ('load' in newWorkout) delete newWorkout.load;
-    if ('reps' in newWorkout) delete newWorkout.reps;
+    if ("title" in newWorkout) delete newWorkout.title;
+    if ("load" in newWorkout) delete newWorkout.load;
+    if ("reps" in newWorkout) delete newWorkout.reps;
 
-    console.log('Nuovo workout da aggiungere:', newWorkout);
+    console.log("Nuovo workout da aggiungere:", newWorkout);
 
     // Invia il workout aggiornato
     addWorkout(newWorkout);
@@ -95,17 +104,20 @@ function RepeatWorkout({
         initial={{ y: 50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 50, opacity: 0 }}
-        transition={{ type: 'spring', damping: 20 }}
+        transition={{ type: "spring", damping: 20 }}
       >
         <Header>
-          <BackButton onClick={() => setRepeatWorkout(false)}>
+          <BackButton
+            onClick={() => setRepeatWorkout(false)}
+          >
             <BiChevronLeft size={24} />
           </BackButton>
           <Title>Ripeti un Allenamento</Title>
         </Header>
 
         <Description>
-          Seleziona un allenamento precedente da aggiungere al calendario
+          Seleziona un allenamento precedente da aggiungere
+          al calendario
         </Description>
 
         <WorkoutList>
@@ -120,7 +132,11 @@ function RepeatWorkout({
                 exit={{ opacity: 0, scale: 0.9 }}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 20,
+                }}
               >
                 <WorkoutIcon>
                   <BiDumbbell size={24} />
@@ -129,8 +145,12 @@ function RepeatWorkout({
                 <WorkoutInfo>
                   <WorkoutName>{name}</WorkoutName>
                   <WorkoutDetails>
-                    {workouts.filter((w) => w.name === name).length} sessioni
-                    precedenti
+                    {
+                      workouts.filter(
+                        (w) => w.name === name
+                      ).length
+                    }{" "}
+                    sessioni precedenti
                   </WorkoutDetails>
                 </WorkoutInfo>
 
@@ -138,8 +158,11 @@ function RepeatWorkout({
                   <SelectButton
                     onClick={(e) => {
                       e.stopPropagation();
-                      const workout = workouts?.find((w) => w.name === name);
-                      if (workout) handleAddWorkout(workout);
+                      const workout = workouts?.find(
+                        (w) => w.name === name
+                      );
+                      if (workout)
+                        handleAddWorkout(workout);
                     }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -198,7 +221,8 @@ const Header = styled.div`
   display: flex;
   align-items: center;
   padding: 20px;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.white10};
+  border-bottom: 1px solid
+    ${({ theme }) => theme.colors.white10};
 `;
 
 const BackButton = styled.button`
@@ -238,7 +262,9 @@ const WorkoutList = styled.div`
   flex: 1;
 `;
 
-const WorkoutCard = styled(motion.div)<{ selected: boolean }>`
+const WorkoutCard = styled(motion.div)<{
+  selected: boolean;
+}>`
   display: flex;
   align-items: center;
   padding: 16px;
@@ -246,9 +272,12 @@ const WorkoutCard = styled(motion.div)<{ selected: boolean }>`
   margin-bottom: 10px;
   cursor: pointer;
   background: ${({ selected, theme }) =>
-    selected ? `${theme.colors.neon}10` : theme.colors.white10};
+    selected
+      ? `${theme.colors.neon}10`
+      : theme.colors.white10};
   border: 1px solid
-    ${({ selected, theme }) => (selected ? theme.colors.neon : 'transparent')};
+    ${({ selected, theme }) =>
+      selected ? theme.colors.neon : "transparent"};
 
   transition: all 0.2s ease;
 `;

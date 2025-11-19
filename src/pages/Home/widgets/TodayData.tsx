@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useWorkouts } from '../../../context/WorkoutContext';
-import { PieChart, Pie, Cell } from 'recharts';
+import React, { useState, useEffect, useMemo } from "react";
+import styled from "styled-components";
+import { motion, AnimatePresence } from "framer-motion";
+import { useWorkouts } from "../../../context/WorkoutContext";
+import { PieChart, Pie, Cell } from "recharts";
 import {
   BiDumbbell,
   BiCheck,
   BiFlag,
   BiTrendingUp,
   BiPlus,
-} from 'react-icons/bi';
-import { BsClock } from 'react-icons/bs';
-import { CgCalendar, CgOptions } from 'react-icons/cg';
-import { GiFlame } from 'react-icons/gi';
-import { MdClose } from 'react-icons/md';
-import { useNavigate } from 'react-router-dom';
+} from "react-icons/bi";
+import { BsClock } from "react-icons/bs";
+import { CgCalendar, CgOptions } from "react-icons/cg";
+import { GiFlame } from "react-icons/gi";
+import { MdClose } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
 
 type Stat = {
   name: string;
@@ -28,59 +28,70 @@ type Stat = {
 const TodayData: React.FC = () => {
   const { workouts = [], setActiveWorkout } = useWorkouts();
   const navigate = useNavigate();
-  const [activeStats, setActiveStats] = useState<{ id: number }[]>([]);
-  const [statsBuffer, setStatsBuffer] = useState<Stat[]>([]);
+  const [activeStats, setActiveStats] = useState<
+    { id: number }[]
+  >([]);
+  const [statsBuffer, setStatsBuffer] = useState<Stat[]>(
+    []
+  );
   const [optionPanel, setOptionPanel] = useState(false);
 
   const iconSize = 24;
 
-  const stats: Stat[] = [
-    {
-      name: 'Volume',
-      icon: <BiDumbbell size={iconSize} />,
-      value: '1,200',
-      label: 'kg',
-      id: 0,
-      color: '#00C6BE',
-    },
-    {
-      name: 'Calories',
-      icon: <GiFlame size={iconSize} />,
-      value: '3,200',
-      label: 'kcal',
-      id: 1,
-      color: '#FF5F5F',
-    },
-    {
-      name: 'Time',
-      icon: <BsClock size={iconSize} />,
-      value: '6',
-      label: 'hours',
-      id: 2,
-      color: '#FFD166',
-    },
-    {
-      name: 'Days Active',
-      icon: <CgCalendar size={iconSize} />,
-      value: '5/7',
-      label: 'days',
-      id: 3,
-      color: '#4ECDC4',
-    },
-  ];
+  const stats: Stat[] = useMemo(
+    () => [
+      {
+        name: "Volume",
+        icon: <BiDumbbell size={iconSize} />,
+        value: "1,200",
+        label: "kg",
+        id: 0,
+        color: "#00C6BE",
+      },
+      {
+        name: "Calories",
+        icon: <GiFlame size={iconSize} />,
+        value: "3,200",
+        label: "kcal",
+        id: 1,
+        color: "#FF5F5F",
+      },
+      {
+        name: "Time",
+        icon: <BsClock size={iconSize} />,
+        value: "6",
+        label: "hours",
+        id: 2,
+        color: "#FFD166",
+      },
+      {
+        name: "Days Active",
+        icon: <CgCalendar size={iconSize} />,
+        value: "5/7",
+        label: "days",
+        id: 3,
+        color: "#4ECDC4",
+      },
+    ],
+    [iconSize]
+  );
 
   // Get today's workout
   const today = new Date();
   const todayWorkout = workouts?.find((workout) => {
     if (!workout.date) return false;
     const workoutDate = new Date(workout.date);
-    return workoutDate.toDateString() === today.toDateString();
+    return (
+      workoutDate.toDateString() === today.toDateString()
+    );
   });
 
   // Get current week range
   const currentMonday = new Date(today);
   currentMonday.setDate(
-    today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1)
+    today.getDate() -
+      today.getDay() +
+      (today.getDay() === 0 ? -6 : 1)
   );
   currentMonday.setHours(0, 0, 0, 0);
 
@@ -93,32 +104,44 @@ const TodayData: React.FC = () => {
     if (!workout.date) return false;
     const workoutDate = new Date(workout.date);
     workoutDate.setHours(0, 0, 0, 0);
-    return workoutDate >= currentMonday && workoutDate <= currentSunday;
+    return (
+      workoutDate >= currentMonday &&
+      workoutDate <= currentSunday
+    );
   });
 
   const completedWorkouts =
-    weeklyWorkouts?.filter((workout) => workout.completed).length || 0;
+    weeklyWorkouts?.filter((workout) => workout.completed)
+      .length || 0;
   const totalWorkouts = weeklyWorkouts?.length || 0;
   const completionPercentage =
     totalWorkouts > 0
-      ? Math.round((completedWorkouts / totalWorkouts) * 100)
+      ? Math.round(
+          (completedWorkouts / totalWorkouts) * 100
+        )
       : 0;
 
   const chartData = [
-    { name: 'Completed', value: completedWorkouts },
-    { name: 'Remaining', value: totalWorkouts - completedWorkouts },
+    { name: "Completed", value: completedWorkouts },
+    {
+      name: "Remaining",
+      value: totalWorkouts - completedWorkouts,
+    },
   ];
 
   // Load saved stats on component mount
   useEffect(() => {
     const savedStats = JSON.parse(
-      localStorage.getItem('weekly-active-stats') || '[]'
+      localStorage.getItem("weekly-active-stats") || "[]"
     );
     setActiveStats(savedStats);
 
     // Populate statsBuffer with actual stat objects
     const initialBuffer = stats.filter((stat) =>
-      savedStats.some((activeStat: { id: number }) => activeStat.id === stat.id)
+      savedStats.some(
+        (activeStat: { id: number }) =>
+          activeStat.id === stat.id
+      )
     );
     setStatsBuffer(initialBuffer);
 
@@ -127,46 +150,61 @@ const TodayData: React.FC = () => {
       // Don't auto-open the panel, just have a default state
       const defaultStats = [stats[0], stats[1]]; // Volume and Calories as default
       setStatsBuffer(defaultStats);
-      setActiveStats(defaultStats.map((stat) => ({ id: stat.id })));
+      setActiveStats(
+        defaultStats.map((stat) => ({ id: stat.id }))
+      );
       localStorage.setItem(
-        'weekly-active-stats',
-        JSON.stringify(defaultStats.map((stat) => ({ id: stat.id })))
+        "weekly-active-stats",
+        JSON.stringify(
+          defaultStats.map((stat) => ({ id: stat.id }))
+        )
       );
     }
-  }, []);
+  }, [stats]);
 
   const toggleStat = (stat: Stat) => {
-    const isSelected = statsBuffer.some((item) => item.id === stat.id);
+    const isSelected = statsBuffer.some(
+      (item) => item.id === stat.id
+    );
 
     if (isSelected) {
-      setStatsBuffer(statsBuffer.filter((item) => item.id !== stat.id));
+      setStatsBuffer(
+        statsBuffer.filter((item) => item.id !== stat.id)
+      );
     } else {
       setStatsBuffer([...statsBuffer, stat]);
     }
   };
 
   const saveStats = () => {
-    const statsToStore = statsBuffer.map(({ id }) => ({ id }));
-    localStorage.setItem('weekly-active-stats', JSON.stringify(statsToStore));
+    const statsToStore = statsBuffer.map(({ id }) => ({
+      id,
+    }));
+    localStorage.setItem(
+      "weekly-active-stats",
+      JSON.stringify(statsToStore)
+    );
     setActiveStats(statsToStore);
     setOptionPanel(false);
   };
 
   const filteredStats = stats.filter((stat) =>
-    activeStats.some((activeStat) => activeStat.id === stat.id)
+    activeStats.some(
+      (activeStat) => activeStat.id === stat.id
+    )
   );
 
   const theme = {
     colors: {
-      neon: '#00ff00',
-      white20: 'rgba(255, 255, 255, 0.2)',
+      neon: "#00ff00",
+      white20: "rgba(255, 255, 255, 0.2)",
     },
   };
 
   const COLORS = [theme.colors.neon, theme.colors.white20];
 
   const handleAddWorkout = () => {
-    navigate('/add-workout');
+    navigate("/add-workout");
   };
 
   const handleStartWorkout = () => {
@@ -175,7 +213,7 @@ const TodayData: React.FC = () => {
         ...todayWorkout,
         name: todayWorkout.name,
       });
-      navigate('/workout-assistant');
+      navigate("/workout-assistant");
     }
   };
 
@@ -196,8 +234,14 @@ const TodayData: React.FC = () => {
               </WorkoutIcon>
 
               <WorkoutInfo>
-                <WorkoutTitle>{todayWorkout.name}</WorkoutTitle>
-                <WorkoutStatus $completed={todayWorkout.completed || false}>
+                <WorkoutTitle>
+                  {todayWorkout.name}
+                </WorkoutTitle>
+                <WorkoutStatus
+                  $completed={
+                    todayWorkout.completed || false
+                  }
+                >
                   {todayWorkout.completed ? (
                     <>
                       <BiCheck size={16} />
@@ -229,7 +273,9 @@ const TodayData: React.FC = () => {
               </EmptyWorkoutIcon>
 
               <WorkoutInfo>
-                <EmptyWorkoutTitle>Nessun allenamento</EmptyWorkoutTitle>
+                <EmptyWorkoutTitle>
+                  Nessun allenamento
+                </EmptyWorkoutTitle>
                 <EmptyWorkoutSubtitle>
                   Aggiungi un allenamento per oggi
                 </EmptyWorkoutSubtitle>
@@ -240,7 +286,7 @@ const TodayData: React.FC = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <BiPlus size='20px' />
+                <BiPlus size="20px" />
               </AddButton>
             </>
           )}
@@ -259,7 +305,11 @@ const TodayData: React.FC = () => {
           whileTap={{ scale: 0.95 }}
           $isActive={optionPanel}
         >
-          {optionPanel ? <MdClose size={16} /> : <CgOptions size={16} />}
+          {optionPanel ? (
+            <MdClose size={16} />
+          ) : (
+            <CgOptions size={16} />
+          )}
         </OptionButton>
       </CardHeader>
 
@@ -268,7 +318,7 @@ const TodayData: React.FC = () => {
           <OptionPanel
             as={motion.div}
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
+            animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
           >
@@ -330,38 +380,37 @@ const TodayData: React.FC = () => {
             <ChartSection>
               <ChartContainer>
                 {totalWorkouts > 0 ? (
-                  <PieChart
-                    width={80}
-                    height={80}
-                  >
+                  <PieChart width={80} height={80}>
                     <Pie
                       data={chartData}
-                      cx='50%'
-                      cy='50%'
+                      cx="50%"
+                      cy="50%"
                       innerRadius={28}
                       outerRadius={36}
-                      fill='#8884d8'
+                      fill="#8884d8"
                       paddingAngle={2}
-                      dataKey='value'
+                      dataKey="value"
                       startAngle={90}
                       endAngle={-270}
-                      stroke='none'
+                      stroke="none"
                     >
                       {chartData.map((_, index) => (
                         <Cell
                           key={`cell-${index}`}
-                          fill={COLORS[index % COLORS.length]}
+                          fill={
+                            COLORS[index % COLORS.length]
+                          }
                         />
                       ))}
                     </Pie>
                     <text
-                      x='50%'
-                      y='50%'
-                      textAnchor='middle'
-                      dominantBaseline='middle'
-                      fontSize='14px'
-                      fontWeight='600'
-                      fill='#fff'
+                      x="50%"
+                      y="50%"
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      fontSize="14px"
+                      fontWeight="600"
+                      fill="#fff"
                     >
                       {completionPercentage}%
                     </text>
@@ -385,7 +434,9 @@ const TodayData: React.FC = () => {
 
                 <StatItem>
                   <StatLabel>Rimanenti</StatLabel>
-                  <StatValue>{totalWorkouts - completedWorkouts}</StatValue>
+                  <StatValue>
+                    {totalWorkouts - completedWorkouts}
+                  </StatValue>
                 </StatItem>
               </BasicStats>
             </ChartSection>
@@ -406,7 +457,7 @@ const TodayData: React.FC = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3 }}
-                    className='custom-stat'
+                    className="custom-stat"
                   >
                     <StatIconContainer $color={stat.color}>
                       {stat.icon}
@@ -419,8 +470,12 @@ const TodayData: React.FC = () => {
                 ))
               ) : (
                 <EmptyState>
-                  <EmptyText>Seleziona statistiche da visualizzare</EmptyText>
-                  <EmptyAction onClick={() => setOptionPanel(true)}>
+                  <EmptyText>
+                    Seleziona statistiche da visualizzare
+                  </EmptyText>
+                  <EmptyAction
+                    onClick={() => setOptionPanel(true)}
+                  >
                     Seleziona
                   </EmptyAction>
                 </EmptyState>
@@ -450,7 +505,8 @@ const CardHeader = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 16px;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.white10};
+  border-bottom: 1px solid
+    ${({ theme }) => theme.colors.white10};
 `;
 
 const WeekProgress = styled.div`
@@ -611,7 +667,9 @@ const StatValue = styled.div`
 `;
 
 // Weekly Stats Specific Styles
-const OptionButton = styled(motion.button)<{ $isActive: boolean }>`
+const OptionButton = styled(motion.button)<{
+  $isActive: boolean;
+}>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -642,11 +700,17 @@ const OptionPanel = styled(motion.div)`
 
 const ChoiceContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(80px, 1fr)
+  );
   gap: 16px;
 `;
 
-const StatChoice = styled(motion.div)<{ $selected: boolean; $color: string }>`
+const StatChoice = styled(motion.div)<{
+  $selected: boolean;
+  $color: string;
+}>`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -654,7 +718,7 @@ const StatChoice = styled(motion.div)<{ $selected: boolean; $color: string }>`
   padding: 12px 8px;
   border-radius: 12px;
   background: ${({ $selected, $color }) =>
-    $selected ? `${$color}20` : 'transparent'};
+    $selected ? `${$color}20` : "transparent"};
   cursor: pointer;
   transition: all 0.2s ease;
 
@@ -664,7 +728,10 @@ const StatChoice = styled(motion.div)<{ $selected: boolean; $color: string }>`
   }
 `;
 
-const IconWrapper = styled.div<{ $selected: boolean; $color: string }>`
+const IconWrapper = styled.div<{
+  $selected: boolean;
+  $color: string;
+}>`
   position: relative;
   display: flex;
   align-items: center;
@@ -728,7 +795,10 @@ const SaveButton = styled(Button)`
 
 const CustomStatsContainer = styled(motion.div)`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(120px, 1fr)
+  );
   gap: 12px;
 `;
 

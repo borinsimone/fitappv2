@@ -1,33 +1,37 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
-import { motion } from 'framer-motion';
-import { BiLock, BiLogIn, BiEnvelope } from 'react-icons/bi';
-import { FcGoogle } from 'react-icons/fc';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import styled from "styled-components";
+import { motion } from "framer-motion";
+import {
+  BiLock,
+  BiLogIn,
+  BiEnvelope,
+} from "react-icons/bi";
+import { FcGoogle } from "react-icons/fc";
 
-import { useGlobalContext } from '../../context/GlobalContext';
-import { login } from '../../service/authService';
-import { useAuth } from '../../context/AuthContext';
+import { useGlobalContext } from "../../context/GlobalContext";
+import { login } from "../../service/authService";
+import { useAuth } from "../../context/AuthContext";
 
 const Login = () => {
   const { setToken } = useAuth();
   const { isLoading, setIsLoading } = useGlobalContext();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    let credentials = { email, password };
+    const credentials = { email, password };
     try {
       const response = await login(credentials);
-      localStorage.setItem('token', response.token);
+      localStorage.setItem("token", response.token);
       setToken(response.token);
-      navigate('/home');
+      navigate("/home");
     } catch (error) {
-      console.error('Login error:', error);
-      alert('Invalid credentials. Please try again.');
+      console.error("Login error:", error);
+      alert("Invalid credentials. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -53,7 +57,9 @@ const Login = () => {
         <FormSection>
           <FormHeader>
             <FormTitle>Bentornato</FormTitle>
-            <FormSubtitle>Accedi al tuo account per continuare</FormSubtitle>
+            <FormSubtitle>
+              Accedi al tuo account per continuare
+            </FormSubtitle>
           </FormHeader>
 
           <LoginForm onSubmit={handleSubmit}>
@@ -62,8 +68,8 @@ const Login = () => {
                 <BiEnvelope />
               </InputIcon>
               <StyledInput
-                type='email'
-                placeholder='Email Address'
+                type="email"
+                placeholder="Email Address"
                 value={email}
                 required
                 onChange={(e) => setEmail(e.target.value)}
@@ -75,20 +81,22 @@ const Login = () => {
                 <BiLock />
               </InputIcon>
               <StyledInput
-                type='password'
-                placeholder='Password'
+                type="password"
+                placeholder="Password"
                 value={password}
                 required
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) =>
+                  setPassword(e.target.value)
+                }
               />
             </InputGroup>
 
-            <ForgotPassword to='/forgot-password'>
+            <ForgotPassword to="/forgot-password">
               Forgot password?
             </ForgotPassword>
 
             <LoginButton
-              type='submit'
+              type="submit"
               disabled={isLoading}
               as={motion.button}
               whileHover={{ scale: 1.02 }}
@@ -121,9 +129,9 @@ const Login = () => {
           </SocialButton>
 
           <SignupPrompt>
-            Non hai un account?{' '}
+            Non hai un account?{" "}
             <Link
-              to='/register'
+              to="/register"
               // as={motion.Link}
               // whileHover={{ color: '#00c6be' }}
             >
@@ -159,7 +167,7 @@ const BackgroundGlow = styled.div`
 
   &::before,
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     width: 300px;
     height: 300px;
@@ -179,7 +187,8 @@ const BackgroundGlow = styled.div`
     background: ${({ theme }) => theme.colors.neon};
     bottom: -100px;
     left: -100px;
-    animation: float 10s ease-in-out infinite alternate-reverse;
+    animation: float 10s ease-in-out infinite
+      alternate-reverse;
   }
 
   @keyframes float {
@@ -290,7 +299,8 @@ const StyledInput = styled.input`
   &:focus {
     outline: none;
     border-color: ${({ theme }) => theme.colors.neon};
-    box-shadow: 0 0 0 2px ${({ theme }) => `${theme.colors.neon}30`};
+    box-shadow: 0 0 0 2px
+      ${({ theme }) => `${theme.colors.neon}30`};
   }
 `;
 
@@ -388,10 +398,4 @@ const SignupPrompt = styled.p`
   color: ${({ theme }) => theme.colors.white70};
   font-size: 14px;
   margin: 24px 0 0;
-`;
-
-const SignupLink = styled(Link)`
-  color: ${({ theme }) => theme.colors.neon};
-  font-weight: 600;
-  text-decoration: none;
 `;

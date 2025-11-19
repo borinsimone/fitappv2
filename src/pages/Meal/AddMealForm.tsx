@@ -1,8 +1,12 @@
 // src/pages/Meal/AddMealForm.tsx
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import { motion } from 'framer-motion';
-import { BiSearch, BiPlus, BiBarcode, BiTrash } from 'react-icons/bi';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import {
+  BiSearch,
+  BiPlus,
+  BiBarcode,
+  BiTrash,
+} from "react-icons/bi";
 // import {
 //   searchFoodProducts,
 //   getProductByBarcode,
@@ -10,8 +14,8 @@ import { BiSearch, BiPlus, BiBarcode, BiTrash } from 'react-icons/bi';
 import {
   getProductByBarcode,
   searchFoodProducts,
-} from '../../service/foodApiService';
-import { FoodItem, Meal } from './types/meal';
+} from "../../service/foodApiService";
+import { FoodItem, Meal } from "./types/meal";
 
 import {
   AddButton,
@@ -61,8 +65,8 @@ import {
   SelectedFoodItem,
   SelectedFoodsList,
   TextArea,
-} from './mealStyles';
-import { Label } from 'recharts';
+} from "./mealStyles";
+import { Label } from "recharts";
 // import { searchFoodProducts } from '../../service/foodApiService';
 
 const AddMealForm: React.FC<{
@@ -70,12 +74,26 @@ const AddMealForm: React.FC<{
   onCancel: () => void;
   date: Date;
 }> = ({ onSave, onCancel, date }) => {
-  const [mealName, setMealName] = useState('');
-  const [mealTime, setMealTime] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [selectedFoods, setSelectedFoods] = useState<FoodItem[]>([]);
-  const [notes, setNotes] = useState('');
+  const [mealName, setMealName] = useState("");
+  const [mealTime, setMealTime] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<
+    Array<{
+      product_name: string;
+      brands?: string;
+      nutriments?: {
+        energy_value?: number;
+        proteins?: number;
+        carbohydrates?: number;
+        fat?: number;
+      };
+      image_url?: string;
+    }>
+  >([]);
+  const [selectedFoods, setSelectedFoods] = useState<
+    FoodItem[]
+  >([]);
+  const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -87,7 +105,7 @@ const AddMealForm: React.FC<{
       const results = await searchFoodProducts(searchQuery);
       setSearchResults(results.products || []);
     } catch (error) {
-      console.error('Search error:', error);
+      console.error("Search error:", error);
       // Mostra messaggio di errore
     } finally {
       setLoading(false);
@@ -97,7 +115,7 @@ const AddMealForm: React.FC<{
   const handleScanBarcode = async () => {
     // Qui andrebbe implementata la scansione del codice a barre
     // Per ora simuliamo l'inserimento manuale
-    const barcode = prompt('Inserisci il codice a barre:');
+    const barcode = prompt("Inserisci il codice a barre:");
     if (!barcode) return;
 
     setLoading(true);
@@ -117,11 +135,11 @@ const AddMealForm: React.FC<{
           image: product.image_url,
           barcode: barcode,
         });
-        setSearchQuery('');
+        setSearchQuery("");
         setSearchResults([]);
       }
     } catch (error) {
-      console.error('Barcode scan error:', error);
+      console.error("Barcode scan error:", error);
     } finally {
       setLoading(false);
     }
@@ -132,12 +150,19 @@ const AddMealForm: React.FC<{
   };
 
   const removeFoodItem = (id: string) => {
-    setSelectedFoods((prev) => prev.filter((item) => item.id !== id));
+    setSelectedFoods((prev) =>
+      prev.filter((item) => item.id !== id)
+    );
   };
 
-  const updateFoodQuantity = (id: string, quantity: number) => {
+  const updateFoodQuantity = (
+    id: string,
+    quantity: number
+  ) => {
     setSelectedFoods((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, quantity } : item))
+      prev.map((item) =>
+        item.id === id ? { ...item, quantity } : item
+      )
     );
   };
 
@@ -145,16 +170,18 @@ const AddMealForm: React.FC<{
     e.preventDefault();
 
     if (!mealName || selectedFoods.length === 0) {
-      alert('Inserisci il nome del pasto e almeno un alimento');
+      alert(
+        "Inserisci il nome del pasto e almeno un alimento"
+      );
       return;
     }
 
     const newMeal: Meal = {
       id: Date.now().toString(),
-      userId: 'current-user-id', // Da sostituire con l'ID utente reale
+      userId: "current-user-id", // Da sostituire con l'ID utente reale
       name: mealName,
-      date: date.toISOString().split('T')[0],
-      time: mealTime || '12:00',
+      date: date.toISOString().split("T")[0],
+      time: mealTime || "12:00",
       foodItems: selectedFoods,
       notes: notes,
     };
@@ -162,10 +189,12 @@ const AddMealForm: React.FC<{
     onSave(newMeal);
   };
 
-  const handleSelectSearchResult = (product: any) => {
+  const handleSelectSearchResult = (
+    product: typeof searchResults[0]
+  ) => {
     const foodItem: FoodItem = {
       id: Date.now().toString(),
-      name: product.product_name || 'Prodotto senza nome',
+      name: product.product_name || "Prodotto senza nome",
       brand: product.brands,
       quantity: 100, // Default a 100g
       calories: product.nutriments?.energy_value || 0,
@@ -178,7 +207,7 @@ const AddMealForm: React.FC<{
 
     addFoodItem(foodItem);
     setSearchResults([]);
-    setSearchQuery('');
+    setSearchQuery("");
   };
 
   // Calcola i totali del pasto
@@ -209,21 +238,21 @@ const AddMealForm: React.FC<{
 
       <form onSubmit={handleSubmit}>
         <FormGroup>
-          <Label htmlFor='meal-name'>Nome pasto</Label>
+          <Label htmlFor="meal-name">Nome pasto</Label>
           <Input
-            id='meal-name'
+            id="meal-name"
             value={mealName}
             onChange={(e) => setMealName(e.target.value)}
-            placeholder='Es. Colazione, Pranzo, Spuntino...'
+            placeholder="Es. Colazione, Pranzo, Spuntino..."
             required
           />
         </FormGroup>
 
         <FormGroup>
-          <Label htmlFor='meal-time'>Orario</Label>
+          <Label htmlFor="meal-time">Orario</Label>
           <Input
-            id='meal-time'
-            type='time'
+            id="meal-time"
+            type="time"
             value={mealTime}
             onChange={(e) => setMealTime(e.target.value)}
           />
@@ -235,16 +264,13 @@ const AddMealForm: React.FC<{
           <SearchInput
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder='Cerca alimenti...'
+            placeholder="Cerca alimenti..."
           />
-          <SearchButton
-            type='submit'
-            disabled={loading}
-          >
+          <SearchButton type="submit" disabled={loading}>
             <BiSearch size={20} />
           </SearchButton>
           <BarcodeButton
-            type='button'
+            type="button"
             onClick={handleScanBarcode}
             disabled={loading}
           >
@@ -252,14 +278,20 @@ const AddMealForm: React.FC<{
           </BarcodeButton>
         </SearchContainer>
 
-        {loading && <LoadingIndicator>Caricamento...</LoadingIndicator>}
+        {loading && (
+          <LoadingIndicator>
+            Caricamento...
+          </LoadingIndicator>
+        )}
 
         {searchResults.length > 0 && (
           <SearchResults>
             {searchResults.map((product) => (
               <SearchResultItem
                 key={product.code}
-                onClick={() => handleSelectSearchResult(product)}
+                onClick={() =>
+                  handleSelectSearchResult(product)
+                }
               >
                 {product.image_small_url && (
                   <ProductImage
@@ -269,10 +301,13 @@ const AddMealForm: React.FC<{
                 )}
                 <ProductInfo>
                   <ProductName>
-                    {product.product_name || 'Prodotto senza nome'}
+                    {product.product_name ||
+                      "Prodotto senza nome"}
                   </ProductName>
                   {product.brands && (
-                    <ProductBrand>{product.brands}</ProductBrand>
+                    <ProductBrand>
+                      {product.brands}
+                    </ProductBrand>
                   )}
                 </ProductInfo>
                 <AddButton>
@@ -285,7 +320,9 @@ const AddMealForm: React.FC<{
 
         {selectedFoods.length > 0 && (
           <SelectedFoodsList>
-            <SectionTitle>Alimenti selezionati</SectionTitle>
+            <SectionTitle>
+              Alimenti selezionati
+            </SectionTitle>
             {selectedFoods.map((food) => (
               <SelectedFoodItem key={food.id}>
                 <FoodImageContainer>
@@ -302,22 +339,27 @@ const AddMealForm: React.FC<{
                   <FoodName>{food.name}</FoodName>
                   <FoodBrand>{food.brand}</FoodBrand>
                   <FoodNutrients>
-                    {food.calories}kcal | P: {food.protein}g | C: {food.carbs}g
-                    | G: {food.fat}g
+                    {food.calories}kcal | P: {food.protein}g
+                    | C: {food.carbs}g | G: {food.fat}g
                   </FoodNutrients>
                 </FoodDetails>
                 <QuantityControl>
                   <QuantityInput
-                    type='number'
-                    min='1'
+                    type="number"
+                    min="1"
                     value={food.quantity}
                     onChange={(e) =>
-                      updateFoodQuantity(food.id, parseInt(e.target.value))
+                      updateFoodQuantity(
+                        food.id,
+                        parseInt(e.target.value)
+                      )
                     }
                   />
                   <QuantityUnit>g</QuantityUnit>
                 </QuantityControl>
-                <RemoveButton onClick={() => removeFoodItem(food.id)}>
+                <RemoveButton
+                  onClick={() => removeFoodItem(food.id)}
+                >
                   <BiTrash size={18} />
                 </RemoveButton>
               </SelectedFoodItem>
@@ -327,7 +369,9 @@ const AddMealForm: React.FC<{
 
         {selectedFoods.length > 0 && (
           <NutritionSummary>
-            <SectionTitle>Riepilogo nutrizionale</SectionTitle>
+            <SectionTitle>
+              Riepilogo nutrizionale
+            </SectionTitle>
             <NutritionGrid>
               <NutritionItem>
                 <NutritionLabel>Calorie</NutritionLabel>
@@ -337,15 +381,21 @@ const AddMealForm: React.FC<{
               </NutritionItem>
               <NutritionItem>
                 <NutritionLabel>Proteine</NutritionLabel>
-                <NutritionValue>{Math.round(totals.protein)} g</NutritionValue>
+                <NutritionValue>
+                  {Math.round(totals.protein)} g
+                </NutritionValue>
               </NutritionItem>
               <NutritionItem>
                 <NutritionLabel>Carboidrati</NutritionLabel>
-                <NutritionValue>{Math.round(totals.carbs)} g</NutritionValue>
+                <NutritionValue>
+                  {Math.round(totals.carbs)} g
+                </NutritionValue>
               </NutritionItem>
               <NutritionItem>
                 <NutritionLabel>Grassi</NutritionLabel>
-                <NutritionValue>{Math.round(totals.fat)} g</NutritionValue>
+                <NutritionValue>
+                  {Math.round(totals.fat)} g
+                </NutritionValue>
               </NutritionItem>
             </NutritionGrid>
 
@@ -353,32 +403,56 @@ const AddMealForm: React.FC<{
               <MacroBar>
                 <ProteinBar
                   style={{
-                    width: `${((totals.protein * 4) / totals.calories) * 100}%`,
+                    width: `${
+                      ((totals.protein * 4) /
+                        totals.calories) *
+                      100
+                    }%`,
                   }}
                 />
                 <CarbsBar
                   style={{
-                    width: `${((totals.carbs * 4) / totals.calories) * 100}%`,
+                    width: `${
+                      ((totals.carbs * 4) /
+                        totals.calories) *
+                      100
+                    }%`,
                   }}
                 />
                 <FatBar
                   style={{
-                    width: `${((totals.fat * 9) / totals.calories) * 100}%`,
+                    width: `${
+                      ((totals.fat * 9) / totals.calories) *
+                      100
+                    }%`,
                   }}
                 />
               </MacroBar>
               <MacroLegend>
-                <MacroLegendItem color='#75c9b7'>
-                  Proteine{' '}
-                  {Math.round(((totals.protein * 4) / totals.calories) * 100)}%
+                <MacroLegendItem color="#75c9b7">
+                  Proteine{" "}
+                  {Math.round(
+                    ((totals.protein * 4) /
+                      totals.calories) *
+                      100
+                  )}
+                  %
                 </MacroLegendItem>
-                <MacroLegendItem color='#abd699'>
-                  Carboidrati{' '}
-                  {Math.round(((totals.carbs * 4) / totals.calories) * 100)}%
+                <MacroLegendItem color="#abd699">
+                  Carboidrati{" "}
+                  {Math.round(
+                    ((totals.carbs * 4) / totals.calories) *
+                      100
+                  )}
+                  %
                 </MacroLegendItem>
-                <MacroLegendItem color='#e8a99e'>
-                  Grassi{' '}
-                  {Math.round(((totals.fat * 9) / totals.calories) * 100)}%
+                <MacroLegendItem color="#e8a99e">
+                  Grassi{" "}
+                  {Math.round(
+                    ((totals.fat * 9) / totals.calories) *
+                      100
+                  )}
+                  %
                 </MacroLegendItem>
               </MacroLegend>
             </MacroChart>
@@ -386,24 +460,23 @@ const AddMealForm: React.FC<{
         )}
 
         <FormGroup>
-          <Label htmlFor='meal-notes'>Note (opzionale)</Label>
+          <Label htmlFor="meal-notes">
+            Note (opzionale)
+          </Label>
           <TextArea
-            id='meal-notes'
+            id="meal-notes"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder='Aggiungi note sul pasto...'
+            placeholder="Aggiungi note sul pasto..."
             rows={3}
           />
         </FormGroup>
 
         <ButtonGroup>
-          <CancelButton
-            type='button'
-            onClick={onCancel}
-          >
+          <CancelButton type="button" onClick={onCancel}>
             Annulla
           </CancelButton>
-          <SaveButton type='submit'>Salva pasto</SaveButton>
+          <SaveButton type="submit">Salva pasto</SaveButton>
         </ButtonGroup>
       </form>
     </FormContainer>

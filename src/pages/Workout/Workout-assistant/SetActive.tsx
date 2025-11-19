@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from "react";
 import {
   BiCheckCircle,
   BiMinusCircle,
@@ -8,9 +8,13 @@ import {
   BiSave,
   BiTrash,
   BiX,
-} from 'react-icons/bi';
-import styled from 'styled-components';
-import { motion, AnimatePresence, PanInfo } from 'framer-motion';
+} from "react-icons/bi";
+import styled from "styled-components";
+import {
+  motion,
+  AnimatePresence,
+  PanInfo,
+} from "framer-motion";
 
 interface ExerciseSet {
   weight?: number;
@@ -46,10 +50,16 @@ function SetActive({
   completedSets,
   updateExercise,
 }: SetActiveProps) {
-  const [editingSetIndex, setEditingSetIndex] = useState<number | null>(null);
-  const [editValues, setEditValues] = useState<ExerciseSet | null>(null);
-  const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
-  const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
+  const [editingSetIndex, setEditingSetIndex] = useState<
+    number | null
+  >(null);
+  const [editValues, setEditValues] =
+    useState<ExerciseSet | null>(null);
+  const [deleteIndex, setDeleteIndex] = useState<
+    number | null
+  >(null);
+  const [confirmDelete, setConfirmDelete] =
+    useState<boolean>(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Reset editing state when exercise changes
@@ -58,7 +68,11 @@ function SetActive({
     setEditValues(null);
     setDeleteIndex(null);
     setConfirmDelete(false);
-  }, [currentExercise, currentSectionIndex, currentExerciseIndex]);
+  }, [
+    currentExercise,
+    currentSectionIndex,
+    currentExerciseIndex,
+  ]);
 
   if (!currentExercise) {
     return <EmptyState>No exercise selected</EmptyState>;
@@ -90,11 +104,15 @@ function SetActive({
     setEditValues(null);
   };
 
-  const handleValueChange = (field: keyof ExerciseSet, value: string) => {
+  const handleValueChange = (
+    field: keyof ExerciseSet,
+    value: string
+  ) => {
     if (!editValues) return;
 
     // Convert to number and validate
-    const numValue = value === '' ? undefined : Number(value);
+    const numValue =
+      value === "" ? undefined : Number(value);
 
     setEditValues({
       ...editValues,
@@ -102,13 +120,18 @@ function SetActive({
     });
   };
 
-  const handleSaveEdit = (e: React.MouseEvent, index: number) => {
+  const handleSaveEdit = (
+    e: React.MouseEvent,
+    index: number
+  ) => {
     e.stopPropagation();
 
     if (!currentExercise || !editValues) return;
 
     // Update the exercise set
-    const updatedExerciseSets = [...currentExercise.exerciseSets];
+    const updatedExerciseSets = [
+      ...currentExercise.exerciseSets,
+    ];
     updatedExerciseSets[index] = editValues;
 
     const updatedExercise = {
@@ -125,16 +148,25 @@ function SetActive({
   };
 
   // Handle key press for inputs
-  const handleKeyDown = (e: React.KeyboardEvent, index: number) => {
-    if (e.key === 'Enter') {
+  const handleKeyDown = (
+    e: React.KeyboardEvent,
+    index: number
+  ) => {
+    if (e.key === "Enter") {
       e.preventDefault();
-      handleSaveEdit(e as unknown as React.MouseEvent, index);
-    } else if (e.key === 'Escape') {
+      handleSaveEdit(
+        e as unknown as React.MouseEvent,
+        index
+      );
+    } else if (e.key === "Escape") {
       e.preventDefault();
       handleEditCancel(e as unknown as React.MouseEvent);
-    } else if (e.key === 'Tab') {
+    } else if (e.key === "Tab") {
       // Focus will naturally move to next input
-      if (e.shiftKey && document.activeElement === inputRefs.current[0]) {
+      if (
+        e.shiftKey &&
+        document.activeElement === inputRefs.current[0]
+      ) {
         e.preventDefault();
         handleEditCancel(e as unknown as React.MouseEvent);
       }
@@ -154,7 +186,9 @@ function SetActive({
     if (deleteIndex === null || !currentExercise) return;
 
     // Create a copy of sets without the deleted one
-    const updatedExerciseSets = [...currentExercise.exerciseSets];
+    const updatedExerciseSets = [
+      ...currentExercise.exerciseSets,
+    ];
     updatedExerciseSets.splice(deleteIndex, 1);
 
     const updatedExercise = {
@@ -198,277 +232,350 @@ function SetActive({
 
       <SetsList>
         <AnimatePresence>
-          {currentExercise.exerciseSets.map((set, index) => (
-            <motion.div key={index}>
-              <SetRow
-                as={motion.div}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2, delay: index * 0.05 }}
-                drag={editingSetIndex !== index ? 'x' : false}
-                dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={0.1}
-                onDragEnd={(_, info) => handleDragEnd(info, index)}
-                $isActive={activeSet === set}
-                $isCompleted={completedSets[setKey]?.[index]}
-                $isEditing={editingSetIndex === index}
-                onClick={() => {
-                  // if (editingSetIndex !== index) {
-                  //   handleSetClick(set);
-                  // }
-                }}
-              >
-                {/* Swipe hint indicator */}
-                {/* <SwipeHintContainer>
+          {currentExercise.exerciseSets.map(
+            (set, index) => (
+              <motion.div key={index}>
+                <SetRow
+                  as={motion.div}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.2,
+                    delay: index * 0.05,
+                  }}
+                  drag={
+                    editingSetIndex !== index ? "x" : false
+                  }
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.1}
+                  onDragEnd={(_, info) =>
+                    handleDragEnd(info, index)
+                  }
+                  $isActive={activeSet === set}
+                  $isCompleted={
+                    completedSets[setKey]?.[index]
+                  }
+                  $isEditing={editingSetIndex === index}
+                  onClick={() => {
+                    // if (editingSetIndex !== index) {
+                    //   handleSetClick(set);
+                    // }
+                  }}
+                >
+                  {/* Swipe hint indicator */}
+                  {/* <SwipeHintContainer>
                   <SwipeHint>
                     <BiTrash size={18} />
                     Swipe to delete
                   </SwipeHint>
                 </SwipeHintContainer> */}
 
-                <SetNumberCell>
-                  <SetNumber $isActive={activeSet === set}>
-                    {index + 1}
-                  </SetNumber>
-                </SetNumberCell>
+                  <SetNumberCell>
+                    <SetNumber
+                      $isActive={activeSet === set}
+                    >
+                      {index + 1}
+                    </SetNumber>
+                  </SetNumberCell>
 
-                {editingSetIndex === index ? (
-                  // Editing mode
+                  {editingSetIndex === index ? (
+                    // Editing mode
+                    isTimeBased ? (
+                      <>
+                        <Cell>
+                          <EditInput
+                            ref={(el) =>
+                              (inputRefs.current[0] = el)
+                            }
+                            type="number"
+                            min="0"
+                            value={
+                              editValues?.time === undefined
+                                ? ""
+                                : editValues.time
+                            }
+                            onChange={(e) =>
+                              handleValueChange(
+                                "time",
+                                e.target.value
+                              )
+                            }
+                            onKeyDown={(e) =>
+                              handleKeyDown(e, index)
+                            }
+                            onClick={(e) =>
+                              e.stopPropagation()
+                            }
+                          />
+                          <InputLabel>sec</InputLabel>
+                        </Cell>
+                        <Cell>
+                          <EditInput
+                            ref={(el) =>
+                              (inputRefs.current[1] = el)
+                            }
+                            type="number"
+                            min="0"
+                            value={
+                              editValues?.rest === undefined
+                                ? ""
+                                : editValues.rest
+                            }
+                            onChange={(e) =>
+                              handleValueChange(
+                                "rest",
+                                e.target.value
+                              )
+                            }
+                            onKeyDown={(e) =>
+                              handleKeyDown(e, index)
+                            }
+                            onClick={(e) =>
+                              e.stopPropagation()
+                            }
+                          />
+                          <InputLabel>sec</InputLabel>
+                        </Cell>
+                      </>
+                    ) : (
+                      <>
+                        <Cell>
+                          <EditInput
+                            ref={(el) =>
+                              (inputRefs.current[0] = el)
+                            }
+                            type="number"
+                            min="0"
+                            step="0.5"
+                            value={
+                              editValues?.weight ===
+                              undefined
+                                ? ""
+                                : editValues.weight
+                            }
+                            onChange={(e) =>
+                              handleValueChange(
+                                "weight",
+                                e.target.value
+                              )
+                            }
+                            onKeyDown={(e) =>
+                              handleKeyDown(e, index)
+                            }
+                            onClick={(e) =>
+                              e.stopPropagation()
+                            }
+                          />
+                          <InputLabel>kg</InputLabel>
+                        </Cell>
+                        <Cell>
+                          <EditInput
+                            ref={(el) =>
+                              (inputRefs.current[1] = el)
+                            }
+                            type="number"
+                            min="0"
+                            value={
+                              editValues?.reps === undefined
+                                ? ""
+                                : editValues.reps
+                            }
+                            onChange={(e) =>
+                              handleValueChange(
+                                "reps",
+                                e.target.value
+                              )
+                            }
+                            onKeyDown={(e) =>
+                              handleKeyDown(e, index)
+                            }
+                            onClick={(e) =>
+                              e.stopPropagation()
+                            }
+                          />
+                          <InputLabel>rep</InputLabel>
+                        </Cell>
+                        <Cell>
+                          <EditInput
+                            ref={(el) =>
+                              (inputRefs.current[2] = el)
+                            }
+                            type="number"
+                            min="0"
+                            value={
+                              editValues?.rest === undefined
+                                ? ""
+                                : editValues.rest
+                            }
+                            onChange={(e) =>
+                              handleValueChange(
+                                "rest",
+                                e.target.value
+                              )
+                            }
+                            onKeyDown={(e) =>
+                              handleKeyDown(e, index)
+                            }
+                            onClick={(e) =>
+                              e.stopPropagation()
+                            }
+                          />
+                          <InputLabel>sec</InputLabel>
+                        </Cell>
+                      </>
+                    )
+                  ) : // Display mode
                   isTimeBased ? (
                     <>
                       <Cell>
-                        <EditInput
-                          ref={(el) => (inputRefs.current[0] = el)}
-                          type='number'
-                          min='0'
-                          value={
-                            editValues?.time === undefined
-                              ? ''
-                              : editValues.time
-                          }
-                          onChange={(e) =>
-                            handleValueChange('time', e.target.value)
-                          }
-                          onKeyDown={(e) => handleKeyDown(e, index)}
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                        <InputLabel>sec</InputLabel>
+                        <CellValue>
+                          <BiTimer size={16} />
+                          {set.time}"
+                        </CellValue>
                       </Cell>
                       <Cell>
-                        <EditInput
-                          ref={(el) => (inputRefs.current[1] = el)}
-                          type='number'
-                          min='0'
-                          value={
-                            editValues?.rest === undefined
-                              ? ''
-                              : editValues.rest
-                          }
-                          onChange={(e) =>
-                            handleValueChange('rest', e.target.value)
-                          }
-                          onKeyDown={(e) => handleKeyDown(e, index)}
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                        <InputLabel>sec</InputLabel>
+                        <CellValue>{set.rest}"</CellValue>
                       </Cell>
                     </>
                   ) : (
                     <>
                       <Cell>
-                        <EditInput
-                          ref={(el) => (inputRefs.current[0] = el)}
-                          type='number'
-                          min='0'
-                          step='0.5'
-                          value={
-                            editValues?.weight === undefined
-                              ? ''
-                              : editValues.weight
-                          }
-                          onChange={(e) =>
-                            handleValueChange('weight', e.target.value)
-                          }
-                          onKeyDown={(e) => handleKeyDown(e, index)}
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                        <InputLabel>kg</InputLabel>
+                        <CellValue>
+                          {set.weight} kg
+                        </CellValue>
                       </Cell>
                       <Cell>
-                        <EditInput
-                          ref={(el) => (inputRefs.current[1] = el)}
-                          type='number'
-                          min='0'
-                          value={
-                            editValues?.reps === undefined
-                              ? ''
-                              : editValues.reps
-                          }
-                          onChange={(e) =>
-                            handleValueChange('reps', e.target.value)
-                          }
-                          onKeyDown={(e) => handleKeyDown(e, index)}
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                        <InputLabel>rep</InputLabel>
+                        <CellValue>
+                          {set.reps} rep
+                        </CellValue>
                       </Cell>
                       <Cell>
-                        <EditInput
-                          ref={(el) => (inputRefs.current[2] = el)}
-                          type='number'
-                          min='0'
-                          value={
-                            editValues?.rest === undefined
-                              ? ''
-                              : editValues.rest
-                          }
-                          onChange={(e) =>
-                            handleValueChange('rest', e.target.value)
-                          }
-                          onKeyDown={(e) => handleKeyDown(e, index)}
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                        <InputLabel>sec</InputLabel>
+                        <CellValue>{set.rest}"</CellValue>
                       </Cell>
                     </>
-                  )
-                ) : // Display mode
-                isTimeBased ? (
-                  <>
-                    <Cell>
-                      <CellValue>
-                        <BiTimer size={16} />
-                        {set.time}"
-                      </CellValue>
-                    </Cell>
-                    <Cell>
-                      <CellValue>{set.rest}"</CellValue>
-                    </Cell>
-                  </>
-                ) : (
-                  <>
-                    <Cell>
-                      <CellValue>{set.weight} kg</CellValue>
-                    </Cell>
-                    <Cell>
-                      <CellValue>{set.reps} rep</CellValue>
-                    </Cell>
-                    <Cell>
-                      <CellValue>{set.rest}"</CellValue>
-                    </Cell>
-                  </>
-                )}
-
-                <TimerCell>
-                  {editingSetIndex === index ? (
-                    <ActionButtonGroup>
-                      <ActionButton
-                        $variant='save'
-                        onClick={(e) => handleSaveEdit(e, index)}
-                        as={motion.button}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <BiSave size={16} />
-                      </ActionButton>
-
-                      <ActionButton
-                        $variant='cancel'
-                        onClick={handleEditCancel}
-                        as={motion.button}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <BiMinusCircle size={16} />
-                      </ActionButton>
-                    </ActionButtonGroup>
-                  ) : activeSet === set ? (
-                    <ActiveBadge>
-                      <BiPlay size={14} />
-                      Active
-                    </ActiveBadge>
-                  ) : (
-                    <ActionButtonGroup>
-                      <SelectButton
-                        as={motion.button}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={(e) => handleSetClick(set)}
-                      >
-                        Select
-                      </SelectButton>
-
-                      <EditButton
-                        onClick={(e) => handleEditClick(e, set, index)}
-                        as={motion.button}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <BiEdit size={16} />
-                      </EditButton>
-                    </ActionButtonGroup>
                   )}
-                </TimerCell>
 
-                <StatusCell>
-                  <CompletionButton
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (editingSetIndex !== index) {
-                        handleSetComplete(index);
-                      }
-                    }}
-                    $completed={completedSets[setKey]?.[index]}
-                    disabled={editingSetIndex === index}
-                    as={motion.button}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                  >
-                    {completedSets[setKey]?.[index] ? (
-                      <BiCheckCircle size={24} />
+                  <TimerCell>
+                    {editingSetIndex === index ? (
+                      <ActionButtonGroup>
+                        <ActionButton
+                          $variant="save"
+                          onClick={(e) =>
+                            handleSaveEdit(e, index)
+                          }
+                          as={motion.button}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <BiSave size={16} />
+                        </ActionButton>
+
+                        <ActionButton
+                          $variant="cancel"
+                          onClick={handleEditCancel}
+                          as={motion.button}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <BiMinusCircle size={16} />
+                        </ActionButton>
+                      </ActionButtonGroup>
+                    ) : activeSet === set ? (
+                      <ActiveBadge>
+                        <BiPlay size={14} />
+                        Active
+                      </ActiveBadge>
                     ) : (
-                      <BiMinusCircle size={24} />
-                    )}
-                  </CompletionButton>
-                </StatusCell>
-              </SetRow>
+                      <ActionButtonGroup>
+                        <SelectButton
+                          as={motion.button}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() =>
+                            handleSetClick(set)
+                          }
+                        >
+                          Select
+                        </SelectButton>
 
-              {/* Delete confirmation overlay */}
-              <AnimatePresence>
-                {confirmDelete && deleteIndex === index && (
-                  <DeleteConfirm
-                    as={motion.div}
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <DeleteMessage>Delete this set?</DeleteMessage>
-                    <DeleteButtonGroup>
-                      <DeleteCancelButton
-                        onClick={handleCancelDelete}
-                        as={motion.button}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <BiX size={16} />
-                        Cancel
-                      </DeleteCancelButton>
-                      <DeleteConfirmButton
-                        onClick={handleDeleteSet}
-                        as={motion.button}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <BiTrash size={16} />
-                        Delete
-                      </DeleteConfirmButton>
-                    </DeleteButtonGroup>
-                  </DeleteConfirm>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          ))}
+                        <EditButton
+                          onClick={(e) =>
+                            handleEditClick(e, set, index)
+                          }
+                          as={motion.button}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <BiEdit size={16} />
+                        </EditButton>
+                      </ActionButtonGroup>
+                    )}
+                  </TimerCell>
+
+                  <StatusCell>
+                    <CompletionButton
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (editingSetIndex !== index) {
+                          handleSetComplete(index);
+                        }
+                      }}
+                      $completed={
+                        completedSets[setKey]?.[index]
+                      }
+                      disabled={editingSetIndex === index}
+                      as={motion.button}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      {completedSets[setKey]?.[index] ? (
+                        <BiCheckCircle size={24} />
+                      ) : (
+                        <BiMinusCircle size={24} />
+                      )}
+                    </CompletionButton>
+                  </StatusCell>
+                </SetRow>
+
+                {/* Delete confirmation overlay */}
+                <AnimatePresence>
+                  {confirmDelete && deleteIndex === index && (
+                    <DeleteConfirm
+                      as={motion.div}
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <DeleteMessage>
+                        Delete this set?
+                      </DeleteMessage>
+                      <DeleteButtonGroup>
+                        <DeleteCancelButton
+                          onClick={handleCancelDelete}
+                          as={motion.button}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <BiX size={16} />
+                          Cancel
+                        </DeleteCancelButton>
+                        <DeleteConfirmButton
+                          onClick={handleDeleteSet}
+                          as={motion.button}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <BiTrash size={16} />
+                          Delete
+                        </DeleteConfirmButton>
+                      </DeleteButtonGroup>
+                    </DeleteConfirm>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            )
+          )}
         </AnimatePresence>
       </SetsList>
     </Container>
@@ -503,7 +610,8 @@ const TableHeader = styled.div`
   align-items: center;
   padding: 14px 0;
   background: ${({ theme }) => theme.colors.white10};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.white10};
+  border-bottom: 1px solid
+    ${({ theme }) => theme.colors.white10};
   z-index: 2;
 `;
 
@@ -542,7 +650,8 @@ const SetRow = styled(motion.div)<{
   display: flex;
   align-items: center;
   padding: 12px 0px;
-  cursor: ${({ $isEditing }) => ($isEditing ? 'default' : 'pointer')};
+  cursor: ${({ $isEditing }) =>
+    $isEditing ? "default" : "pointer"};
   transition: all 0.2s ease;
   border-left: 3px solid transparent;
   position: relative;
@@ -568,43 +677,22 @@ const SetRow = styled(motion.div)<{
         border-left-color: transparent;
       `;
     }
-    return '';
+    return "";
   }}
 
   &:not(:last-child) {
-    border-bottom: 1px solid ${({ theme }) => theme.colors.white05};
+    border-bottom: 1px solid
+      ${({ theme }) => theme.colors.white05};
   }
 
   &:hover {
     background: ${({ $isActive, $isEditing, theme }) => {
       if ($isEditing) return theme.colors.white10;
-      return $isActive ? `${theme.colors.neon}15` : theme.colors.white10;
+      return $isActive
+        ? `${theme.colors.neon}15`
+        : theme.colors.white10;
     }};
   }
-`;
-
-const SwipeHintContainer = styled.div`
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 75px;
-  background: ${({ theme }) => theme.colors.error};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  z-index: -1;
-`;
-
-const SwipeHint = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  gap: 5px;
-  font-weight: 600;
 `;
 
 const Cell = styled.div`
@@ -708,7 +796,9 @@ const EditButton = styled(motion.button)`
   }
 `;
 
-const ActionButton = styled(motion.button)<{ $variant: 'save' | 'cancel' }>`
+const ActionButton = styled(motion.button)<{
+  $variant: "save" | "cancel";
+}>`
   all: unset;
   display: flex;
   align-items: center;
@@ -720,7 +810,7 @@ const ActionButton = styled(motion.button)<{ $variant: 'save' | 'cancel' }>`
   transition: all 0.2s ease;
 
   ${({ $variant, theme }) =>
-    $variant === 'save'
+    $variant === "save"
       ? `
         background: ${theme.colors.neon}20;
         color: ${theme.colors.neon};
@@ -742,7 +832,8 @@ const CompletionButton = styled(motion.button)<{
   disabled?: boolean;
 }>`
   all: unset;
-  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
+  cursor: ${({ disabled }) =>
+    disabled ? "not-allowed" : "pointer"};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -751,7 +842,9 @@ const CompletionButton = styled(motion.button)<{
   transition: all 0.2s ease;
   opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
   color: ${({ $completed, theme }) =>
-    $completed ? theme.colors.success : theme.colors.white30};
+    $completed
+      ? theme.colors.success
+      : theme.colors.white30};
 `;
 
 const EditInput = styled.input`
@@ -779,7 +872,7 @@ const EditInput = styled.input`
   }
 
   /* Firefox */
-  &[type='number'] {
+  &[type="number"] {
     -moz-appearance: textfield;
   }
 `;
@@ -796,7 +889,8 @@ const DeleteConfirm = styled(motion.div)`
   margin-bottom: 8px;
   background: ${({ theme }) => theme.colors.error}15;
   padding: 12px 16px;
-  border-left: 3px solid ${({ theme }) => theme.colors.error};
+  border-left: 3px solid
+    ${({ theme }) => theme.colors.error};
   border-radius: 0 0 12px 12px;
   z-index: 0;
 `;

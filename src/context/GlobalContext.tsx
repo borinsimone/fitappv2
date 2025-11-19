@@ -1,24 +1,37 @@
-import React, { createContext, useContext, ReactNode, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  ReactNode,
+  useState,
+} from "react";
 
-// Define the type for your context state
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  photoURL?: string;
+}
+
 interface GlobalContextType {
-  // Add your global state properties here
-  // Example:
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
-  user: any | null;
-  setUser: (user: any | null) => void;
+  user: User | null;
+  setUser: (user: User | null) => void;
 }
 
 // Create the context
-const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
+const GlobalContext = createContext<
+  GlobalContextType | undefined
+>(undefined);
 
 // Create a provider component
 interface GlobalProviderProps {
   children: ReactNode;
 }
 
-export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
+export const GlobalProvider: React.FC<
+  GlobalProviderProps
+> = ({ children }) => {
   // Add your state management here
   const [isLoading, setIsLoading] = useState(false);
   const [user, setUser] = useState();
@@ -31,7 +44,9 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
   };
 
   return (
-    <GlobalContext.Provider value={value}>{children}</GlobalContext.Provider>
+    <GlobalContext.Provider value={value}>
+      {children}
+    </GlobalContext.Provider>
   );
 };
 
@@ -39,7 +54,9 @@ export const GlobalProvider: React.FC<GlobalProviderProps> = ({ children }) => {
 export const useGlobalContext = () => {
   const context = useContext(GlobalContext);
   if (context === undefined) {
-    throw new Error('useGlobalContext must be used within a GlobalProvider');
+    throw new Error(
+      "useGlobalContext must be used within a GlobalProvider"
+    );
   }
   return context;
 };

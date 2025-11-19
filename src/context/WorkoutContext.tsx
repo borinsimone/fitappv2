@@ -1,33 +1,39 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
 import {
   addWorkouts,
   deleteWorkout,
   getWorkouts,
   updateWorkout,
-} from '../service/WorkoutService';
-import { useGlobalContext } from './GlobalContext';
+} from "../service/WorkoutService";
+import { useGlobalContext } from "./GlobalContext";
 
 // Interfacce allineate con il modello MongoDB
-interface WorkoutSet {
+export interface WorkoutSet {
   reps?: number;
   weight?: number;
   rest: number;
   time?: number;
 }
 
-interface Exercise {
+export interface Exercise {
   name: string;
   exerciseSets: WorkoutSet[];
   notes?: string;
   timeBased: boolean;
 }
 
-interface Section {
+export interface Section {
   name: string;
   exercises: Exercise[];
 }
 
-interface WorkoutFeedback {
+export interface WorkoutFeedback {
   feeling?: number; // 1-5 scale
   energyLevel?: number; // 1-5 scale
   difficulty?: number; // 1-5 scale
@@ -35,7 +41,7 @@ interface WorkoutFeedback {
   completedAt?: string; // Timestamp ISO
 }
 
-interface Workout {
+export interface Workout {
   _id: string;
   userId: string;
   name: string;
@@ -43,7 +49,7 @@ interface Workout {
   date: string;
   completed: boolean;
   feedback?: WorkoutFeedback;
-  notes?: Date | null;
+  notes?: string | null;
   startTime?: Date | null;
   endTime?: string;
   duration?: number;
@@ -52,15 +58,24 @@ interface Workout {
 interface WorkoutContextType {
   workouts: Workout[] | null;
   fetchWorkouts: () => Promise<void>;
-  addWorkout: (workout: Omit<Workout, '_id'>) => Promise<void>;
+  addWorkout: (
+    workout: Omit<Workout, "_id">
+  ) => Promise<void>;
   removeWorkout: (id: string) => Promise<void>;
-  editWorkout: (id: string, updatedData: Partial<Workout>) => Promise<void>;
+  editWorkout: (
+    id: string,
+    updatedData: Partial<Workout>
+  ) => Promise<void>;
   loadWorkouts: () => Promise<void>;
   activeWorkout: Workout | null;
-  setActiveWorkout: React.Dispatch<React.SetStateAction<Workout | null>>;
+  setActiveWorkout: React.Dispatch<
+    React.SetStateAction<Workout | null>
+  >;
 }
 
-const WorkoutContext = createContext<WorkoutContextType | undefined>(undefined);
+const WorkoutContext = createContext<
+  WorkoutContextType | undefined
+>(undefined);
 
 export const WorkoutProvider = ({
   children,
@@ -68,22 +83,27 @@ export const WorkoutProvider = ({
   children: React.ReactNode;
 }) => {
   const { setIsLoading } = useGlobalContext();
-  const [workouts, setWorkouts] = useState<Workout[] | null>(null);
-  const [activeWorkout, setActiveWorkout] = useState<Workout | null>(
-    localStorage.getItem('activeWorkout')
-      ? JSON.parse(localStorage.getItem('activeWorkout')!)
-      : null
-  );
+  const [workouts, setWorkouts] = useState<
+    Workout[] | null
+  >(null);
+  const [activeWorkout, setActiveWorkout] =
+    useState<Workout | null>(
+      localStorage.getItem("activeWorkout")
+        ? JSON.parse(localStorage.getItem("activeWorkout")!)
+        : null
+    );
 
   const fetchWorkouts = async (): Promise<void> => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) return;
     const data = await getWorkouts(token);
     setWorkouts(data as Workout[]);
   };
 
-  const addWorkout = async (workout: Omit<Workout, '_id'>): Promise<void> => {
-    const token = localStorage.getItem('token');
+  const addWorkout = async (
+    workout: Omit<Workout, "_id">
+  ): Promise<void> => {
+    const token = localStorage.getItem("token");
     if (!token) return;
     const response = await addWorkouts(workout, token);
     if (response) {
@@ -91,8 +111,10 @@ export const WorkoutProvider = ({
     }
   };
 
-  const removeWorkout = async (id: string): Promise<void> => {
-    const token = localStorage.getItem('token');
+  const removeWorkout = async (
+    id: string
+  ): Promise<void> => {
+    const token = localStorage.getItem("token");
     if (!token) return;
     setIsLoading(true);
     await deleteWorkout(id, token);
@@ -104,38 +126,42 @@ export const WorkoutProvider = ({
     id: string,
     updatedData: Partial<Workout>
   ): Promise<void> => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) return;
     await updateWorkout(id, updatedData, token);
     await fetchWorkouts(); // Ricarica i dati dopo la modifica
   };
 
-  const loadWorkouts = async (): Promise<void> => {
-    console.log('Starting loadWorkouts...');
-    setIsLoading(true);
-    try {
-      console.log('Fetching workouts...');
-      await fetchWorkouts(); // Attende la fine della chiamata
-      console.log('Workouts fetched successfully');
-    } catch (error) {
-      console.error('Error loading workouts:', error);
-    } finally {
-      console.log('Finishing loadWorkouts...');
-      setIsLoading(false); // Assicura che venga eseguito sempre
-    }
-  };
+  const loadWorkouts =
+    useCallback(async (): Promise<void> => {
+      console.log("Starting loadWorkouts...");
+      setIsLoading(true);
+      try {
+        console.log("Fetching workouts...");
+        await fetchWorkouts(); // Attende la fine della chiamata
+        console.log("Workouts fetched successfully");
+      } catch (error) {
+        console.error("Error loading workouts:", error);
+      } finally {
+        console.log("Finishing loadWorkouts...");
+        setIsLoading(false); // Assicura che venga eseguito sempre
+      }
+    }, [setIsLoading]);
 
   // Carica i workout all'avvio
   useEffect(() => {
     loadWorkouts();
-  }, []); // Rimuoviamo la dipendenza circolare
+  }, [loadWorkouts]);
 
   // Persisti activeWorkout nel localStorage
   useEffect(() => {
     if (activeWorkout) {
-      localStorage.setItem('activeWorkout', JSON.stringify(activeWorkout));
+      localStorage.setItem(
+        "activeWorkout",
+        JSON.stringify(activeWorkout)
+      );
     } else {
-      localStorage.removeItem('activeWorkout');
+      localStorage.removeItem("activeWorkout");
     }
   }, [activeWorkout]);
 
@@ -160,6 +186,8 @@ export const WorkoutProvider = ({
 export const useWorkouts = () => {
   const context = useContext(WorkoutContext);
   if (!context)
-    throw new Error('useWorkouts must be used within a WorkoutProvider');
+    throw new Error(
+      "useWorkouts must be used within a WorkoutProvider"
+    );
   return context;
 };

@@ -1,13 +1,11 @@
-import React from 'react';
-import styled from 'styled-components';
-import { motion } from 'framer-motion';
+import React from "react";
+import styled from "styled-components";
+import { motion } from "framer-motion";
 import {
   BiRestaurant,
   BiBowlRice,
-  BiCalendarStar,
   BiBrain,
-  BiRefresh,
-} from 'react-icons/bi';
+} from "react-icons/bi";
 
 const ComingSoonOverlay: React.FC = () => {
   return (
@@ -32,9 +30,9 @@ const ComingSoonOverlay: React.FC = () => {
         <Title>Meal Planner in Arrivo</Title>
 
         <Description>
-          Stiamo sviluppando un sistema avanzato di pianificazione pasti con
-          intelligenza artificiale per personalizzare al massimo la tua
-          nutrizione.
+          Stiamo sviluppando un sistema avanzato di
+          pianificazione pasti con intelligenza artificiale
+          per personalizzare al massimo la tua nutrizione.
         </Description>
 
         <FeaturesList>
@@ -57,20 +55,24 @@ const ComingSoonOverlay: React.FC = () => {
           <FeatureItem highlight>
             <FeatureDot glow />
             <span>
-              Creazione piano alimentare con IA basato su obiettivo
-              calorie/macro e regime alimentare (vegetariano, keto, ecc.)
+              Creazione piano alimentare con IA basato su
+              obiettivo calorie/macro e regime alimentare
+              (vegetariano, keto, ecc.)
             </span>
           </FeatureItem>
           <FeatureItem highlight>
             <FeatureDot glow />
             <span>
-              IA che consiglia cosa preparare in base a cosa hai nel frigo e ai
-              tuoi obiettivi nutrizionali rimanenti
+              IA che consiglia cosa preparare in base a cosa
+              hai nel frigo e ai tuoi obiettivi nutrizionali
+              rimanenti
             </span>
           </FeatureItem>
         </FeaturesList>
 
-        <ComingSoonBadge>Disponibile a Breve</ComingSoonBadge>
+        <ComingSoonBadge>
+          Disponibile a Breve
+        </ComingSoonBadge>
       </ContentCard>
     </OverlayContainer>
   );
@@ -129,7 +131,11 @@ const Title = styled.h2`
   font-size: 28px;
   font-weight: 700;
   margin-bottom: 16px;
-  background: linear-gradient(45deg, #fff, ${({ theme }) => theme.colors.neon});
+  background: linear-gradient(
+    45deg,
+    #fff,
+    ${({ theme }) => theme.colors.neon}
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 `;

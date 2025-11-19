@@ -1,17 +1,40 @@
-import styled from 'styled-components';
-import NoWorkoutPage from './NoWorkoutPage';
-import WeekAgenda from './WeekAgenda';
-import WorkoutPreview from './WorkoutPreview';
-import { useWorkouts } from '../../context/WorkoutContext';
-import { useEffect, useState } from 'react';
-import { AnimatePresence } from 'framer-motion';
-import { isSameDay } from 'date-fns';
+import styled from "styled-components";
+import NoWorkoutPage from "./NoWorkoutPage";
+import WeekAgenda from "./WeekAgenda";
+import WorkoutPreview from "./WorkoutPreview";
+import { useWorkouts } from "../../context/WorkoutContext";
+import { useEffect, useState } from "react";
+import { AnimatePresence } from "framer-motion";
+import { isSameDay } from "date-fns";
+
+interface Workout {
+  _id: string;
+  name: string;
+  date: string;
+  completed: boolean;
+  sections: Array<{
+    name: string;
+    exercises: Array<{
+      name: string;
+      timeBased: boolean;
+      exerciseSets: Array<{
+        weight?: number;
+        reps?: number;
+        time?: number;
+        rest: number;
+      }>;
+    }>;
+  }>;
+}
 
 function WorkoutPlanner() {
   const { workouts } = useWorkouts();
   const today = new Date();
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(today);
-  const [selectedWorkout, setSelectedWorkout] = useState<any>(null);
+  const [selectedDate, setSelectedDate] = useState<
+    Date | undefined
+  >(today);
+  const [selectedWorkout, setSelectedWorkout] =
+    useState<Workout | null>(null);
 
   // Usa un useEffect per aggiornare il workout selezionato quando cambia la data
   useEffect(() => {
@@ -32,21 +55,21 @@ function WorkoutPlanner() {
         onSelectDay={setSelectedDate}
         selectedDate={selectedDate}
       />
-      <div className='main-container'>
-        <div className='header'>
+      <div className="main-container">
+        <div className="header">
           {/* <div className='workout-title'>
             {selectedWorkout ? selectedWorkout.name : ''}
           </div> */}
-          <div className='date'>
-            {selectedDate?.toLocaleDateString('it-IT', {
-              weekday: 'long',
-              day: 'numeric',
-              month: 'long',
+          <div className="date">
+            {selectedDate?.toLocaleDateString("it-IT", {
+              weekday: "long",
+              day: "numeric",
+              month: "long",
             })}
           </div>
         </div>
 
-        <AnimatePresence mode='wait'>
+        <AnimatePresence mode="wait">
           {selectedWorkout ? (
             <WorkoutPreview workout={selectedWorkout} />
           ) : (

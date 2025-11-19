@@ -1,12 +1,16 @@
 // src/pages/Meal/MealPlannerPage.tsx
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { motion, AnimatePresence } from 'framer-motion';
-import { format, addDays, subDays, isSameDay } from 'date-fns';
-import { it } from 'date-fns/locale';
-import DailyMeals from './DailyMeals';
-import AddMealForm from './AddMealForm';
-import { Meal } from '../../types/meal';
+import React, { useState } from "react";
+import { AnimatePresence } from "framer-motion";
+import {
+  format,
+  addDays,
+  subDays,
+  isSameDay,
+} from "date-fns";
+import { it } from "date-fns/locale";
+import DailyMeals from "./DailyMeals";
+import AddMealForm from "./AddMealForm";
+import { Meal } from "../../types/meal";
 import {
   PageContainer,
   WeekNavigation,
@@ -16,12 +20,16 @@ import {
   DayName,
   DayNumber,
   MainContent,
-} from './mealStyles';
+} from "./mealStyles";
 const MealPlannerPage: React.FC = () => {
   const [meals, setMeals] = useState<Meal[]>([]);
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(
+    new Date()
+  );
   const [showAddForm, setShowAddForm] = useState(false);
-  const [editingMealId, setEditingMealId] = useState<string | null>(null);
+  const [editingMealId, setEditingMealId] = useState<
+    string | null
+  >(null);
 
   // Funzione per generare una settimana da visualizzare
   const getWeekDays = () => {
@@ -41,7 +49,9 @@ const MealPlannerPage: React.FC = () => {
   const handleSaveMeal = (meal: Meal) => {
     if (editingMealId) {
       // Aggiornamento del pasto esistente
-      setMeals((prev) => prev.map((m) => (m.id === editingMealId ? meal : m)));
+      setMeals((prev) =>
+        prev.map((m) => (m.id === editingMealId ? meal : m))
+      );
       setEditingMealId(null);
     } else {
       // Aggiunta di un nuovo pasto
@@ -58,8 +68,14 @@ const MealPlannerPage: React.FC = () => {
 
   // Eliminazione di un pasto
   const handleDeleteMeal = (mealId: string) => {
-    if (window.confirm('Sei sicuro di voler eliminare questo pasto?')) {
-      setMeals((prev) => prev.filter((meal) => meal.id !== mealId));
+    if (
+      window.confirm(
+        "Sei sicuro di voler eliminare questo pasto?"
+      )
+    ) {
+      setMeals((prev) =>
+        prev.filter((meal) => meal.id !== mealId)
+      );
     }
   };
 
@@ -72,7 +88,9 @@ const MealPlannerPage: React.FC = () => {
     <PageContainer>
       <WeekNavigation>
         <NavigationButton
-          onClick={() => setSelectedDate(subDays(selectedDate, 7))}
+          onClick={() =>
+            setSelectedDate(subDays(selectedDate, 7))
+          }
         >
           &lt;&lt;
         </NavigationButton>
@@ -83,20 +101,24 @@ const MealPlannerPage: React.FC = () => {
               isSelected={isSameDay(day, selectedDate)}
               onClick={() => setSelectedDate(day)}
             >
-              <DayName>{format(day, 'EEE', { locale: it })}</DayName>
-              <DayNumber>{format(day, 'd')}</DayNumber>
+              <DayName>
+                {format(day, "EEE", { locale: it })}
+              </DayName>
+              <DayNumber>{format(day, "d")}</DayNumber>
             </DayButton>
           ))}
         </DaysList>
         <NavigationButton
-          onClick={() => setSelectedDate(addDays(selectedDate, 7))}
+          onClick={() =>
+            setSelectedDate(addDays(selectedDate, 7))
+          }
         >
           &gt;&gt;
         </NavigationButton>
       </WeekNavigation>
 
       <MainContent>
-        <AnimatePresence mode='wait'>
+        <AnimatePresence mode="wait">
           {showAddForm ? (
             <AddMealForm
               onSave={handleSaveMeal}

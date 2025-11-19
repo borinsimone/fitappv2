@@ -1,9 +1,8 @@
 // src/pages/Meal/DailyMeals.tsx
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Meal, calculateMealTotals } from './types/meal';
-import { PieChart } from 'react-minimal-pie-chart';
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Meal, calculateMealTotals } from "./types/meal";
+import { PieChart } from "react-minimal-pie-chart";
 import {
   Container,
   Header,
@@ -38,7 +37,7 @@ import {
   ActionButton,
   EmptyState,
   AddFirstMealButton,
-} from './mealStyles';
+} from "./mealStyles";
 interface DailyMealsProps {
   date: Date;
   meals: Meal[];
@@ -70,22 +69,36 @@ const DailyMeals: React.FC<DailyMealsProps> = ({
 
   // Dati per il grafico dei macros
   const macroData = [
-    { title: 'Proteine', value: dailyTotals.protein * 4, color: '#75c9b7' },
-    { title: 'Carboidrati', value: dailyTotals.carbs * 4, color: '#abd699' },
-    { title: 'Grassi', value: dailyTotals.fat * 9, color: '#e8a99e' },
+    {
+      title: "Proteine",
+      value: dailyTotals.protein * 4,
+      color: "#75c9b7",
+    },
+    {
+      title: "Carboidrati",
+      value: dailyTotals.carbs * 4,
+      color: "#abd699",
+    },
+    {
+      title: "Grassi",
+      value: dailyTotals.fat * 9,
+      color: "#e8a99e",
+    },
   ];
 
   return (
     <Container>
       <Header>
         <DateDisplay>
-          {date.toLocaleDateString('it-IT', {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
+          {date.toLocaleDateString("it-IT", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
           })}
         </DateDisplay>
-        <AddButton onClick={onAddMeal}>+ Aggiungi pasto</AddButton>
+        <AddButton onClick={onAddMeal}>
+          + Aggiungi pasto
+        </AddButton>
       </Header>
 
       <NutritionSummary>
@@ -95,27 +108,37 @@ const DailyMeals: React.FC<DailyMealsProps> = ({
             lineWidth={40}
             paddingAngle={2}
             rounded
-            label={({ dataEntry }) => `${Math.round(dataEntry.percentage)}%`}
-            labelStyle={{ fontSize: '5px', fill: '#fff' }}
+            label={({ dataEntry }) =>
+              `${Math.round(dataEntry.percentage)}%`
+            }
+            labelStyle={{ fontSize: "5px", fill: "#fff" }}
           />
         </MacrosChart>
 
         <NutritionTotals>
           <TotalItem>
             <TotalLabel>Calorie</TotalLabel>
-            <TotalValue>{Math.round(dailyTotals.calories)} kcal</TotalValue>
+            <TotalValue>
+              {Math.round(dailyTotals.calories)} kcal
+            </TotalValue>
           </TotalItem>
           <TotalItem>
             <TotalLabel>Proteine</TotalLabel>
-            <TotalValue>{Math.round(dailyTotals.protein)} g</TotalValue>
+            <TotalValue>
+              {Math.round(dailyTotals.protein)} g
+            </TotalValue>
           </TotalItem>
           <TotalItem>
             <TotalLabel>Carboidrati</TotalLabel>
-            <TotalValue>{Math.round(dailyTotals.carbs)} g</TotalValue>
+            <TotalValue>
+              {Math.round(dailyTotals.carbs)} g
+            </TotalValue>
           </TotalItem>
           <TotalItem>
             <TotalLabel>Grassi</TotalLabel>
-            <TotalValue>{Math.round(dailyTotals.fat)} g</TotalValue>
+            <TotalValue>
+              {Math.round(dailyTotals.fat)} g
+            </TotalValue>
           </TotalItem>
         </NutritionTotals>
       </NutritionSummary>
@@ -126,7 +149,8 @@ const DailyMeals: React.FC<DailyMealsProps> = ({
             meals
               .sort((a, b) => a.time.localeCompare(b.time))
               .map((meal) => {
-                const mealTotals = calculateMealTotals(meal);
+                const mealTotals =
+                  calculateMealTotals(meal);
 
                 return (
                   <MealCard
@@ -143,7 +167,8 @@ const DailyMeals: React.FC<DailyMealsProps> = ({
                         <MealName>{meal.name}</MealName>
                       </div>
                       <MealCalories>
-                        {Math.round(mealTotals.calories)} kcal
+                        {Math.round(mealTotals.calories)}{" "}
+                        kcal
                       </MealCalories>
                     </MealHeader>
 
@@ -152,28 +177,35 @@ const DailyMeals: React.FC<DailyMealsProps> = ({
                         <MacroBar>
                           <ProteinSegment
                             width={
-                              ((mealTotals.protein * 4) / mealTotals.calories) *
+                              ((mealTotals.protein * 4) /
+                                mealTotals.calories) *
                               100
                             }
                           />
                           <CarbsSegment
                             width={
-                              ((mealTotals.carbs * 4) / mealTotals.calories) *
+                              ((mealTotals.carbs * 4) /
+                                mealTotals.calories) *
                               100
                             }
                           />
                           <FatSegment
                             width={
-                              ((mealTotals.fat * 9) / mealTotals.calories) * 100
+                              ((mealTotals.fat * 9) /
+                                mealTotals.calories) *
+                              100
                             }
                           />
                         </MacroBar>
                         <MacroValues>
                           <MacroValue>
-                            P: {Math.round(mealTotals.protein)}g
+                            P:{" "}
+                            {Math.round(mealTotals.protein)}
+                            g
                           </MacroValue>
                           <MacroValue>
-                            C: {Math.round(mealTotals.carbs)}g
+                            C:{" "}
+                            {Math.round(mealTotals.carbs)}g
                           </MacroValue>
                           <MacroValue>
                             G: {Math.round(mealTotals.fat)}g
@@ -185,19 +217,29 @@ const DailyMeals: React.FC<DailyMealsProps> = ({
                         {meal.foodItems.map((food) => (
                           <FoodItem key={food.id}>
                             <FoodName>{food.name}</FoodName>
-                            <FoodQuantity>{food.quantity}g</FoodQuantity>
+                            <FoodQuantity>
+                              {food.quantity}g
+                            </FoodQuantity>
                           </FoodItem>
                         ))}
                       </FoodItemsList>
 
-                      {meal.notes && <MealNotes>{meal.notes}</MealNotes>}
+                      {meal.notes && (
+                        <MealNotes>{meal.notes}</MealNotes>
+                      )}
                     </MealContent>
 
                     <MealActions>
-                      <ActionButton onClick={() => onEditMeal(meal.id)}>
+                      <ActionButton
+                        onClick={() => onEditMeal(meal.id)}
+                      >
                         Modifica
                       </ActionButton>
-                      <ActionButton onClick={() => onDeleteMeal(meal.id)}>
+                      <ActionButton
+                        onClick={() =>
+                          onDeleteMeal(meal.id)
+                        }
+                      >
                         Elimina
                       </ActionButton>
                     </MealActions>

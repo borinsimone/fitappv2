@@ -1,32 +1,37 @@
-import { useEffect, useState } from 'react';
-import { useWorkouts } from '../../../context/WorkoutContext';
-import { BiChevronLeft, BiChevronRight } from 'react-icons/bi';
-import styled from 'styled-components';
-import ActiveExercise from './ActiveExercise';
-import ExerciseSummary from './ExerciseSummary';
-import { MdClose } from 'react-icons/md';
-import { useNavigate } from 'react-router-dom';
-import FeedBackForm from './FeedBackForm';
-import WorkoutDuration from './WorkoutDuration';
-interface CompletedSets {
-  [key: string]: boolean[];
-}
-const WorkoutAssistant = () => {
-  const { activeWorkout, setActiveWorkout, editWorkout } = useWorkouts();
-  const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
-  const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
-  const [feedbackFormOpen, setFeedbackFormOpen] = useState(false);
+import { useEffect, useState } from "react";
+import { useWorkouts } from "../../../context/WorkoutContext";
+import {
+  BiChevronLeft,
+  BiChevronRight,
+} from "react-icons/bi";
+import styled from "styled-components";
+import ActiveExercise from "./ActiveExercise";
+import ExerciseSummary from "./ExerciseSummary";
+import { MdClose } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
+import FeedBackForm from "./FeedBackForm";
+import WorkoutDuration from "./WorkoutDuration";
 
-  const currentSection = activeWorkout?.sections?.[currentSectionIndex];
+const WorkoutAssistant = () => {
+  const { activeWorkout, setActiveWorkout } = useWorkouts();
+  const [currentSectionIndex, setCurrentSectionIndex] =
+    useState(0);
+  const [currentExerciseIndex, setCurrentExerciseIndex] =
+    useState(0);
+  const [feedbackFormOpen, setFeedbackFormOpen] =
+    useState(false);
+
+  const currentSection =
+    activeWorkout?.sections?.[currentSectionIndex];
   const [currentExercise, setCurrentExercise] = useState(
     currentSection?.exercises?.[currentExerciseIndex]
   );
   const navigate = useNavigate();
   useEffect(() => {
     if (!activeWorkout) {
-      navigate('/workout-planner');
+      navigate("/workout-planner");
     }
-  }, [activeWorkout]);
+  }, [activeWorkout, navigate]);
 
   useEffect(() => {
     if (activeWorkout && !activeWorkout.startTime) {
@@ -35,17 +40,28 @@ const WorkoutAssistant = () => {
         startTime: new Date().toISOString(),
       };
       setActiveWorkout(updatedWorkout);
-      localStorage.setItem('activeWorkout', JSON.stringify(updatedWorkout));
+      localStorage.setItem(
+        "activeWorkout",
+        JSON.stringify(updatedWorkout)
+      );
     }
-  }, []);
+  }, [activeWorkout, setActiveWorkout]);
 
   const nextExercises =
-    currentSection?.exercises.slice(currentExerciseIndex + 1) || [];
+    currentSection?.exercises.slice(
+      currentExerciseIndex + 1
+    ) || [];
   const prevExercises =
-    currentSection?.exercises.slice(0, currentExerciseIndex) || [];
+    currentSection?.exercises.slice(
+      0,
+      currentExerciseIndex
+    ) || [];
 
   const handleNextSection = () => {
-    if (currentSectionIndex < (activeWorkout?.sections?.length || 0) - 1) {
+    if (
+      currentSectionIndex <
+      (activeWorkout?.sections?.length || 0) - 1
+    ) {
       setCurrentSectionIndex((prev) => prev + 1);
       setCurrentExerciseIndex(0);
     }
@@ -65,20 +81,30 @@ const WorkoutAssistant = () => {
       activeWorkout &&
       currentExercise &&
       JSON.stringify(
-        activeWorkout.sections[currentSectionIndex].exercises[
-          currentExerciseIndex
-        ]
+        activeWorkout.sections[currentSectionIndex]
+          .exercises[currentExerciseIndex]
       ) !== JSON.stringify(currentExercise)
     ) {
-      console.log('Updating activeWorkout with currentExercise changes');
+      console.log(
+        "Updating activeWorkout with currentExercise changes"
+      );
       const updatedWorkout = { ...activeWorkout };
-      updatedWorkout.sections[currentSectionIndex].exercises[
-        currentExerciseIndex
-      ] = currentExercise;
+      updatedWorkout.sections[
+        currentSectionIndex
+      ].exercises[currentExerciseIndex] = currentExercise;
       setActiveWorkout(updatedWorkout);
-      localStorage.setItem('activeWorkout', JSON.stringify(updatedWorkout));
+      localStorage.setItem(
+        "activeWorkout",
+        JSON.stringify(updatedWorkout)
+      );
     }
-  }, [currentExercise]); // Rimuovi activeWorkout dalla dipendenza
+  }, [
+    currentExercise,
+    activeWorkout,
+    currentExerciseIndex,
+    currentSectionIndex,
+    setActiveWorkout,
+  ]);
   const endWorkout = () => {
     console.log(activeWorkout);
     setFeedbackFormOpen(true);
@@ -103,17 +129,21 @@ const WorkoutAssistant = () => {
       <Header onClick={() => console.log(activeWorkout)}>
         <div
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            color: '#fff',
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            color: "#fff",
           }}
         >
           <span>
-            Start:{' '}
-            {new Date(activeWorkout?.startTime ?? '').toLocaleTimeString()}
+            Start:{" "}
+            {new Date(
+              activeWorkout?.startTime ?? ""
+            ).toLocaleTimeString()}
           </span>
-          <WorkoutDuration start={activeWorkout?.startTime} />
+          <WorkoutDuration
+            start={activeWorkout?.startTime}
+          />
         </div>
       </Header>
       {/* <SectionInfo>
@@ -125,31 +155,35 @@ const WorkoutAssistant = () => {
             onClick={handlePrevSection}
             disabled={currentSectionIndex === 0}
           >
-            <BiChevronLeft size='24px' />
+            <BiChevronLeft size="24px" />
           </NavButton>
-          <SectionTitle>{currentSection?.name}</SectionTitle>
+          <SectionTitle>
+            {currentSection?.name}
+          </SectionTitle>
 
           <NavButton
             onClick={handleNextSection}
             disabled={
-              currentSectionIndex === (activeWorkout?.sections?.length || 0) - 1
+              currentSectionIndex ===
+              (activeWorkout?.sections?.length || 0) - 1
             }
           >
-            <BiChevronRight size='24px' />
+            <BiChevronRight size="24px" />
           </NavButton>
         </NavigationBar>
         <CloseButton
           onClick={() => {
-            if (window.confirm('Are you sure you want to leave?')) {
-              localStorage.removeItem('activeWorkout');
+            if (
+              window.confirm(
+                "Are you sure you want to leave?"
+              )
+            ) {
+              localStorage.removeItem("activeWorkout");
               setActiveWorkout(null);
             }
           }}
         >
-          <MdClose
-            size='30px'
-            color='red'
-          />
+          <MdClose size="30px" color="red" />
         </CloseButton>
       </Header>
       <ActiveExercise
@@ -202,7 +236,8 @@ const Header = styled.div`
   border-radius: 100px;
 
   padding: 5px 16px;
-  background-color: ${({ theme }) => `${theme.colors.neon}10`};
+  background-color: ${({ theme }) =>
+    `${theme.colors.neon}10`};
 `;
 
 const CloseButton = styled.div`
@@ -227,7 +262,8 @@ const NavigationBar = styled.div`
 
 const NavButton = styled.button<{ disabled?: boolean }>`
   all: unset;
-  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
+  cursor: ${({ disabled }) =>
+    disabled ? "not-allowed" : "pointer"};
   opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
   display: flex;
   align-items: center;
@@ -248,11 +284,6 @@ const NavButton = styled.button<{ disabled?: boolean }>`
   }
 `;
 
-const SectionInfo = styled.div`
-  font-size: 18px;
-  color: ${({ theme }) => theme.colors.white};
-  font-weight: 700;
-`;
 const EndButton = styled.button`
   all: unset;
   cursor: pointer;

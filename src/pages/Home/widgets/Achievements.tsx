@@ -1,55 +1,54 @@
-import React, { useRef, useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { motion } from 'framer-motion';
+import React, { useRef, useState, useEffect } from "react";
+import styled from "styled-components";
+import { motion } from "framer-motion";
 import {
-  LuBadge,
   LuFlame,
   LuDumbbell,
   LuTimer,
   LuTrophy,
   LuCalendarCheck2,
-} from 'react-icons/lu';
+} from "react-icons/lu";
 
 // Mock achievement data - replace with your real data
 const achievementData = [
   {
-    id: 'streak',
-    name: 'Consistency Streak',
-    details: '5/7 days',
+    id: "streak",
+    name: "Consistency Streak",
+    details: "5/7 days",
     icon: LuFlame,
-    color: '#FF6B6B',
+    color: "#FF6B6B",
     progress: 0.71,
   },
   {
-    id: 'muscle',
-    name: 'Strength Master',
-    details: '15/20 workouts',
+    id: "muscle",
+    name: "Strength Master",
+    details: "15/20 workouts",
     icon: LuDumbbell,
-    color: '#4ECDC4',
+    color: "#4ECDC4",
     progress: 0.75,
   },
   {
-    id: 'time',
-    name: 'Time Champion',
-    details: '180/300 minutes',
+    id: "time",
+    name: "Time Champion",
+    details: "180/300 minutes",
     icon: LuTimer,
-    color: '#FFD166',
+    color: "#FFD166",
     progress: 0.6,
   },
   {
-    id: 'goal',
-    name: 'Goal Crusher',
-    details: '3/5 goals',
+    id: "goal",
+    name: "Goal Crusher",
+    details: "3/5 goals",
     icon: LuTrophy,
-    color: '#6A0572',
+    color: "#6A0572",
     progress: 0.6,
   },
   {
-    id: 'complete',
-    name: 'Workout Finisher',
-    details: '8/10 completed',
+    id: "complete",
+    name: "Workout Finisher",
+    details: "8/10 completed",
     icon: LuCalendarCheck2,
-    color: '#00C6BE',
+    color: "#00C6BE",
     progress: 0.8,
   },
 ];
@@ -62,16 +61,20 @@ function Achievements() {
   const handleScroll = () => {
     if (!scrollRef.current) return;
 
-    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+    const { scrollLeft, scrollWidth, clientWidth } =
+      scrollRef.current;
     setShowLeftFade(scrollLeft > 10);
-    setShowRightFade(scrollLeft < scrollWidth - clientWidth - 10);
+    setShowRightFade(
+      scrollLeft < scrollWidth - clientWidth - 10
+    );
   };
 
   useEffect(() => {
     const ref = scrollRef.current;
     if (ref) {
-      ref.addEventListener('scroll', handleScroll);
-      return () => ref.removeEventListener('scroll', handleScroll);
+      ref.addEventListener("scroll", handleScroll);
+      return () =>
+        ref.removeEventListener("scroll", handleScroll);
     }
   }, []);
 
@@ -83,7 +86,7 @@ function Achievements() {
       </HeaderSection>
 
       <ScrollContainer ref={scrollRef}>
-        {showLeftFade && <FadeGradient position='left' />}
+        {showLeftFade && <FadeGradient position="left" />}
 
         <AchievementsRow>
           {achievementData.map((achievement) => {
@@ -92,28 +95,41 @@ function Achievements() {
               <AchievementCard
                 key={achievement.id}
                 as={motion.div}
-                whileHover={{ y: -5, boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}
-                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                whileHover={{
+                  y: -5,
+                  boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
+                }}
+                transition={{
+                  type: "spring",
+                  stiffness: 500,
+                  damping: 30,
+                }}
               >
                 <ProgressRing
                   progress={achievement.progress}
                   color={achievement.color}
                 >
-                  <IconContainer bgColor={achievement.color}>
+                  <IconContainer
+                    bgColor={achievement.color}
+                  >
                     <Icon size={24} />
                   </IconContainer>
                 </ProgressRing>
 
                 <AchievementInfo>
-                  <AchievementName>{achievement.name}</AchievementName>
-                  <AchievementDetails>{achievement.details}</AchievementDetails>
+                  <AchievementName>
+                    {achievement.name}
+                  </AchievementName>
+                  <AchievementDetails>
+                    {achievement.details}
+                  </AchievementDetails>
                 </AchievementInfo>
               </AchievementCard>
             );
           })}
         </AchievementsRow>
 
-        {showRightFade && <FadeGradient position='right' />}
+        {showRightFade && <FadeGradient position="right" />}
       </ScrollContainer>
     </Container>
   );
@@ -175,7 +191,9 @@ const AchievementsRow = styled.div`
   padding: 8px 16px;
 `;
 
-const FadeGradient = styled.div<{ position: 'left' | 'right' }>`
+const FadeGradient = styled.div<{
+  position: "left" | "right";
+}>`
   position: absolute;
   top: 0;
   bottom: 0;
@@ -184,7 +202,7 @@ const FadeGradient = styled.div<{ position: 'left' | 'right' }>`
   pointer-events: none;
 
   ${({ position }) =>
-    position === 'left'
+    position === "left"
       ? `
     left: 0;
     background: linear-gradient(90deg, ${({ theme }) =>
@@ -225,16 +243,21 @@ const ProgressRing = styled.div<ProgressRingProps>`
   justify-content: center;
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     border-radius: 50%;
     background: conic-gradient(
-      ${({ color }) => color} ${({ progress }) => progress * 100}%,
+      ${({ color }) => color}
+        ${({ progress }) => progress * 100}%,
       ${({ theme }) => theme.colors.white10}
         ${({ progress }) => progress * 100}%
     );
-    mask: radial-gradient(farthest-side, transparent 60%, #000 61%);
+    mask: radial-gradient(
+      farthest-side,
+      transparent 60%,
+      #000 61%
+    );
   }
 `;
 

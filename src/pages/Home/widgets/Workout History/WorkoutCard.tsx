@@ -1,6 +1,6 @@
-import React from 'react';
-import styled from 'styled-components';
-import { Workout } from './types';
+import React from "react";
+import styled from "styled-components";
+import { Workout } from "./types";
 import {
   BiChevronRight,
   BiCheck,
@@ -15,31 +15,30 @@ import {
   BiStop,
   BiSmile,
   BiBattery,
-} from 'react-icons/bi';
-import { format } from 'date-fns';
-import { motion, AnimatePresence } from 'framer-motion';
-import { SectionsList } from './SectionList';
+} from "react-icons/bi";
+import { format } from "date-fns";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface WorkoutCardProps {
   workout: Workout;
   expanded: boolean;
   toggleExpanded: () => void;
-  expandedSections: Record<string, boolean>;
-  toggleSection: (sectionId: string) => void;
   showDetails: () => void;
   deleteWorkout: () => void;
-  renderFeedbackStars: (feeling?: 1 | 2 | 3 | 4 | 5) => React.ReactNode;
+  renderFeedbackStars: (
+    feeling?: 1 | 2 | 3 | 4 | 5
+  ) => React.ReactNode;
   formatDuration: (minutes?: number) => string;
   getTotalExercises: (workout: Workout) => number;
   getTotalSets: (workout: Workout) => number;
 }
 
-export const WorkoutCardComponent: React.FC<WorkoutCardProps> = ({
+export const WorkoutCardComponent: React.FC<
+  WorkoutCardProps
+> = ({
   workout,
   expanded,
   toggleExpanded,
-  expandedSections,
-  toggleSection,
   showDetails,
   deleteWorkout,
   renderFeedbackStars,
@@ -53,7 +52,9 @@ export const WorkoutCardComponent: React.FC<WorkoutCardProps> = ({
       onClick={toggleExpanded}
     >
       <WorkoutMain>
-        <WorkoutIconContainer $completed={workout.completed}>
+        <WorkoutIconContainer
+          $completed={workout.completed}
+        >
           <BiDumbbell size={22} />
         </WorkoutIconContainer>
 
@@ -62,7 +63,7 @@ export const WorkoutCardComponent: React.FC<WorkoutCardProps> = ({
           <WorkoutMeta>
             <WorkoutTime>
               <BiTime size={14} />
-              {format(new Date(workout.date), 'HH:mm')}
+              {format(new Date(workout.date), "HH:mm")}
             </WorkoutTime>
             <StatusIndicator $completed={workout.completed}>
               {workout.completed ? (
@@ -88,7 +89,7 @@ export const WorkoutCardComponent: React.FC<WorkoutCardProps> = ({
         {expanded && (
           <WorkoutDetails
             initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
+            animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.5 }}
           >
@@ -96,17 +97,23 @@ export const WorkoutCardComponent: React.FC<WorkoutCardProps> = ({
               <SummaryItem>
                 <BiListUl size={16} />
                 <SummaryLabel>Sezioni:</SummaryLabel>
-                <SummaryValue>{workout.sections.length}</SummaryValue>
+                <SummaryValue>
+                  {workout.sections.length}
+                </SummaryValue>
               </SummaryItem>
               <SummaryItem>
                 <BiDumbbell size={16} />
                 <SummaryLabel>Esercizi:</SummaryLabel>
-                <SummaryValue>{getTotalExercises(workout)}</SummaryValue>
+                <SummaryValue>
+                  {getTotalExercises(workout)}
+                </SummaryValue>
               </SummaryItem>
               <SummaryItem>
                 <BiRepeat size={16} />
                 <SummaryLabel>Set Totali:</SummaryLabel>
-                <SummaryValue>{getTotalSets(workout)}</SummaryValue>
+                <SummaryValue>
+                  {getTotalSets(workout)}
+                </SummaryValue>
               </SummaryItem>
             </WorkoutSummary>
 
@@ -115,14 +122,19 @@ export const WorkoutCardComponent: React.FC<WorkoutCardProps> = ({
                 <TimeItem>
                   <BiTimeIcon size={16} />
                   <TimeLabel>Durata</TimeLabel>
-                  <TimeValue>{formatDuration(workout.duration)}</TimeValue>
+                  <TimeValue>
+                    {formatDuration(workout.duration)}
+                  </TimeValue>
                 </TimeItem>
                 {workout.startTime && (
                   <TimeItem>
                     <BiPlay size={16} />
                     <TimeLabel>Inizio</TimeLabel>
                     <TimeValue>
-                      {format(new Date(workout.startTime), 'HH:mm')}
+                      {format(
+                        new Date(workout.startTime),
+                        "HH:mm"
+                      )}
                     </TimeValue>
                   </TimeItem>
                 )}
@@ -131,7 +143,10 @@ export const WorkoutCardComponent: React.FC<WorkoutCardProps> = ({
                     <BiStop size={16} />
                     <TimeLabel>Fine</TimeLabel>
                     <TimeValue>
-                      {format(new Date(workout.endTime), 'HH:mm')}
+                      {format(
+                        new Date(workout.endTime),
+                        "HH:mm"
+                      )}
                     </TimeValue>
                   </TimeItem>
                 )}
@@ -148,8 +163,12 @@ export const WorkoutCardComponent: React.FC<WorkoutCardProps> = ({
                       <FeedbackIcon>
                         <BiSmile size={18} />
                       </FeedbackIcon>
-                      <FeedbackLabel>Sensazione</FeedbackLabel>
-                      {renderFeedbackStars(workout.feedback.feeling)}
+                      <FeedbackLabel>
+                        Sensazione
+                      </FeedbackLabel>
+                      {renderFeedbackStars(
+                        workout.feedback.feeling
+                      )}
                     </FeedbackItem>
                   )}
 
@@ -170,7 +189,9 @@ export const WorkoutCardComponent: React.FC<WorkoutCardProps> = ({
                       <FeedbackIcon>
                         <BiDumbbell size={18} />
                       </FeedbackIcon>
-                      <FeedbackLabel>Difficoltà</FeedbackLabel>
+                      <FeedbackLabel>
+                        Difficoltà
+                      </FeedbackLabel>
                       <FeedbackValue>
                         {workout.feedback.difficulty}/5
                       </FeedbackValue>
@@ -179,7 +200,9 @@ export const WorkoutCardComponent: React.FC<WorkoutCardProps> = ({
                 </FeedbackGrid>
 
                 {workout.feedback.notes && (
-                  <FeedbackNotes>{workout.feedback.notes}</FeedbackNotes>
+                  <FeedbackNotes>
+                    {workout.feedback.notes}
+                  </FeedbackNotes>
                 )}
               </FeedbackSection>
             )}
@@ -223,14 +246,16 @@ const WorkoutCard = styled.div<{ $isExpanded: boolean }>`
   display: flex;
   flex-direction: column;
   border-radius: 16px;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.white10};
+  border-bottom: 1px solid
+    ${({ theme }) => theme.colors.white10};
   background: ${({ $isExpanded, theme }) =>
-    $isExpanded ? theme.colors.white10 : 'transparent'};
+    $isExpanded ? theme.colors.white10 : "transparent"};
   cursor: pointer;
   transition: background-color 0.2s ease;
 
   &:hover {
-    background-color: ${({ theme }) => theme.colors.white05};
+    background-color: ${({ theme }) =>
+      theme.colors.white05};
   }
 
   &:last-child {
@@ -246,7 +271,9 @@ const WorkoutMain = styled.div`
   position: relative;
 `;
 
-const WorkoutIconContainer = styled.div<{ $completed: boolean }>`
+const WorkoutIconContainer = styled.div<{
+  $completed: boolean;
+}>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -255,7 +282,9 @@ const WorkoutIconContainer = styled.div<{ $completed: boolean }>`
   border-radius: 12px;
   margin-right: 14px;
   background: ${({ $completed, theme }) =>
-    $completed ? `${theme.colors.neon}20` : theme.colors.white10};
+    $completed
+      ? `${theme.colors.neon}20`
+      : theme.colors.white10};
   color: ${({ $completed, theme }) =>
     $completed ? theme.colors.neon : theme.colors.white70};
 `;
@@ -302,13 +331,16 @@ const ExpandButton = styled.div<{ $isExpanded: boolean }>`
   align-items: center;
   justify-content: center;
   transition: transform 0.3s ease;
-  transform: rotate(${({ $isExpanded }) => ($isExpanded ? '90deg' : '0deg')});
+  transform: rotate(
+    ${({ $isExpanded }) => ($isExpanded ? "90deg" : "0deg")}
+  );
   color: ${({ theme }) => theme.colors.white50};
 `;
 
 const WorkoutDetails = styled(motion.div)`
   padding: 0 16px 16px;
-  border-top: 1px solid ${({ theme }) => theme.colors.white10};
+  border-top: 1px solid
+    ${({ theme }) => theme.colors.white10};
   margin-top: -1px;
 `;
 
@@ -381,7 +413,10 @@ const SectionLabel = styled.div`
 
 const FeedbackGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(90px, 1fr)
+  );
   gap: 12px;
   margin-top: 12px;
 `;

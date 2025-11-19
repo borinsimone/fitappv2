@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { BiCheckCircle, BiMinusCircle } from 'react-icons/bi';
-import styled from 'styled-components';
-import { useWorkouts } from '../../../context/WorkoutContext';
-import Timer from './Timer';
-import SetActive from './SetActive';
+import React, { useEffect, useState } from "react";
+import styled from "styled-components";
+import { useWorkouts } from "../../../context/WorkoutContext";
+import Timer from "./Timer";
+import SetActive from "./SetActive";
 
 interface WorkoutSection {
   exercises: Exercise[];
@@ -35,7 +34,9 @@ type CurrentExerciseType =
 
 interface ActiveExerciseProps {
   currentExercise: CurrentExerciseType;
-  setCurrentExercise: React.Dispatch<React.SetStateAction<CurrentExerciseType>>;
+  setCurrentExercise: React.Dispatch<
+    React.SetStateAction<CurrentExerciseType>
+  >;
   currentSectionIndex: number;
   currentExerciseIndex: number;
 }
@@ -56,44 +57,48 @@ function ActiveExercise({
 
     setCompletedSets((prev: CompletedSets) => ({
       ...prev,
-      [key]: prev[key].map((completed: boolean, index: number) =>
-        index === setIndex ? !completed : completed
+      [key]: prev[key].map(
+        (completed: boolean, index: number) =>
+          index === setIndex ? !completed : completed
       ),
     }));
   };
-  const [completedSets, setCompletedSets] = useState<CompletedSets>({});
+  const [completedSets, setCompletedSets] =
+    useState<CompletedSets>({});
 
   // Add this useEffect to initialize completedSets
   // Modifica l'initializzazione di completedSets per evitare aggiornamenti continui
   useEffect(() => {
     if (activeWorkout?.sections) {
       // Controlla se completedSets è già stato inizializzato
-      const isAlreadyInitialized = Object.keys(completedSets).length > 0;
+      const isAlreadyInitialized =
+        Object.keys(completedSets).length > 0;
 
       // Se è già inizializzato, non fare nulla
       if (isAlreadyInitialized) return;
 
-      console.log('Initializing completedSets');
+      console.log("Initializing completedSets");
       const initialCompletedSets: CompletedSets = {};
       activeWorkout.sections.forEach(
         (section: WorkoutSection, sectionIndex: number) => {
           section.exercises.forEach(
             (exercise: Exercise, exerciseIndex: number) => {
               const key: string = `${sectionIndex}-${exerciseIndex}`;
-              initialCompletedSets[key] = new Array<boolean>(
-                exercise.exerciseSets.length
-              ).fill(false);
+              initialCompletedSets[key] =
+                new Array<boolean>(
+                  exercise.exerciseSets.length
+                ).fill(false);
             }
           );
         }
       );
       setCompletedSets(initialCompletedSets);
     }
-  }, [activeWorkout]); // Mantieni activeWorkout come dipendenza
+  }, [activeWorkout, completedSets]);
   // Update the state definition with proper type
-  const [activeSet, setActiveSet] = useState<number | ExerciseSet | undefined>(
-    currentExercise?.exerciseSets[0]
-  );
+  const [activeSet, setActiveSet] = useState<
+    number | ExerciseSet | undefined
+  >(currentExercise?.exerciseSets[0]);
 
   interface ExerciseSet {
     weight?: number;
@@ -102,7 +107,9 @@ function ActiveExercise({
     rest: number;
   }
 
-  const handleSetClick = (set: ExerciseSet | number): void => {
+  const handleSetClick = (
+    set: ExerciseSet | number
+  ): void => {
     setActiveSet(set);
   };
   useEffect(() => {
@@ -140,10 +147,4 @@ const Container = styled.div`
   border-radius: 10px;
   border: 1px solid ${({ theme }) => theme.colors.neon};
   padding: 20px;
-`;
-const ExerciseTitle = styled.div`
-  font-size: 16px;
-  color: ${({ theme }) => theme.colors.white};
-  text-align: center;
-  margin-bottom: 20px;
 `;

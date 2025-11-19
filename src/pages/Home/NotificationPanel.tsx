@@ -1,8 +1,7 @@
-import { AnimatePresence, delay, motion } from 'framer-motion';
-import { useState } from 'react';
-import { BsClock } from 'react-icons/bs';
+import { AnimatePresence, motion } from "framer-motion";
+import { BsClock } from "react-icons/bs";
 
-import styled from 'styled-components';
+import styled from "styled-components";
 
 interface Notification {
   text: string;
@@ -22,20 +21,20 @@ function NotificationPanel({
     <Container
       as={motion.div}
       onClick={(e) => e.stopPropagation()}
-      initial={{ x: '100%', opacity: 0 }}
+      initial={{ x: "100%", opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
-      exit={{ x: '100%', opacity: 0 }}
-      transition={{ type: 'spring', bounce: 0.2 }}
+      exit={{ x: "100%", opacity: 0 }}
+      transition={{ type: "spring", bounce: 0.2 }}
     >
-      <div className='main-text'>
-        <div className='main'>Notifiche</div>
-        <div className='sub'>
+      <div className="main-text">
+        <div className="main">Notifiche</div>
+        <div className="sub">
           Hai {notification.length} notifiche da leggere
         </div>
       </div>
 
-      <div className='main-line'></div>
-      <div className='notification-container'>
+      <div className="main-line"></div>
+      <div className="notification-container">
         <AnimatePresence>
           {notification.map((not, index) => (
             <>
@@ -43,24 +42,27 @@ function NotificationPanel({
                 initial={{ x: -100, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: -100, opacity: 0 }}
-                transition={{ duration: 0.3, delay: 0.2 * index }}
-                className='notification'
+                transition={{
+                  duration: 0.3,
+                  delay: 0.2 * index,
+                }}
+                className="notification"
               >
-                <div className='img'></div>
-                <div className='text'>
-                  <div className='main'>{not.text}</div>
-                  <div className='time'>
+                <div className="img"></div>
+                <div className="text">
+                  <div className="main">{not.text}</div>
+                  <div className="time">
                     <BsClock /> {not.time}
                   </div>
                 </div>
               </motion.div>
-              <div className='line'></div>
+              <div className="line"></div>
             </>
           ))}
         </AnimatePresence>
       </div>
       <button
-        className='delete'
+        className="delete"
         onClick={() => {
           setNotification([]);
           setNotificationPanelOpen(false);

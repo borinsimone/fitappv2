@@ -1,39 +1,41 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useGlobalContext } from '../../context/GlobalContext';
-import { BiBell, BiX, BiUser } from 'react-icons/bi';
-import styled from 'styled-components';
+import React, { useEffect, useState, useRef } from "react";
+import { useGlobalContext } from "../../context/GlobalContext";
+import { BiBell, BiX, BiUser } from "react-icons/bi";
+import styled from "styled-components";
 // import NotificationPanel from './NotificationPanel';
-import { AnimatePresence, motion, useIsPresent } from 'framer-motion';
+import {
+  AnimatePresence,
+  motion,
+  useIsPresent,
+} from "framer-motion";
 // import { jwtDecode } from 'jwt-decode';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from "../../context/AuthContext";
 
 function TopBar() {
   const { user } = useGlobalContext();
-  const [notificationPanelOpen, setNotificationPanelOpen] = useState(false);
-  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [notificationPanelOpen, setNotificationPanelOpen] =
+    useState(false);
   const [notBadge, setNotBadge] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
-  const profileRef = useRef<HTMLDivElement>(null);
 
   const [notifications, setNotifications] = useState([
     {
       id: 1,
-      text: 'Your workout plan for today is ready',
-      time: '24 minutes ago',
-      type: 'workout',
+      text: "Your workout plan for today is ready",
+      time: "24 minutes ago",
+      type: "workout",
     },
     {
       id: 2,
-      text: 'Remember to drink water and stay hydrated',
-      time: '1 hour ago',
-      type: 'health',
+      text: "Remember to drink water and stay hydrated",
+      time: "1 hour ago",
+      type: "health",
     },
     {
       id: 3,
-      text: 'You achieved your daily step goal. Great job!',
-      time: '2 days ago',
-      type: 'achievement',
+      text: "You achieved your daily step goal. Great job!",
+      time: "2 days ago",
+      type: "achievement",
     },
   ]);
 
@@ -46,62 +48,67 @@ function TopBar() {
     function handleClickOutside(event: MouseEvent) {
       if (
         notificationRef.current &&
-        !notificationRef.current.contains(event.target as Node)
+        !notificationRef.current.contains(
+          event.target as Node
+        )
       ) {
         setNotificationPanelOpen(false);
       }
-
-      if (
-        profileRef.current &&
-        !profileRef.current.contains(event.target as Node)
-      ) {
-        setProfileMenuOpen(false);
-      }
     }
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener(
+      "mousedown",
+      handleClickOutside
+    );
+    return () =>
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
   }, []);
 
   // Get greeting based on time of day
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour >= 5 && hour < 12) return 'Buongiorno';
-    if (hour >= 12 && hour < 18) return 'Buon pomeriggio';
-    return 'Buona sera';
+    if (hour >= 5 && hour < 12) return "Buongiorno";
+    if (hour >= 12 && hour < 18) return "Buon pomeriggio";
+    return "Buona sera";
   };
 
   // Format date in a nice way
-  const formattedDate = new Date().toLocaleDateString('it-IT', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-  });
+  const formattedDate = new Date().toLocaleDateString(
+    "it-IT",
+    {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+    }
+  );
   const { userProfile, loadUserProfile } = useAuth();
   useEffect(() => {
     loadUserProfile();
-  }, []);
+  }, [loadUserProfile]);
   return (
     <Container
       as={motion.div}
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, ease: 'easeOut' }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
     >
       <UserSection>
-        <UserAvatar onClick={() => console.log(userProfile)}>
+        <UserAvatar
+          onClick={() => console.log(userProfile)}
+        >
           {userProfile?.photoURL ? (
-            <img
-              src={user.photoURL}
-              alt={user?.name}
-            />
+            <img src={user.photoURL} alt={user?.name} />
           ) : (
             <BiUser size={24} />
           )}
         </UserAvatar>
         <UserInfo>
           <Greeting>
-            {getGreeting()}, <Username>{userProfile?.name}</Username>
+            {getGreeting()},{" "}
+            <Username>{userProfile?.name}</Username>
           </Greeting>
           <DateDisplay>{formattedDate}</DateDisplay>
         </UserInfo>
@@ -109,11 +116,17 @@ function TopBar() {
       <Controls>
         <NotificationButton
           ref={notificationRef}
-          onClick={() => setNotificationPanelOpen(!notificationPanelOpen)}
+          onClick={() =>
+            setNotificationPanelOpen(!notificationPanelOpen)
+          }
           $hasNotifications={notBadge}
           $isOpen={notificationPanelOpen}
         >
-          {notificationPanelOpen ? <BiX size={22} /> : <BiBell size={22} />}
+          {notificationPanelOpen ? (
+            <BiX size={22} />
+          ) : (
+            <BiBell size={22} />
+          )}
 
           <AnimatePresence>
             {notificationPanelOpen && (
@@ -126,7 +139,9 @@ function TopBar() {
               >
                 <PanelHeader>
                   <PanelTitle>Notifiche</PanelTitle>
-                  <ClearButton onClick={() => setNotifications([])}>
+                  <ClearButton
+                    onClick={() => setNotifications([])}
+                  >
                     Clear All
                   </ClearButton>
                 </PanelHeader>
@@ -151,7 +166,8 @@ function TopBar() {
                             e.stopPropagation();
                             setNotifications(
                               notifications.filter(
-                                (n) => n.id !== notification.id
+                                (n) =>
+                                  n.id !== notification.id
                               )
                             );
                           }}
@@ -162,7 +178,9 @@ function TopBar() {
                     ))}
                   </NotificationsList>
                 ) : (
-                  <EmptyNotifications>Non hai notifiche</EmptyNotifications>
+                  <EmptyNotifications>
+                    Non hai notifiche
+                  </EmptyNotifications>
                 )}
               </NotificationsPanel>
             )}
@@ -265,7 +283,7 @@ const Username = styled.span`
 `;
 
 const DateDisplay = styled.div`
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-size: 14px;
   font-weight: 300;
   color: ${({ theme }) => theme.colors.white50};
@@ -303,9 +321,9 @@ const NotificationButton = styled.div<{
   }
 
   &::after {
-    content: '';
+    content: "";
     display: ${({ $hasNotifications, $isOpen }) =>
-      $hasNotifications && !$isOpen ? 'block' : 'none'};
+      $hasNotifications && !$isOpen ? "block" : "none"};
     position: absolute;
     top: 10px;
     right: 10px;
@@ -336,7 +354,8 @@ const PanelHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 16px;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.white10};
+  border-bottom: 1px solid
+    ${({ theme }) => theme.colors.white10};
 `;
 
 const PanelTitle = styled.h3`
@@ -369,7 +388,8 @@ const NotificationItem = styled.div<{ $type: string }>`
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.white10};
+  border-bottom: 1px solid
+    ${({ theme }) => theme.colors.white10};
   transition: background 0.2s ease;
 
   &:hover {
@@ -377,18 +397,18 @@ const NotificationItem = styled.div<{ $type: string }>`
   }
 
   &::before {
-    content: '';
+    content: "";
     display: block;
     width: 4px;
     height: 100%;
     background: ${({ $type, theme }) => {
       switch ($type) {
-        case 'workout':
+        case "workout":
           return theme.colors.neon;
-        case 'health':
-          return '#4CAF50';
-        case 'achievement':
-          return '#FFC107';
+        case "health":
+          return "#4CAF50";
+        case "achievement":
+          return "#FFC107";
         default:
           return theme.colors.white30;
       }
@@ -441,86 +461,6 @@ const EmptyNotifications = styled.div`
   font-size: 14px;
 `;
 
-const ProfileButton = styled.div<{ $isOpen: boolean }>`
-  position: relative;
-  height: 42px;
-  padding: 0 16px;
-  border-radius: 21px;
-  background: ${({ $isOpen, theme }) =>
-    $isOpen ? theme.colors.neon : theme.colors.white10};
-  color: ${({ $isOpen, theme }) =>
-    $isOpen ? theme.colors.dark : theme.colors.white};
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: ${({ $isOpen, theme }) =>
-      $isOpen ? theme.colors.neon : theme.colors.white20};
-  }
-`;
-
-const ProfileButtonText = styled.span`
-  font-size: 14px;
-  font-weight: 500;
-`;
-
-const ProfileMenu = styled(motion.div)`
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  width: 200px;
-  background: ${({ theme }) => theme.colors.white10};
-  backdrop-filter: blur(10px);
-  border: 1px solid ${({ theme }) => theme.colors.white20};
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  z-index: 100;
-  padding: 8px 0;
-`;
-
-const ProfileMenuItem = styled(Link)`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  color: ${({ theme }) => theme.colors.white};
-  font-size: 14px;
-  text-decoration: none;
-  transition: background 0.2s ease;
-
-  &:hover {
-    background: ${({ theme }) => theme.colors.white05};
-  }
-`;
-
-const MenuDivider = styled.div`
-  height: 1px;
-  background: ${({ theme }) => theme.colors.white10};
-  margin: 4px 0;
-`;
-
-const LogoutButton = styled.button`
-  display: flex;
-  align-items: center;
-  width: 100%;
-  text-align: left;
-  background: none;
-  border: none;
-  padding: 12px 16px;
-  color: ${({ theme }) => theme.colors.error};
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s ease;
-
-  &:hover {
-    background: ${({ theme }) => theme.colors.white05};
-  }
-`;
 const AnimatedNotificationItem = ({
   children,
   onClick,
@@ -533,12 +473,16 @@ const AnimatedNotificationItem = ({
   const isPresent = useIsPresent();
   const animations = {
     style: {
-      position: isPresent ? 'static' : 'absolute',
+      position: isPresent ? "static" : "absolute",
     },
     initial: { scale: 0, opacity: 0 },
     animate: { scale: 1, opacity: 1 },
     exit: { scale: 0, opacity: 0 },
-    transition: { type: 'spring', stiffness: 900, damping: 40 },
+    transition: {
+      type: "spring",
+      stiffness: 900,
+      damping: 40,
+    },
   };
   return (
     <NotificationItem

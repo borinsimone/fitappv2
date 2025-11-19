@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from "react";
+import styled from "styled-components";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   BiExit,
   BiUser,
@@ -10,39 +10,46 @@ import {
   BiSave,
   BiTrash,
   BiX,
-} from 'react-icons/bi';
-import { useAuth } from '../../context/AuthContext';
-import { useGlobalContext } from '../../context/GlobalContext';
+} from "react-icons/bi";
+import { useAuth } from "../../context/AuthContext";
 
 function Account() {
-  const { user, logout, updateProfile, deleteAccount } = useAuth();
+  const { user, logout, updateProfile, deleteAccount } =
+    useAuth();
   // TODO: implement updateProfile and deleteAccount functions
   // const { darkMode, toggleDarkMode } = useGlobalContext();
 
-  const [editingProfile, setEditingProfile] = useState(false);
-  const [editingPassword, setEditingPassword] = useState(false);
-  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [editingProfile, setEditingProfile] =
+    useState(false);
+  const [editingPassword, setEditingPassword] =
+    useState(false);
+  const [confirmingDelete, setConfirmingDelete] =
+    useState(false);
 
   const [profileData, setProfileData] = useState({
-    displayName: user?.name || '',
-    email: user?.email || '',
-    photoURL: user?.photoURL || '',
+    displayName: user?.name || "",
+    email: user?.email || "",
+    photoURL: user?.photoURL || "",
   });
 
   const [passwordData, setPasswordData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: '',
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
 
-  const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProfileChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setProfileData({
       ...profileData,
       [e.target.name]: e.target.value,
     });
   };
 
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePasswordChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setPasswordData({
       ...passwordData,
       [e.target.name]: e.target.value,
@@ -54,12 +61,15 @@ function Account() {
       await updateProfile(profileData);
       setEditingProfile(false);
     } catch (error) {
-      console.error('Error updating profile:', error);
+      console.error("Error updating profile:", error);
     }
   };
 
   const handleUpdatePassword = async () => {
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
+    if (
+      passwordData.newPassword !==
+      passwordData.confirmPassword
+    ) {
       alert("Passwords don't match!");
       return;
     }
@@ -69,12 +79,12 @@ function Account() {
       // await updatePassword(passwordData.currentPassword, passwordData.newPassword);
       setEditingPassword(false);
       setPasswordData({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: '',
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
       });
     } catch (error) {
-      console.error('Error updating password:', error);
+      console.error("Error updating password:", error);
     }
   };
 
@@ -83,7 +93,7 @@ function Account() {
       await deleteAccount();
       // Redirect should happen automatically via auth listener
     } catch (error) {
-      console.error('Error deleting account:', error);
+      console.error("Error deleting account:", error);
     }
   };
   const { userProfile } = useAuth();
@@ -114,7 +124,7 @@ function Account() {
               {userProfile.photoURL ? (
                 <img
                   src={userProfile.photoURL}
-                  alt='Profile'
+                  alt="Profile"
                 />
               ) : (
                 <BiUser size={40} />
@@ -122,11 +132,17 @@ function Account() {
             </Avatar>
 
             <ProfileInfo>
-              <ProfileName>{userProfile.name || 'User'}</ProfileName>
-              <ProfileEmail>{userProfile.email}</ProfileEmail>
+              <ProfileName>
+                {userProfile.name || "User"}
+              </ProfileName>
+              <ProfileEmail>
+                {userProfile.email}
+              </ProfileEmail>
             </ProfileInfo>
 
-            <EditButton onClick={() => setEditingProfile(true)}>
+            <EditButton
+              onClick={() => setEditingProfile(true)}
+            >
               <BiEdit size={20} />
             </EditButton>
           </ProfileHeader>
@@ -135,7 +151,9 @@ function Account() {
         <SettingsSection>
           <SectionTitle>Settings</SectionTitle>
 
-          <SettingItem onClick={() => setEditingProfile(true)}>
+          <SettingItem
+            onClick={() => setEditingProfile(true)}
+          >
             <SettingIcon>
               <BiUser size={20} />
             </SettingIcon>
@@ -143,7 +161,9 @@ function Account() {
             <BiChevronRight size={20} />
           </SettingItem>
 
-          <SettingItem onClick={() => setEditingPassword(true)}>
+          <SettingItem
+            onClick={() => setEditingPassword(true)}
+          >
             <SettingIcon>
               <BiLock size={20} />
             </SettingIcon>
@@ -163,7 +183,9 @@ function Account() {
 
           <DangerZone>
             <SectionTitle warning>Danger Zone</SectionTitle>
-            <DangerButton onClick={() => setConfirmingDelete(true)}>
+            <DangerButton
+              onClick={() => setConfirmingDelete(true)}
+            >
               <BiTrash size={20} />
               Delete Account
             </DangerButton>
@@ -178,7 +200,9 @@ function Account() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <ModalOverlay onClick={() => setEditingProfile(false)} />
+            <ModalOverlay
+              onClick={() => setEditingProfile(false)}
+            />
             <ModalContent
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -186,7 +210,9 @@ function Account() {
             >
               <ModalHeader>
                 <ModalTitle>Edit Profile</ModalTitle>
-                <CloseButton onClick={() => setEditingProfile(false)}>
+                <CloseButton
+                  onClick={() => setEditingProfile(false)}
+                >
                   <BiX size={24} />
                 </CloseButton>
               </ModalHeader>
@@ -194,33 +220,33 @@ function Account() {
               <FormGroup>
                 <Label>Display Name</Label>
                 <Input
-                  type='text'
-                  name='displayName'
+                  type="text"
+                  name="displayName"
                   value={profileData.displayName}
                   onChange={handleProfileChange}
-                  placeholder='Your name'
+                  placeholder="Your name"
                 />
               </FormGroup>
 
               <FormGroup>
                 <Label>Email</Label>
                 <Input
-                  type='email'
-                  name='email'
+                  type="email"
+                  name="email"
                   value={profileData.email}
                   onChange={handleProfileChange}
-                  placeholder='Your email'
+                  placeholder="Your email"
                 />
               </FormGroup>
 
               <FormGroup>
                 <Label>Profile Picture URL</Label>
                 <Input
-                  type='text'
-                  name='photoURL'
+                  type="text"
+                  name="photoURL"
                   value={profileData.photoURL}
                   onChange={handleProfileChange}
-                  placeholder='https://example.com/your-photo.jpg'
+                  placeholder="https://example.com/your-photo.jpg"
                 />
               </FormGroup>
 
@@ -238,7 +264,9 @@ function Account() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <ModalOverlay onClick={() => setEditingPassword(false)} />
+            <ModalOverlay
+              onClick={() => setEditingPassword(false)}
+            />
             <ModalContent
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -246,7 +274,9 @@ function Account() {
             >
               <ModalHeader>
                 <ModalTitle>Change Password</ModalTitle>
-                <CloseButton onClick={() => setEditingPassword(false)}>
+                <CloseButton
+                  onClick={() => setEditingPassword(false)}
+                >
                   <BiX size={24} />
                 </CloseButton>
               </ModalHeader>
@@ -254,33 +284,33 @@ function Account() {
               <FormGroup>
                 <Label>Current Password</Label>
                 <Input
-                  type='password'
-                  name='currentPassword'
+                  type="password"
+                  name="currentPassword"
                   value={passwordData.currentPassword}
                   onChange={handlePasswordChange}
-                  placeholder='••••••••••'
+                  placeholder="••••••••••"
                 />
               </FormGroup>
 
               <FormGroup>
                 <Label>New Password</Label>
                 <Input
-                  type='password'
-                  name='newPassword'
+                  type="password"
+                  name="newPassword"
                   value={passwordData.newPassword}
                   onChange={handlePasswordChange}
-                  placeholder='••••••••••'
+                  placeholder="••••••••••"
                 />
               </FormGroup>
 
               <FormGroup>
                 <Label>Confirm New Password</Label>
                 <Input
-                  type='password'
-                  name='confirmPassword'
+                  type="password"
+                  name="confirmPassword"
                   value={passwordData.confirmPassword}
                   onChange={handlePasswordChange}
-                  placeholder='••••••••••'
+                  placeholder="••••••••••"
                 />
               </FormGroup>
 
@@ -298,26 +328,34 @@ function Account() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <ModalOverlay onClick={() => setConfirmingDelete(false)} />
+            <ModalOverlay
+              onClick={() => setConfirmingDelete(false)}
+            />
             <ModalContent
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 50, opacity: 0 }}
             >
               <ModalHeader>
-                <ModalTitle warning>Delete Account</ModalTitle>
-                <CloseButton onClick={() => setConfirmingDelete(false)}>
+                <ModalTitle warning>
+                  Delete Account
+                </ModalTitle>
+                <CloseButton
+                  onClick={() => setConfirmingDelete(false)}
+                >
                   <BiX size={24} />
                 </CloseButton>
               </ModalHeader>
 
               <WarningText>
-                This action cannot be undone. All your data will be permanently
-                deleted.
+                This action cannot be undone. All your data
+                will be permanently deleted.
               </WarningText>
 
               <ButtonGroup>
-                <CancelButton onClick={() => setConfirmingDelete(false)}>
+                <CancelButton
+                  onClick={() => setConfirmingDelete(false)}
+                >
                   Cancel
                 </CancelButton>
                 <DeleteButton onClick={handleDeleteAccount}>
@@ -514,7 +552,8 @@ const SettingText = styled.span`
 
 const DangerZone = styled.div`
   margin-top: 32px;
-  border-top: 1px solid ${({ theme }) => theme.colors.white20};
+  border-top: 1px solid
+    ${({ theme }) => theme.colors.white20};
   padding-top: 24px;
 `;
 

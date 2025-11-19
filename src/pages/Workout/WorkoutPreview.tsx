@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useState, useEffect } from "react";
+import styled from "styled-components";
 import {
   BiChevronDown,
   BiPlus,
@@ -10,76 +10,89 @@ import {
   BiPencil,
   BiSave,
   BiCheckCircle,
-} from 'react-icons/bi';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useWorkouts } from '../../context/WorkoutContext';
-import { useNavigate } from 'react-router-dom';
-import Button from '../../components/Button';
+} from "react-icons/bi";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  useWorkouts,
+  Workout,
+} from "../../context/WorkoutContext";
+import { useNavigate } from "react-router-dom";
+import Button from "../../components/Button";
 
 interface WorkoutPreviewProps {
-  workout: {
-    _id: string;
-    name: string;
-    sections?: {
-      name: string;
-      exercises: {
-        name: string;
-        notes?: string;
-        timeBased: boolean;
-        exerciseSets: {
-          time: number;
-          weight: number;
-          reps: number;
-          rest: number;
-        }[];
-      }[];
-    }[];
-  };
+  workout: Workout;
 }
 
-const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({ workout }) => {
-  const { removeWorkout, editWorkout, setActiveWorkout, workouts } =
-    useWorkouts();
-  const [selectedWorkout, setSelectedWorkout] = useState(workout);
-  const [expandedExercise, setExpandedExercise] = useState<string | null>(null);
+const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({
+  workout,
+}) => {
+  const {
+    removeWorkout,
+    editWorkout,
+    setActiveWorkout,
+    workouts,
+  } = useWorkouts();
+  const [selectedWorkout, setSelectedWorkout] =
+    useState(workout);
+  const [expandedExercise, setExpandedExercise] = useState<
+    string | null
+  >(null);
   const [isModified, setIsModified] = useState(false);
   const navigate = useNavigate();
   useEffect(() => {
     setActiveWorkout(null);
-  }, []);
+  }, [setActiveWorkout]);
   // Aggiungi questo useEffect subito dopo la dichiarazione degli stati
   useEffect(() => {
     // Quando la prop workout cambia, aggiorna selectedWorkout
-    console.log('La prop workout è cambiata, aggiornamento selectedWorkout');
+    console.log(
+      "La prop workout è cambiata, aggiornamento selectedWorkout"
+    );
     setSelectedWorkout(workout);
   }, [workout]);
   // Aggiungi una funzione per verificare se il workout è stato modificato
   useEffect(() => {
     // Trova il workout originale nell'array workouts
-    const originalWorkout = workouts.find((w) => w._id === workout._id);
+    const originalWorkout = workouts.find(
+      (w) => w._id === workout._id
+    );
 
     // Confronta selectedWorkout con originalWorkout
     if (originalWorkout) {
       // Confronto profondo usando JSON.stringify
       const hasChanges =
-        JSON.stringify(selectedWorkout) !== JSON.stringify(originalWorkout);
+        JSON.stringify(selectedWorkout) !==
+        JSON.stringify(originalWorkout);
       setIsModified(hasChanges);
     }
   }, [selectedWorkout, workouts, workout._id]);
 
   const handleExerciseClick = (exerciseName: string) => {
     setExpandedExercise(
-      expandedExercise === exerciseName ? null : exerciseName
+      expandedExercise === exerciseName
+        ? null
+        : exerciseName
     );
   };
 
-  const handleAddSet = (sectionIndex: number, exerciseIndex: number) => {
+  const handleAddSet = (
+    sectionIndex: number,
+    exerciseIndex: number
+  ) => {
     // Crea una copia profonda di selectedWorkout invece di workout
-    const newWorkout = JSON.parse(JSON.stringify(selectedWorkout));
+    const newWorkout = JSON.parse(
+      JSON.stringify(selectedWorkout)
+    );
     if (!newWorkout.sections) return;
 
-    const exercise = newWorkout.sections[sectionIndex].exercises[exerciseIndex];
-    const lastSet = exercise.exerciseSets[exercise.exerciseSets.length - 1];
+    const exercise =
+      newWorkout.sections[sectionIndex].exercises[
+        exerciseIndex
+      ];
+    const lastSet =
+      exercise.exerciseSets[
+        exercise.exerciseSets.length - 1
+      ];
 
     const newSet = exercise.timeBased
       ? {
@@ -107,7 +120,9 @@ const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({ workout }) => {
     setIndex: number
   ) => {
     // Crea una copia profonda di selectedWorkout invece di workout
-    const newWorkout = JSON.parse(JSON.stringify(selectedWorkout));
+    const newWorkout = JSON.parse(
+      JSON.stringify(selectedWorkout)
+    );
     if (!newWorkout.sections) return;
 
     newWorkout.sections[sectionIndex].exercises[
@@ -123,7 +138,7 @@ const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({ workout }) => {
       try {
         removeWorkout(selectedWorkout._id);
       } catch (error) {
-        console.error('Error removing workout:', error);
+        console.error("Error removing workout:", error);
       }
     }
   };
@@ -132,7 +147,7 @@ const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({ workout }) => {
     console.log(workout);
 
     setActiveWorkout(workout);
-    navigate('/workout-assistant');
+    navigate("/workout-assistant");
   };
 
   // Aggiungi una funzione per gestire i cambiamenti nei campi editabili
@@ -147,9 +162,9 @@ const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({ workout }) => {
     if (!newWorkout.sections) return;
 
     // Aggiorna il valore nel campo appropriato
-    newWorkout.sections[sectionIndex].exercises[exerciseIndex].exerciseSets[
-      setIndex
-    ][field] = value;
+    newWorkout.sections[sectionIndex].exercises[
+      exerciseIndex
+    ].exerciseSets[setIndex][field] = value;
     setSelectedWorkout(newWorkout);
   };
 
@@ -167,7 +182,7 @@ const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({ workout }) => {
       await editWorkout(selectedWorkout._id, workoutToSave);
 
       // Feedback all'utente
-      alert('Modifiche salvate con successo!');
+      alert("Modifiche salvate con successo!");
 
       // Importante: aggiorna il workout selezionato con la versione aggiornata dal database
       // Trova il workout aggiornato nell'array workouts (che è stato aggiornato da editWorkout)
@@ -178,15 +193,19 @@ const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({ workout }) => {
       if (updatedWorkout) {
         // Aggiorna selectedWorkout con i dati dal database
         setSelectedWorkout(
-          workouts.find((w) => w._id === selectedWorkout._id) || selectedWorkout
+          workouts.find(
+            (w) => w._id === selectedWorkout._id
+          ) || selectedWorkout
         );
       }
 
       // Imposta esplicitamente isModified a false
       setIsModified(false);
     } catch (error) {
-      console.error('Error saving workout changes:', error);
-      alert('Errore durante il salvataggio delle modifiche');
+      console.error("Error saving workout changes:", error);
+      alert(
+        "Errore durante il salvataggio delle modifiche"
+      );
     }
   };
 
@@ -198,8 +217,17 @@ const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({ workout }) => {
     setIndex: number,
     field: string
   ) => {
-    const value = parseInt(e.currentTarget.textContent || '0', 10);
-    handleValueChange(sectionIndex, exerciseIndex, setIndex, field, value);
+    const value = parseInt(
+      e.currentTarget.textContent || "0",
+      10
+    );
+    handleValueChange(
+      sectionIndex,
+      exerciseIndex,
+      setIndex,
+      field,
+      value
+    );
   };
 
   /**
@@ -214,10 +242,10 @@ const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({ workout }) => {
   ) => {
     // Ottieni l'elemento e il suo contenuto
     const target = e.currentTarget;
-    const content = target.textContent || '0';
+    const content = target.textContent || "0";
 
     // Filtra solo i numeri
-    const filteredContent = content.replace(/[^0-9]/g, '');
+    const filteredContent = content.replace(/[^0-9]/g, "");
 
     // Se il contenuto è cambiato dopo il filtraggio, aggiorna il DOM
     if (content !== filteredContent) {
@@ -226,19 +254,24 @@ const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({ workout }) => {
 
     // Converti in numero o usa 0 se vuoto
     const numericValue =
-      filteredContent === '' ? 0 : parseInt(filteredContent, 10);
+      filteredContent === ""
+        ? 0
+        : parseInt(filteredContent, 10);
 
     // Crea una copia profonda dell'oggetto workout per evitare modifiche dirette allo stato
-    const newWorkout = JSON.parse(JSON.stringify(selectedWorkout));
+    const newWorkout = JSON.parse(
+      JSON.stringify(selectedWorkout)
+    );
 
     // Aggiorna il valore nel campo appropriato
     if (
-      newWorkout.sections?.[sectionIndex]?.exercises?.[exerciseIndex]
-        ?.exerciseSets?.[setIndex]
+      newWorkout.sections?.[sectionIndex]?.exercises?.[
+        exerciseIndex
+      ]?.exerciseSets?.[setIndex]
     ) {
-      newWorkout.sections[sectionIndex].exercises[exerciseIndex].exerciseSets[
-        setIndex
-      ][field] = numericValue;
+      newWorkout.sections[sectionIndex].exercises[
+        exerciseIndex
+      ].exerciseSets[setIndex][field] = numericValue;
 
       // Aggiorna lo stato
       setSelectedWorkout(newWorkout);
@@ -250,15 +283,22 @@ const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({ workout }) => {
     sectionIndex: number,
     exerciseIndex: number
   ) => {
-    const newNotes = e.currentTarget.textContent || '';
+    const newNotes = e.currentTarget.textContent || "";
 
     // Crea una copia profonda dell'oggetto workout
-    const newWorkout = JSON.parse(JSON.stringify(selectedWorkout));
+    const newWorkout = JSON.parse(
+      JSON.stringify(selectedWorkout)
+    );
 
     // Aggiorna le note dell'esercizio
-    if (newWorkout.sections?.[sectionIndex]?.exercises?.[exerciseIndex]) {
-      newWorkout.sections[sectionIndex].exercises[exerciseIndex].notes =
-        newNotes;
+    if (
+      newWorkout.sections?.[sectionIndex]?.exercises?.[
+        exerciseIndex
+      ]
+    ) {
+      newWorkout.sections[sectionIndex].exercises[
+        exerciseIndex
+      ].notes = newNotes;
 
       // Aggiorna lo stato
       setSelectedWorkout(newWorkout);
@@ -280,305 +320,372 @@ const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({ workout }) => {
       </Header>
 
       <WorkoutContent>
-        {selectedWorkout.sections?.map((section, sectionIndex) => (
-          <SectionCard key={`section-${sectionIndex}`}>
-            <SectionHeader>
-              <SectionTitle>{section.name}</SectionTitle>
-            </SectionHeader>
+        {selectedWorkout.sections?.map(
+          (section, sectionIndex) => (
+            <SectionCard key={`section-${sectionIndex}`}>
+              <SectionHeader>
+                <SectionTitle>{section.name}</SectionTitle>
+              </SectionHeader>
 
-            <ExerciseList>
-              {section.exercises.map((exercise, exerciseIndex) => (
-                <ExerciseCard key={`exercise-${exerciseIndex}`}>
-                  <ExerciseHeader
-                    onClick={() => handleExerciseClick(exercise.name)}
-                    whileHover={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    }}
-                  >
-                    <ExerciseIcon>
-                      {exercise.timeBased ? (
-                        <BiTime size={20} />
-                      ) : (
-                        <BiDumbbell size={20} />
-                      )}
-                    </ExerciseIcon>
-
-                    <ExerciseInfo>
-                      <ExerciseName>{exercise.name}</ExerciseName>
-                      <ExerciseMeta>
-                        {exercise.exerciseSets.length} sets •
-                        {exercise.timeBased
-                          ? ` ${exercise.exerciseSets[0]?.time || 0}s`
-                          : ` ${exercise.exerciseSets[0]?.reps || 0} reps`}
-                      </ExerciseMeta>
-                    </ExerciseInfo>
-
-                    <ExpandButton
-                      isExpanded={expandedExercise === exercise.name}
+              <ExerciseList>
+                {section.exercises.map(
+                  (exercise, exerciseIndex) => (
+                    <ExerciseCard
+                      key={`exercise-${exerciseIndex}`}
                     >
-                      <BiChevronDown size={24} />
-                    </ExpandButton>
-                  </ExerciseHeader>
-
-                  <AnimatePresence>
-                    {expandedExercise === exercise.name && (
-                      <ExerciseDetails
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
+                      <ExerciseHeader
+                        onClick={() =>
+                          handleExerciseClick(exercise.name)
+                        }
+                        whileHover={{
+                          backgroundColor:
+                            "rgba(255, 255, 255, 0.05)",
+                        }}
                       >
-                        {exercise.notes && (
-                          <ExerciseNotes>
-                            <NotesTitle>
-                              <BiPencil size={16} />
-                              Notes
-                            </NotesTitle>
-                            <NotesContent
-                              contentEditable
-                              suppressContentEditableWarning
-                              onBlur={(e) =>
-                                handleNotesChange(
-                                  e,
-                                  sectionIndex,
-                                  exerciseIndex
-                                )
-                              }
-                            >
-                              {exercise.notes}
-                            </NotesContent>
-                          </ExerciseNotes>
-                        )}
-
-                        <SetsTableWrapper>
+                        <ExerciseIcon>
                           {exercise.timeBased ? (
-                            <SetsTable>
-                              <thead>
-                                <tr>
-                                  <th>Set</th>
-                                  <th>Time (s)</th>
-                                  <th>Rest (s)</th>
-                                  <th></th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {exercise.exerciseSets.map((set, index) => (
-                                  <tr key={`set-${index}`}>
-                                    <td>{index + 1}</td>
-                                    <td>
-                                      <EditableValue
-                                        contentEditable
-                                        suppressContentEditableWarning
-                                        onInput={(e) =>
-                                          handleContentChange(
-                                            e,
-                                            sectionIndex,
-                                            exerciseIndex,
-                                            index,
-                                            'time'
-                                          )
-                                        }
-                                        onBlur={(e) =>
-                                          handleInputBlur(
-                                            e,
-                                            sectionIndex,
-                                            exerciseIndex,
-                                            index,
-                                            'time'
-                                          )
-                                        }
-                                      >
-                                        {set.time}
-                                      </EditableValue>
-                                    </td>
-                                    <td>
-                                      <EditableValue
-                                        contentEditable
-                                        suppressContentEditableWarning
-                                        onInput={(e) =>
-                                          handleContentChange(
-                                            e,
-                                            sectionIndex,
-                                            exerciseIndex,
-                                            index,
-                                            'rest'
-                                          )
-                                        }
-                                        onBlur={(e) =>
-                                          handleInputBlur(
-                                            e,
-                                            sectionIndex,
-                                            exerciseIndex,
-                                            index,
-                                            'rest'
-                                          )
-                                        }
-                                      >
-                                        {set.rest}
-                                      </EditableValue>
-                                    </td>
-                                    <td>
-                                      <RemoveSetButton
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleRemoveSet(
-                                            sectionIndex,
-                                            exerciseIndex,
-                                            index
-                                          );
-                                        }}
-                                        disabled={
-                                          exercise.exerciseSets.length <= 1
-                                        }
-                                      >
-                                        <BiTrash size={16} />
-                                      </RemoveSetButton>
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </SetsTable>
+                            <BiTime size={20} />
                           ) : (
-                            <SetsTable>
-                              <thead>
-                                <tr>
-                                  <th>Set</th>
-                                  <th>Reps</th>
-                                  <th>Weight (kg)</th>
-                                  <th>Rest (s)</th>
-                                  <th></th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {exercise.exerciseSets.map((set, index) => (
-                                  <tr key={`set-${index}`}>
-                                    <td>{index + 1}</td>
-                                    <td>
-                                      <EditableValue
-                                        contentEditable
-                                        suppressContentEditableWarning
-                                        onInput={(e) =>
-                                          handleContentChange(
-                                            e,
-                                            sectionIndex,
-                                            exerciseIndex,
-                                            index,
-                                            'reps'
-                                          )
-                                        }
-                                        onBlur={(e) =>
-                                          handleInputBlur(
-                                            e,
-                                            sectionIndex,
-                                            exerciseIndex,
-                                            index,
-                                            'reps'
-                                          )
-                                        }
-                                      >
-                                        {set.reps}
-                                      </EditableValue>
-                                    </td>
-                                    <td>
-                                      <EditableValue
-                                        contentEditable
-                                        suppressContentEditableWarning
-                                        onInput={(e) =>
-                                          handleContentChange(
-                                            e,
-                                            sectionIndex,
-                                            exerciseIndex,
-                                            index,
-                                            'weight'
-                                          )
-                                        }
-                                        onBlur={(e) =>
-                                          handleInputBlur(
-                                            e,
-                                            sectionIndex,
-                                            exerciseIndex,
-                                            index,
-                                            'weight'
-                                          )
-                                        }
-                                      >
-                                        {set.weight}
-                                      </EditableValue>
-                                    </td>
-                                    <td>
-                                      <EditableValue
-                                        contentEditable
-                                        suppressContentEditableWarning
-                                        onInput={(e) =>
-                                          handleContentChange(
-                                            e,
-                                            sectionIndex,
-                                            exerciseIndex,
-                                            index,
-                                            'rest'
-                                          )
-                                        }
-                                        onBlur={(e) =>
-                                          handleInputBlur(
-                                            e,
-                                            sectionIndex,
-                                            exerciseIndex,
-                                            index,
-                                            'rest'
-                                          )
-                                        }
-                                      >
-                                        {set.rest}
-                                      </EditableValue>
-                                    </td>
-                                    <td>
-                                      <RemoveSetButton
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleRemoveSet(
-                                            sectionIndex,
-                                            exerciseIndex,
-                                            index
-                                          );
-                                        }}
-                                        disabled={
-                                          exercise.exerciseSets.length <= 1
-                                        }
-                                      >
-                                        <BiTrash size={16} />
-                                      </RemoveSetButton>
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </SetsTable>
+                            <BiDumbbell size={20} />
                           )}
-                        </SetsTableWrapper>
+                        </ExerciseIcon>
 
-                        <ActionBar>
-                          <AddSetButton
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleAddSet(sectionIndex, exerciseIndex);
+                        <ExerciseInfo>
+                          <ExerciseName>
+                            {exercise.name}
+                          </ExerciseName>
+                          <ExerciseMeta>
+                            {exercise.exerciseSets.length}{" "}
+                            sets •
+                            {exercise.timeBased
+                              ? ` ${
+                                  exercise.exerciseSets[0]
+                                    ?.time || 0
+                                }s`
+                              : ` ${
+                                  exercise.exerciseSets[0]
+                                    ?.reps || 0
+                                } reps`}
+                          </ExerciseMeta>
+                        </ExerciseInfo>
+
+                        <ExpandButton
+                          isExpanded={
+                            expandedExercise ===
+                            exercise.name
+                          }
+                        >
+                          <BiChevronDown size={24} />
+                        </ExpandButton>
+                      </ExerciseHeader>
+
+                      <AnimatePresence>
+                        {expandedExercise ===
+                          exercise.name && (
+                          <ExerciseDetails
+                            initial={{
+                              height: 0,
+                              opacity: 0,
                             }}
+                            animate={{
+                              height: "auto",
+                              opacity: 1,
+                            }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.3 }}
                           >
-                            <BiPlus size={16} />
-                            Add Set
-                          </AddSetButton>
+                            {exercise.notes && (
+                              <ExerciseNotes>
+                                <NotesTitle>
+                                  <BiPencil size={16} />
+                                  Notes
+                                </NotesTitle>
+                                <NotesContent
+                                  contentEditable
+                                  suppressContentEditableWarning
+                                  onBlur={(e) =>
+                                    handleNotesChange(
+                                      e,
+                                      sectionIndex,
+                                      exerciseIndex
+                                    )
+                                  }
+                                >
+                                  {exercise.notes}
+                                </NotesContent>
+                              </ExerciseNotes>
+                            )}
 
-                          {/* <EditExerciseButton>
+                            <SetsTableWrapper>
+                              {exercise.timeBased ? (
+                                <SetsTable>
+                                  <thead>
+                                    <tr>
+                                      <th>Set</th>
+                                      <th>Time (s)</th>
+                                      <th>Rest (s)</th>
+                                      <th></th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {exercise.exerciseSets.map(
+                                      (set, index) => (
+                                        <tr
+                                          key={`set-${index}`}
+                                        >
+                                          <td>
+                                            {index + 1}
+                                          </td>
+                                          <td>
+                                            <EditableValue
+                                              contentEditable
+                                              suppressContentEditableWarning
+                                              onInput={(
+                                                e
+                                              ) =>
+                                                handleContentChange(
+                                                  e,
+                                                  sectionIndex,
+                                                  exerciseIndex,
+                                                  index,
+                                                  "time"
+                                                )
+                                              }
+                                              onBlur={(e) =>
+                                                handleInputBlur(
+                                                  e,
+                                                  sectionIndex,
+                                                  exerciseIndex,
+                                                  index,
+                                                  "time"
+                                                )
+                                              }
+                                            >
+                                              {set.time}
+                                            </EditableValue>
+                                          </td>
+                                          <td>
+                                            <EditableValue
+                                              contentEditable
+                                              suppressContentEditableWarning
+                                              onInput={(
+                                                e
+                                              ) =>
+                                                handleContentChange(
+                                                  e,
+                                                  sectionIndex,
+                                                  exerciseIndex,
+                                                  index,
+                                                  "rest"
+                                                )
+                                              }
+                                              onBlur={(e) =>
+                                                handleInputBlur(
+                                                  e,
+                                                  sectionIndex,
+                                                  exerciseIndex,
+                                                  index,
+                                                  "rest"
+                                                )
+                                              }
+                                            >
+                                              {set.rest}
+                                            </EditableValue>
+                                          </td>
+                                          <td>
+                                            <RemoveSetButton
+                                              onClick={(
+                                                e
+                                              ) => {
+                                                e.stopPropagation();
+                                                handleRemoveSet(
+                                                  sectionIndex,
+                                                  exerciseIndex,
+                                                  index
+                                                );
+                                              }}
+                                              disabled={
+                                                exercise
+                                                  .exerciseSets
+                                                  .length <=
+                                                1
+                                              }
+                                            >
+                                              <BiTrash
+                                                size={16}
+                                              />
+                                            </RemoveSetButton>
+                                          </td>
+                                        </tr>
+                                      )
+                                    )}
+                                  </tbody>
+                                </SetsTable>
+                              ) : (
+                                <SetsTable>
+                                  <thead>
+                                    <tr>
+                                      <th>Set</th>
+                                      <th>Reps</th>
+                                      <th>Weight (kg)</th>
+                                      <th>Rest (s)</th>
+                                      <th></th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {exercise.exerciseSets.map(
+                                      (set, index) => (
+                                        <tr
+                                          key={`set-${index}`}
+                                        >
+                                          <td>
+                                            {index + 1}
+                                          </td>
+                                          <td>
+                                            <EditableValue
+                                              contentEditable
+                                              suppressContentEditableWarning
+                                              onInput={(
+                                                e
+                                              ) =>
+                                                handleContentChange(
+                                                  e,
+                                                  sectionIndex,
+                                                  exerciseIndex,
+                                                  index,
+                                                  "reps"
+                                                )
+                                              }
+                                              onBlur={(e) =>
+                                                handleInputBlur(
+                                                  e,
+                                                  sectionIndex,
+                                                  exerciseIndex,
+                                                  index,
+                                                  "reps"
+                                                )
+                                              }
+                                            >
+                                              {set.reps}
+                                            </EditableValue>
+                                          </td>
+                                          <td>
+                                            <EditableValue
+                                              contentEditable
+                                              suppressContentEditableWarning
+                                              onInput={(
+                                                e
+                                              ) =>
+                                                handleContentChange(
+                                                  e,
+                                                  sectionIndex,
+                                                  exerciseIndex,
+                                                  index,
+                                                  "weight"
+                                                )
+                                              }
+                                              onBlur={(e) =>
+                                                handleInputBlur(
+                                                  e,
+                                                  sectionIndex,
+                                                  exerciseIndex,
+                                                  index,
+                                                  "weight"
+                                                )
+                                              }
+                                            >
+                                              {set.weight}
+                                            </EditableValue>
+                                          </td>
+                                          <td>
+                                            <EditableValue
+                                              contentEditable
+                                              suppressContentEditableWarning
+                                              onInput={(
+                                                e
+                                              ) =>
+                                                handleContentChange(
+                                                  e,
+                                                  sectionIndex,
+                                                  exerciseIndex,
+                                                  index,
+                                                  "rest"
+                                                )
+                                              }
+                                              onBlur={(e) =>
+                                                handleInputBlur(
+                                                  e,
+                                                  sectionIndex,
+                                                  exerciseIndex,
+                                                  index,
+                                                  "rest"
+                                                )
+                                              }
+                                            >
+                                              {set.rest}
+                                            </EditableValue>
+                                          </td>
+                                          <td>
+                                            <RemoveSetButton
+                                              onClick={(
+                                                e
+                                              ) => {
+                                                e.stopPropagation();
+                                                handleRemoveSet(
+                                                  sectionIndex,
+                                                  exerciseIndex,
+                                                  index
+                                                );
+                                              }}
+                                              disabled={
+                                                exercise
+                                                  .exerciseSets
+                                                  .length <=
+                                                1
+                                              }
+                                            >
+                                              <BiTrash
+                                                size={16}
+                                              />
+                                            </RemoveSetButton>
+                                          </td>
+                                        </tr>
+                                      )
+                                    )}
+                                  </tbody>
+                                </SetsTable>
+                              )}
+                            </SetsTableWrapper>
+
+                            <ActionBar>
+                              <AddSetButton
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddSet(
+                                    sectionIndex,
+                                    exerciseIndex
+                                  );
+                                }}
+                              >
+                                <BiPlus size={16} />
+                                Add Set
+                              </AddSetButton>
+
+                              {/* <EditExerciseButton>
                             <BiEdit size={16} />
                             Edit
                           </EditExerciseButton> */}
-                        </ActionBar>
-                      </ExerciseDetails>
-                    )}
-                  </AnimatePresence>
-                </ExerciseCard>
-              ))}
-            </ExerciseList>
-          </SectionCard>
-        ))}
+                            </ActionBar>
+                          </ExerciseDetails>
+                        )}
+                      </AnimatePresence>
+                    </ExerciseCard>
+                  )
+                )}
+              </ExerciseList>
+            </SectionCard>
+          )
+        )}
       </WorkoutContent>
 
       <ButtonsContainer>
@@ -595,10 +702,7 @@ const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({ workout }) => {
             Allenamento Completato
           </CompletedBadge>
         ) : (
-          <Button
-            className='btn'
-            onClick={startWorkout}
-          >
+          <Button className="btn" onClick={startWorkout}>
             <BiPlay size={24} />
             Inizia Allenamento
           </Button>
@@ -631,7 +735,8 @@ const Header = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 16px 0;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.white10};
+  border-bottom: 1px solid
+    ${({ theme }) => theme.colors.white10};
   margin-bottom: 24px;
   position: sticky;
   top: 0;
@@ -684,7 +789,8 @@ const SectionCard = styled.div`
 const SectionHeader = styled.div`
   background: ${({ theme }) => theme.colors.white10};
   padding: 16px;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.white10};
+  border-bottom: 1px solid
+    ${({ theme }) => theme.colors.white10};
   position: sticky;
   top: 0;
 `;
@@ -703,7 +809,8 @@ const ExerciseList = styled.div`
 `;
 
 const ExerciseCard = styled.div`
-  border-bottom: 1px solid ${({ theme }) => theme.colors.white10};
+  border-bottom: 1px solid
+    ${({ theme }) => theme.colors.white10};
 
   &:last-child {
     border-bottom: none;
@@ -751,7 +858,9 @@ const ExpandButton = styled.div<{ isExpanded: boolean }>`
   align-items: center;
   justify-content: center;
   transition: transform 0.3s ease;
-  transform: rotate(${({ isExpanded }) => (isExpanded ? '180deg' : '0deg')});
+  transform: rotate(
+    ${({ isExpanded }) => (isExpanded ? "180deg" : "0deg")}
+  );
   color: ${({ theme }) => theme.colors.white50};
 `;
 
@@ -823,7 +932,8 @@ const SetsTable = styled.table`
   }
 
   tbody tr {
-    border-top: 1px solid ${({ theme }) => theme.colors.white10};
+    border-top: 1px solid
+      ${({ theme }) => theme.colors.white10};
 
     &:hover {
       background: ${({ theme }) => theme.colors.white05};
@@ -846,9 +956,12 @@ const EditableValue = styled.span`
   }
 `;
 
-const RemoveSetButton = styled.button<{ disabled: boolean }>`
+const RemoveSetButton = styled.button<{
+  disabled: boolean;
+}>`
   all: unset;
-  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
+  cursor: ${({ disabled }) =>
+    disabled ? "not-allowed" : "pointer"};
   opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
   display: flex;
   align-items: center;

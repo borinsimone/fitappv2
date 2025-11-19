@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { BiDumbbell, BiCheck } from 'react-icons/bi';
-import { BsClock } from 'react-icons/bs';
-import { CgCalendar, CgOptions } from 'react-icons/cg';
-import { GiFlame } from 'react-icons/gi';
-import { MdClose } from 'react-icons/md';
-import styled from 'styled-components';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useMemo } from "react";
+import { BiDumbbell, BiCheck } from "react-icons/bi";
+import { BsClock } from "react-icons/bs";
+import { CgCalendar, CgOptions } from "react-icons/cg";
+import { GiFlame } from "react-icons/gi";
+import { MdClose } from "react-icons/md";
+import styled from "styled-components";
+import { motion, AnimatePresence } from "framer-motion";
 
 type Stat = {
   name: string;
@@ -19,55 +19,65 @@ type Stat = {
 const WeeklyStats: React.FC = () => {
   const iconSize = 24;
 
-  const stats: Stat[] = [
-    {
-      name: 'Volume',
-      icon: <BiDumbbell size={iconSize} />,
-      value: '1,200',
-      label: 'kg',
-      id: 0,
-      color: '#00C6BE',
-    },
-    {
-      name: 'Calories',
-      icon: <GiFlame size={iconSize} />,
-      value: '3,200',
-      label: 'kcal',
-      id: 1,
-      color: '#FF5F5F',
-    },
-    {
-      name: 'Time',
-      icon: <BsClock size={iconSize} />,
-      value: '6',
-      label: 'hours',
-      id: 2,
-      color: '#FFD166',
-    },
-    {
-      name: 'Days Active',
-      icon: <CgCalendar size={iconSize} />,
-      value: '5/7',
-      label: 'days',
-      id: 3,
-      color: '#4ECDC4',
-    },
-  ];
+  const stats: Stat[] = useMemo(
+    () => [
+      {
+        name: "Volume",
+        icon: <BiDumbbell size={iconSize} />,
+        value: "1,200",
+        label: "kg",
+        id: 0,
+        color: "#00C6BE",
+      },
+      {
+        name: "Calories",
+        icon: <GiFlame size={iconSize} />,
+        value: "3,200",
+        label: "kcal",
+        id: 1,
+        color: "#FF5F5F",
+      },
+      {
+        name: "Time",
+        icon: <BsClock size={iconSize} />,
+        value: "6",
+        label: "hours",
+        id: 2,
+        color: "#FFD166",
+      },
+      {
+        name: "Days Active",
+        icon: <CgCalendar size={iconSize} />,
+        value: "5/7",
+        label: "days",
+        id: 3,
+        color: "#4ECDC4",
+      },
+    ],
+    [iconSize]
+  );
 
-  const [activeStats, setActiveStats] = useState<{ id: number }[]>([]);
-  const [statsBuffer, setStatsBuffer] = useState<Stat[]>([]);
+  const [activeStats, setActiveStats] = useState<
+    { id: number }[]
+  >([]);
+  const [statsBuffer, setStatsBuffer] = useState<Stat[]>(
+    []
+  );
   const [optionPanel, setOptionPanel] = useState(false);
 
   // Load saved stats on component mount
   useEffect(() => {
     const savedStats = JSON.parse(
-      localStorage.getItem('weekly-active-stats') || '[]'
+      localStorage.getItem("weekly-active-stats") || "[]"
     );
     setActiveStats(savedStats);
 
     // Populate statsBuffer with actual stat objects
     const initialBuffer = stats.filter((stat) =>
-      savedStats.some((activeStat: { id: number }) => activeStat.id === stat.id)
+      savedStats.some(
+        (activeStat: { id: number }) =>
+          activeStat.id === stat.id
+      )
     );
     setStatsBuffer(initialBuffer);
 
@@ -75,27 +85,38 @@ const WeeklyStats: React.FC = () => {
     if (savedStats.length === 0) {
       setOptionPanel(true);
     }
-  }, []);
+  }, [stats]);
 
   const toggleStat = (stat: Stat) => {
-    const isSelected = statsBuffer.some((item) => item.id === stat.id);
+    const isSelected = statsBuffer.some(
+      (item) => item.id === stat.id
+    );
 
     if (isSelected) {
-      setStatsBuffer(statsBuffer.filter((item) => item.id !== stat.id));
+      setStatsBuffer(
+        statsBuffer.filter((item) => item.id !== stat.id)
+      );
     } else {
       setStatsBuffer([...statsBuffer, stat]);
     }
   };
 
   const saveStats = () => {
-    const statsToStore = statsBuffer.map(({ id }) => ({ id }));
-    localStorage.setItem('weekly-active-stats', JSON.stringify(statsToStore));
+    const statsToStore = statsBuffer.map(({ id }) => ({
+      id,
+    }));
+    localStorage.setItem(
+      "weekly-active-stats",
+      JSON.stringify(statsToStore)
+    );
     setActiveStats(statsToStore);
     setOptionPanel(false);
   };
 
   const filteredStats = stats.filter((stat) =>
-    activeStats.some((activeStat) => activeStat.id === stat.id)
+    activeStats.some(
+      (activeStat) => activeStat.id === stat.id
+    )
   );
 
   return (
@@ -109,7 +130,11 @@ const WeeklyStats: React.FC = () => {
           whileTap={{ scale: 0.95 }}
           $isActive={optionPanel}
         >
-          {optionPanel ? <MdClose size={20} /> : <CgOptions size={20} />}
+          {optionPanel ? (
+            <MdClose size={20} />
+          ) : (
+            <CgOptions size={20} />
+          )}
         </OptionButton>
       </Header>
 
@@ -118,11 +143,13 @@ const WeeklyStats: React.FC = () => {
           <OptionPanel
             as={motion.div}
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
+            animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <OptionLabel>Select stats to display</OptionLabel>
+            <OptionLabel>
+              Select stats to display
+            </OptionLabel>
 
             <ChoiceContainer>
               {stats.map((stat) => {
@@ -205,13 +232,12 @@ const WeeklyStats: React.FC = () => {
             ) : (
               <EmptyState>
                 <EmptyIcon>
-                  <BiDumbbell
-                    size={28}
-                    opacity={0.4}
-                  />
+                  <BiDumbbell size={28} opacity={0.4} />
                 </EmptyIcon>
                 <EmptyText>No stats selected</EmptyText>
-                <EmptyAction onClick={() => setOptionPanel(true)}>
+                <EmptyAction
+                  onClick={() => setOptionPanel(true)}
+                >
                   Select Stats
                 </EmptyAction>
               </EmptyState>
@@ -239,7 +265,8 @@ const Header = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 16px;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.white10};
+  border-bottom: 1px solid
+    ${({ theme }) => theme.colors.white10};
 `;
 
 const Title = styled.h2`
@@ -249,7 +276,9 @@ const Title = styled.h2`
   margin: 0;
 `;
 
-const OptionButton = styled(motion.button)<{ $isActive: boolean }>`
+const OptionButton = styled(motion.button)<{
+  $isActive: boolean;
+}>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -286,11 +315,17 @@ const OptionLabel = styled.div`
 
 const ChoiceContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(80px, 1fr)
+  );
   gap: 16px;
 `;
 
-const StatChoice = styled(motion.div)<{ $selected: boolean; $color: string }>`
+const StatChoice = styled(motion.div)<{
+  $selected: boolean;
+  $color: string;
+}>`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -298,7 +333,7 @@ const StatChoice = styled(motion.div)<{ $selected: boolean; $color: string }>`
   padding: 12px 8px;
   border-radius: 12px;
   background: ${({ $selected, $color }) =>
-    $selected ? `${$color}20` : 'transparent'};
+    $selected ? `${$color}20` : "transparent"};
   cursor: pointer;
   transition: all 0.2s ease;
 
@@ -308,7 +343,10 @@ const StatChoice = styled(motion.div)<{ $selected: boolean; $color: string }>`
   }
 `;
 
-const IconWrapper = styled.div<{ $selected: boolean; $color: string }>`
+const IconWrapper = styled.div<{
+  $selected: boolean;
+  $color: string;
+}>`
   position: relative;
   display: flex;
   align-items: center;
@@ -415,7 +453,7 @@ const StatContent = styled.div`
 `;
 
 const StatValue = styled.div`
-  font-family: 'Roboto Mono', monospace;
+  font-family: "Roboto Mono", monospace;
   font-size: 18px;
   font-weight: 700;
   color: ${({ theme }) => theme.colors.white};

@@ -1,18 +1,12 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import { v4 as uuidv4 } from 'uuid';
-import { BiPlus, BiTrash, BiEdit, BiSave } from 'react-icons/bi';
-import { useWorkouts } from '../../context/WorkoutContext';
-import { useNavigate } from 'react-router-dom';
-import { MdClose } from 'react-icons/md';
-import {
-  AnimatePresence,
-  delay,
-  motion,
-  Reorder,
-  useIsPresent,
-} from 'framer-motion';
-import SuggestionsInput from './SuggestionsInput';
+import React, { useState } from "react";
+import styled from "styled-components";
+import { v4 as uuidv4 } from "uuid";
+import { BiPlus, BiTrash, BiSave } from "react-icons/bi";
+import { useWorkouts } from "../../context/WorkoutContext";
+import { useNavigate } from "react-router-dom";
+import { MdClose } from "react-icons/md";
+import { AnimatePresence, motion } from "framer-motion";
+import SuggestionsInput from "./SuggestionsInput";
 
 interface ExerciseSet {
   weight?: number;
@@ -26,6 +20,7 @@ interface Exercise {
   name: string;
   timeBased: boolean;
   exerciseSets: ExerciseSet[];
+  notes?: string;
 }
 
 interface WorkoutSection {
@@ -47,17 +42,25 @@ interface Workout {
   completed?: boolean; // Stato di completamento (default: false)
 }
 
-const WorkoutForm = ({ closeForm, selectedDate }) => {
+interface WorkoutFormProps {
+  closeForm: (value: boolean) => void;
+  selectedDate: Date;
+}
+
+const WorkoutForm = ({
+  closeForm,
+  selectedDate,
+}: WorkoutFormProps) => {
   const navigate = useNavigate();
   const { addWorkout } = useWorkouts();
   const [workout, setWorkout] = useState<Workout>({
     id: uuidv4(),
-    name: '',
+    name: "",
     date: new Date().toISOString(), // Imposta la data corrente
     sections: [
       {
         id: uuidv4(),
-        name: '',
+        name: "",
         exercises: [],
       },
     ],
@@ -66,24 +69,25 @@ const WorkoutForm = ({ closeForm, selectedDate }) => {
     duration: null,
     completed: false, // Inizialmente non completato
   });
-  const [workoutNotes, setWorkoutNotes] = useState<string>('');
-  const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const [workoutNotes, setWorkoutNotes] =
+    useState<string>("");
+  const handleNotesChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
     setWorkoutNotes(e.target.value);
-    setWorkout((prev) => ({ ...prev, notes: e.target.value }));
-  };
-  const handleWorkoutNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setWorkout((prev) => ({ ...prev, name: e.target.value }));
-  };
-
-  const handleSectionNameChange = (sectionId: string, newName: string) => {
     setWorkout((prev) => ({
       ...prev,
-      sections: prev.sections.map((section) =>
-        section.id === sectionId ? { ...section, name: newName } : section
-      ),
+      notes: e.target.value,
     }));
   };
-  // Aggiungi questa funzione dopo handleSectionNameChange
+  const handleWorkoutNameChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setWorkout((prev) => ({
+      ...prev,
+      name: e.target.value,
+    }));
+  };
 
   const handleSectionChange = (
     sectionId: string,
@@ -93,7 +97,9 @@ const WorkoutForm = ({ closeForm, selectedDate }) => {
     setWorkout((prev) => ({
       ...prev,
       sections: prev.sections.map((section) =>
-        section.id === sectionId ? { ...section, [field]: value } : section
+        section.id === sectionId
+          ? { ...section, [field]: value }
+          : section
       ),
     }));
   };
@@ -114,14 +120,16 @@ const WorkoutForm = ({ closeForm, selectedDate }) => {
   const removeSection = (sectionId: string) => {
     setWorkout((prev) => ({
       ...prev,
-      sections: prev.sections.filter((section) => section.id !== sectionId),
+      sections: prev.sections.filter(
+        (section) => section.id !== sectionId
+      ),
     }));
   };
 
   const addExercise = (sectionId: string) => {
     const newExercise: Exercise = {
       id: uuidv4(),
-      name: '',
+      name: "",
       timeBased: false,
       exerciseSets: [
         {
@@ -136,20 +144,31 @@ const WorkoutForm = ({ closeForm, selectedDate }) => {
       ...prev,
       sections: prev.sections.map((section) =>
         section.id === sectionId
-          ? { ...section, exercises: [...section.exercises, newExercise] }
+          ? {
+              ...section,
+              exercises: [
+                ...section.exercises,
+                newExercise,
+              ],
+            }
           : section
       ),
     }));
   };
 
-  const removeExercise = (sectionId: string, exerciseId: string) => {
+  const removeExercise = (
+    sectionId: string,
+    exerciseId: string
+  ) => {
     setWorkout((prev) => ({
       ...prev,
       sections: prev.sections.map((section) =>
         section.id === sectionId
           ? {
               ...section,
-              exercises: section.exercises.filter((ex) => ex.id !== exerciseId),
+              exercises: section.exercises.filter(
+                (ex) => ex.id !== exerciseId
+              ),
             }
           : section
       ),
@@ -179,7 +198,10 @@ const WorkoutForm = ({ closeForm, selectedDate }) => {
     }));
   };
 
-  const addSet = (sectionId: string, exerciseId: string) => {
+  const addSet = (
+    sectionId: string,
+    exerciseId: string
+  ) => {
     setWorkout((prev) => ({
       ...prev,
       sections: prev.sections.map((section) =>
@@ -194,7 +216,11 @@ const WorkoutForm = ({ closeForm, selectedDate }) => {
                         ...exercise.exerciseSets,
                         exercise.timeBased
                           ? { time: 30, rest: 60 }
-                          : { weight: 0, reps: 10, rest: 60 },
+                          : {
+                              weight: 0,
+                              reps: 10,
+                              rest: 60,
+                            },
                       ],
                     }
                   : exercise
@@ -220,9 +246,10 @@ const WorkoutForm = ({ closeForm, selectedDate }) => {
                 exercise.id === exerciseId
                   ? {
                       ...exercise,
-                      exerciseSets: exercise.exerciseSets.filter(
-                        (_, i) => i !== setIndex
-                      ),
+                      exerciseSets:
+                        exercise.exerciseSets.filter(
+                          (_, i) => i !== setIndex
+                        ),
                     }
                   : exercise
               ),
@@ -249,9 +276,13 @@ const WorkoutForm = ({ closeForm, selectedDate }) => {
                 exercise.id === exerciseId
                   ? {
                       ...exercise,
-                      exerciseSets: exercise.exerciseSets.map((set, i) =>
-                        i === setIndex ? { ...set, [field]: value } : set
-                      ),
+                      exerciseSets:
+                        exercise.exerciseSets.map(
+                          (set, i) =>
+                            i === setIndex
+                              ? { ...set, [field]: value }
+                              : set
+                        ),
                     }
                   : exercise
               ),
@@ -266,29 +297,33 @@ const WorkoutForm = ({ closeForm, selectedDate }) => {
 
     // Validate form
     if (!workout.name.trim()) {
-      alert('Please provide a workout name');
+      alert("Please provide a workout name");
       return;
     }
 
     for (const section of workout.sections) {
       if (!section.name.trim()) {
-        alert('All sections must have a name');
+        alert("All sections must have a name");
         return;
       }
 
       if (section.exercises.length === 0) {
-        alert(`Section "${section.name}" needs at least one exercise`);
+        alert(
+          `Section "${section.name}" needs at least one exercise`
+        );
         return;
       }
 
       for (const exercise of section.exercises) {
         if (!exercise.name.trim()) {
-          alert('All exercises must have a name');
+          alert("All exercises must have a name");
           return;
         }
 
         if (exercise.exerciseSets.length === 0) {
-          alert(`Exercise "${exercise.name}" needs at least one set`);
+          alert(
+            `Exercise "${exercise.name}" needs at least one set`
+          );
           return;
         }
       }
@@ -303,31 +338,35 @@ const WorkoutForm = ({ closeForm, selectedDate }) => {
         exercises: section.exercises.map((exercise) => ({
           name: exercise.name,
           timeBased: exercise.timeBased,
-          exerciseSets: exercise.exerciseSets.map((set) => ({
-            weight: exercise.timeBased ? undefined : set.weight || 0,
-            reps: exercise.timeBased ? undefined : set.reps || 0,
-            time: exercise.timeBased ? set.time || 0 : undefined,
-            rest: set.rest || 0,
-          })),
+          exerciseSets: exercise.exerciseSets.map(
+            (set) => ({
+              weight: exercise.timeBased
+                ? undefined
+                : set.weight || 0,
+              reps: exercise.timeBased
+                ? undefined
+                : set.reps || 0,
+              time: exercise.timeBased
+                ? set.time || 0
+                : undefined,
+              rest: set.rest || 0,
+            })
+          ),
           notes: exercise.notes,
         })),
       })),
       notes: workout.notes,
       completed: false,
+      userId: "", // Will be set by backend
     };
 
-    console.log('workoutToSave', workoutToSave);
+    console.log("workoutToSave", workoutToSave);
     addWorkout(workoutToSave);
 
     // Navigate back to the workout planner
-    navigate('/workout-planner');
+    navigate("/workout-planner");
   };
-  const handleReorder = (newOrder) => {
-    setWorkout((prev) => ({
-      ...prev,
-      sections: newOrder,
-    }));
-  };
+
   return (
     <FormContainer
       as={motion.div}
@@ -337,25 +376,22 @@ const WorkoutForm = ({ closeForm, selectedDate }) => {
       transition={{ duration: 0.3 }}
     >
       <button
-        className='closeBtn'
+        className="closeBtn"
         onClick={() => closeForm(false)}
       >
-        <MdClose
-          color='red'
-          size='30px'
-        />
+        <MdClose color="red" size="30px" />
       </button>
       <h1>Crea una nuova scheda</h1>
 
       <form onSubmit={handleSubmit}>
         <FormGroup>
-          <Label htmlFor='workout-name'>Workout Name</Label>
+          <Label htmlFor="workout-name">Workout Name</Label>
           <Input
-            id='workout-name'
-            type='text'
+            id="workout-name"
+            type="text"
             value={workout.name}
             onChange={handleWorkoutNameChange}
-            placeholder='e.g., Full Body Workout'
+            placeholder="e.g., Full Body Workout"
             required
           />
         </FormGroup>
@@ -366,12 +402,16 @@ const WorkoutForm = ({ closeForm, selectedDate }) => {
               <SectionCard
                 key={section.id}
                 as={motion.div}
-                layout='position'
+                layout="position"
                 initial={{ opacity: 0, y: -10, height: 0 }}
-                animate={{ opacity: 1, y: 0, height: 'auto' }}
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                  height: "auto",
+                }}
                 exit={{ opacity: 0, y: -10, height: 0 }}
                 transition={{ duration: 0.2 }}
-                style={{ originY: 0, overflow: 'hidden' }}
+                style={{ originY: 0, overflow: "hidden" }}
               >
                 <SectionHeader>
                   {/* <input
@@ -387,12 +427,20 @@ const WorkoutForm = ({ closeForm, selectedDate }) => {
                   <SuggestionsInput
                     value={section.name}
                     onChange={(value) =>
-                      handleSectionChange(section.id, 'name', value)
+                      handleSectionChange(
+                        section.id,
+                        "name",
+                        value
+                      )
                     }
-                    placeholder='Nome sezione'
-                    type='section'
+                    placeholder="Nome sezione"
+                    type="section"
                   />
-                  <IconButton onClick={() => removeSection(section.id)}>
+                  <IconButton
+                    onClick={() =>
+                      removeSection(section.id)
+                    }
+                  >
                     <BiTrash />
                   </IconButton>
                 </SectionHeader>
@@ -421,24 +469,24 @@ const WorkoutForm = ({ closeForm, selectedDate }) => {
                             handleExerciseChange(
                               section.id,
                               exercise.id,
-                              'name',
+                              "name",
                               value
                             )
                           }
-                          placeholder='Nome esercizio'
-                          type='exercise'
+                          placeholder="Nome esercizio"
+                          type="exercise"
                           sectionName={section.name} // Passa il nome della sezione per filtrare gli esercizi
                         />
                         <div>
                           <label>
                             <input
-                              type='checkbox'
+                              type="checkbox"
                               checked={exercise.timeBased}
                               onChange={(e) =>
                                 handleExerciseChange(
                                   section.id,
                                   exercise.id,
-                                  'timeBased',
+                                  "timeBased",
                                   e.target.checked
                                 )
                               }
@@ -447,7 +495,10 @@ const WorkoutForm = ({ closeForm, selectedDate }) => {
                           </label>
                           <IconButton
                             onClick={() =>
-                              removeExercise(section.id, exercise.id)
+                              removeExercise(
+                                section.id,
+                                exercise.id
+                              )
                             }
                           >
                             <BiTrash />
@@ -471,99 +522,122 @@ const WorkoutForm = ({ closeForm, selectedDate }) => {
                           </tr>
                         </thead>
                         <tbody>
-                          {exercise.exerciseSets.map((set, index) => (
-                            <tr key={index}>
-                              <td>{index + 1}</td>
-                              {exercise.timeBased ? (
+                          {exercise.exerciseSets.map(
+                            (set, index) => (
+                              <tr key={index}>
+                                <td>{index + 1}</td>
+                                {exercise.timeBased ? (
+                                  <td>
+                                    <NumberInput
+                                      type="number"
+                                      min="0"
+                                      value={set.time || 0}
+                                      onChange={(e) =>
+                                        handleSetChange(
+                                          section.id,
+                                          exercise.id,
+                                          index,
+                                          "time",
+                                          parseInt(
+                                            e.target.value
+                                          )
+                                        )
+                                      }
+                                      required
+                                    />
+                                  </td>
+                                ) : (
+                                  <>
+                                    <td>
+                                      <NumberInput
+                                        type="number"
+                                        min="0"
+                                        value={
+                                          set.weight || 0
+                                        }
+                                        onChange={(e) =>
+                                          handleSetChange(
+                                            section.id,
+                                            exercise.id,
+                                            index,
+                                            "weight",
+                                            parseInt(
+                                              e.target.value
+                                            )
+                                          )
+                                        }
+                                        required
+                                      />
+                                    </td>
+                                    <td>
+                                      <NumberInput
+                                        type="number"
+                                        min="0"
+                                        value={
+                                          set.reps || 0
+                                        }
+                                        onChange={(e) =>
+                                          handleSetChange(
+                                            section.id,
+                                            exercise.id,
+                                            index,
+                                            "reps",
+                                            parseInt(
+                                              e.target.value
+                                            )
+                                          )
+                                        }
+                                        required
+                                      />
+                                    </td>
+                                  </>
+                                )}
                                 <td>
                                   <NumberInput
-                                    type='number'
-                                    min='0'
-                                    value={set.time || 0}
+                                    type="number"
+                                    min="0"
+                                    value={set.rest}
                                     onChange={(e) =>
                                       handleSetChange(
                                         section.id,
                                         exercise.id,
                                         index,
-                                        'time',
-                                        parseInt(e.target.value)
+                                        "rest",
+                                        parseInt(
+                                          e.target.value
+                                        )
                                       )
                                     }
                                     required
                                   />
                                 </td>
-                              ) : (
-                                <>
-                                  <td>
-                                    <NumberInput
-                                      type='number'
-                                      min='0'
-                                      value={set.weight || 0}
-                                      onChange={(e) =>
-                                        handleSetChange(
-                                          section.id,
-                                          exercise.id,
-                                          index,
-                                          'weight',
-                                          parseInt(e.target.value)
-                                        )
-                                      }
-                                      required
-                                    />
-                                  </td>
-                                  <td>
-                                    <NumberInput
-                                      type='number'
-                                      min='0'
-                                      value={set.reps || 0}
-                                      onChange={(e) =>
-                                        handleSetChange(
-                                          section.id,
-                                          exercise.id,
-                                          index,
-                                          'reps',
-                                          parseInt(e.target.value)
-                                        )
-                                      }
-                                      required
-                                    />
-                                  </td>
-                                </>
-                              )}
-                              <td>
-                                <NumberInput
-                                  type='number'
-                                  min='0'
-                                  value={set.rest}
-                                  onChange={(e) =>
-                                    handleSetChange(
-                                      section.id,
-                                      exercise.id,
-                                      index,
-                                      'rest',
-                                      parseInt(e.target.value)
-                                    )
-                                  }
-                                  required
-                                />
-                              </td>
-                              <td>
-                                <IconButton
-                                  onClick={() =>
-                                    removeSet(section.id, exercise.id, index)
-                                  }
-                                  disabled={exercise.exerciseSets.length <= 1}
-                                >
-                                  <BiTrash />
-                                </IconButton>
-                              </td>
-                            </tr>
-                          ))}
+                                <td>
+                                  <IconButton
+                                    onClick={() =>
+                                      removeSet(
+                                        section.id,
+                                        exercise.id,
+                                        index
+                                      )
+                                    }
+                                    disabled={
+                                      exercise.exerciseSets
+                                        .length <= 1
+                                    }
+                                  >
+                                    <BiTrash />
+                                  </IconButton>
+                                </td>
+                              </tr>
+                            )
+                          )}
                         </tbody>
                       </SetsTable>
                       <ActionButton
-                        onClick={() => addSet(section.id, exercise.id)}
-                        type='button'
+                        onClick={() =>
+                          addSet(section.id, exercise.id)
+                        }
+                        type="button"
                       >
                         <BiPlus /> Add Set
                       </ActionButton>
@@ -572,7 +646,7 @@ const WorkoutForm = ({ closeForm, selectedDate }) => {
 
                   <ActionButton
                     onClick={() => addExercise(section.id)}
-                    type='button'
+                    type="button"
                   >
                     <BiPlus /> Add Exercise
                   </ActionButton>
@@ -581,24 +655,23 @@ const WorkoutForm = ({ closeForm, selectedDate }) => {
             ))}
           </AnimatePresence>
 
-          <ActionButton
-            onClick={addSection}
-            type='button'
-          >
+          <ActionButton onClick={addSection} type="button">
             <BiPlus /> Add Section
           </ActionButton>
         </SectionsList>
         <FormGroup>
-          <Label htmlFor='workout-notes'>Note (opzionali)</Label>
+          <Label htmlFor="workout-notes">
+            Note (opzionali)
+          </Label>
           <TextArea
-            id='workout-notes'
+            id="workout-notes"
             value={workoutNotes}
             onChange={handleNotesChange}
-            placeholder='Inserisci note aggiuntive per questo allenamento...'
+            placeholder="Inserisci note aggiuntive per questo allenamento..."
             rows={3}
           />
         </FormGroup>
-        <SubmitButton type='submit'>
+        <SubmitButton type="submit">
           <BiSave /> Save Workout
         </SubmitButton>
       </form>
@@ -761,7 +834,7 @@ const ExerciseHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   gap: 10px;
-  input[type='text'] {
+  input[type="text"] {
     flex: 1;
     padding: 8px;
     border-radius: 4px;
@@ -804,7 +877,8 @@ const SetsTable = styled.table`
   }
 
   tr {
-    border-bottom: 1px solid ${({ theme }) => theme.colors.white10};
+    border-bottom: 1px solid
+      ${({ theme }) => theme.colors.white10};
 
     td {
       button {
@@ -816,7 +890,8 @@ const SetsTable = styled.table`
 
 const IconButton = styled.button<{ disabled?: boolean }>`
   all: unset;
-  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
+  cursor: ${({ disabled }) =>
+    disabled ? "not-allowed" : "pointer"};
   opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
   display: flex;
   align-items: center;
@@ -880,34 +955,6 @@ const SubmitButton = styled.button`
     transform: translateY(0);
   }
 `;
-const SectionCardItem = ({
-  children,
-  onClick,
-}: {
-  children: React.ReactNode;
-  onClick: () => void;
-}) => {
-  const isPresent = useIsPresent();
-  const animations = {
-    style: {
-      position: isPresent ? 'static' : 'absolute',
-    },
-    initial: { scale: 0, opacity: 0 },
-    animate: { scale: 1, opacity: 1 },
-    exit: { scale: 0, opacity: 0 },
-    transition: { type: 'spring', stiffness: 900, damping: 40, delay: 0.3 },
-  };
-  return (
-    <SectionCard
-      as={motion.div}
-      {...animations}
-      layout
-      onClick={onClick}
-    >
-      {children}
-    </SectionCard>
-  );
-};
 const TextArea = styled.textarea`
   width: 100%;
   padding: 12px;

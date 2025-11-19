@@ -1,10 +1,15 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
-import { motion } from 'framer-motion';
-import { BiUser, BiLock, BiEnvelope, BiUserPlus } from 'react-icons/bi';
-import { FcGoogle } from 'react-icons/fc';
-import { useGlobalContext } from '../../context/GlobalContext';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import styled from "styled-components";
+import { motion } from "framer-motion";
+import {
+  BiUser,
+  BiLock,
+  BiEnvelope,
+  BiUserPlus,
+} from "react-icons/bi";
+import { FcGoogle } from "react-icons/fc";
+import { useGlobalContext } from "../../context/GlobalContext";
 
 interface FormData {
   name: string;
@@ -18,13 +23,15 @@ function Register() {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState<FormData>({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
@@ -45,15 +52,15 @@ function Register() {
     try {
       // Replace with your actual registration API call
       // await register(formData);
-      console.log('Registration data:', formData);
+      console.log("Registration data:", formData);
 
       // Simulate successful registration
       setTimeout(() => {
-        navigate('/login');
+        navigate("/login");
       }, 1500);
     } catch (error) {
-      console.error('Registration error:', error);
-      alert('Registration failed. Please try again.');
+      console.error("Registration error:", error);
+      alert("Registration failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -79,7 +86,9 @@ function Register() {
         <FormSection>
           <FormHeader>
             <FormTitle>Create Account</FormTitle>
-            <FormSubtitle>Join us and start your fitness journey</FormSubtitle>
+            <FormSubtitle>
+              Join us and start your fitness journey
+            </FormSubtitle>
           </FormHeader>
 
           <SignupForm onSubmit={handleSubmit}>
@@ -88,9 +97,9 @@ function Register() {
                 <BiUser />
               </InputIcon>
               <StyledInput
-                type='text'
-                name='name'
-                placeholder='Full Name'
+                type="text"
+                name="name"
+                placeholder="Full Name"
                 value={formData.name}
                 required
                 onChange={handleChange}
@@ -102,9 +111,9 @@ function Register() {
                 <BiEnvelope />
               </InputIcon>
               <StyledInput
-                type='email'
-                name='email'
-                placeholder='Email Address'
+                type="email"
+                name="email"
+                placeholder="Email Address"
                 value={formData.email}
                 required
                 onChange={handleChange}
@@ -116,9 +125,9 @@ function Register() {
                 <BiLock />
               </InputIcon>
               <StyledInput
-                type='password'
-                name='password'
-                placeholder='Password'
+                type="password"
+                name="password"
+                placeholder="Password"
                 value={formData.password}
                 required
                 onChange={handleChange}
@@ -130,9 +139,9 @@ function Register() {
                 <BiLock />
               </InputIcon>
               <StyledInput
-                type='password'
-                name='confirmPassword'
-                placeholder='Confirm Password'
+                type="password"
+                name="confirmPassword"
+                placeholder="Confirm Password"
                 value={formData.confirmPassword}
                 required
                 onChange={handleChange}
@@ -140,18 +149,15 @@ function Register() {
             </InputGroup>
 
             <TermsCheckbox>
-              <input
-                type='checkbox'
-                id='terms'
-                required
-              />
-              <label htmlFor='terms'>
-                I agree to the <TermsLink>Terms & Conditions</TermsLink>
+              <input type="checkbox" id="terms" required />
+              <label htmlFor="terms">
+                I agree to the{" "}
+                <TermsLink>Terms & Conditions</TermsLink>
               </label>
             </TermsCheckbox>
 
             <RegisterButton
-              type='submit'
+              type="submit"
               disabled={isLoading}
               as={motion.button}
               whileHover={{ scale: 1.02 }}
@@ -184,9 +190,9 @@ function Register() {
           </SocialButton>
 
           <LoginPrompt>
-            Already have an account?{' '}
+            Already have an account?{" "}
             <Link
-              to='/login'
+              to="/login"
               // as={motion.a}
               // whileHover={{ color: '#00c6be' }}
             >
@@ -222,7 +228,7 @@ const BackgroundGlow = styled.div`
 
   &::before,
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     width: 400px;
     height: 400px;
@@ -242,7 +248,8 @@ const BackgroundGlow = styled.div`
     background: ${({ theme }) => theme.colors.neon};
     bottom: -150px;
     left: -150px;
-    animation: float2 7s ease-in-out infinite alternate-reverse;
+    animation: float2 7s ease-in-out infinite
+      alternate-reverse;
   }
 
   @keyframes float1 {
@@ -368,7 +375,8 @@ const StyledInput = styled.input`
   &:focus {
     outline: none;
     border-color: ${({ theme }) => theme.colors.neon};
-    box-shadow: 0 0 0 2px ${({ theme }) => `${theme.colors.neon}30`};
+    box-shadow: 0 0 0 2px
+      ${({ theme }) => `${theme.colors.neon}30`};
   }
 `;
 
@@ -473,10 +481,4 @@ const LoginPrompt = styled.p`
   color: ${({ theme }) => theme.colors.white70};
   font-size: 14px;
   margin: 14px 0 0;
-`;
-
-const LoginLink = styled(Link)`
-  color: ${({ theme }) => theme.colors.neon};
-  font-weight: 600;
-  text-decoration: none;
 `;

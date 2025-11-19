@@ -1,33 +1,31 @@
-import styled from 'styled-components';
-import { useGlobalContext } from '../../context/GlobalContext';
-import { useEffect } from 'react';
-import { jwtDecode } from 'jwt-decode';
-import TopBar from './TopBar';
-import { AnimatePresence, motion } from 'framer-motion';
-import Widget from './Widget';
+import styled from "styled-components";
+import { useGlobalContext } from "../../context/GlobalContext";
+import { useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
+import TopBar from "./TopBar";
+import { AnimatePresence, motion } from "framer-motion";
+import Widget from "./Widget";
 
-import { LuBadge } from 'react-icons/lu';
-import { useWorkouts } from '../../context/WorkoutContext';
-import TodayData from './widgets/TodayData';
-import WeeklyStats from './widgets/WeeklyStats';
-import WorkoutHistory from './widgets/Workout History/WorkoutHistory';
-import Achievements from './widgets/Achievements';
+import { useWorkouts } from "../../context/WorkoutContext";
+import TodayData from "./widgets/TodayData";
+import WorkoutHistory from "./widgets/Workout History/WorkoutHistory";
+import Achievements from "./widgets/Achievements";
 
 function Home() {
   const { loadWorkouts } = useWorkouts();
   const { setUser } = useGlobalContext();
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (token) {
       const decoded = jwtDecode(token);
-      console.log('Decoded token:', decoded);
+      console.log("Decoded token:", decoded);
       setUser(decoded);
     }
-  }, []);
+  }, [setUser]);
   // console.log(workouts);
   useEffect(() => {
     loadWorkouts();
-  }, []);
+  }, [loadWorkouts]);
   return (
     <Container
       as={motion.div}
@@ -40,7 +38,7 @@ function Home() {
         <TopBar />
       </AnimatePresence>
 
-      <div className='widgetContainer'>
+      <div className="widgetContainer">
         <Widget index={0}>
           <TodayData />
         </Widget>
