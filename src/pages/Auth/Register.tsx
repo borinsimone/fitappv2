@@ -10,6 +10,7 @@ import {
 } from "react-icons/bi";
 import { FcGoogle } from "react-icons/fc";
 import { useGlobalContext } from "../../context/GlobalContext";
+import { register } from "../../service/authService";
 
 interface FormData {
   name: string;
@@ -47,17 +48,25 @@ function Register() {
       return;
     }
 
+    if (formData.password.length < 6) {
+      alert("Password must be at least 6 characters long");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      alert("Please enter a valid email address");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      // Replace with your actual registration API call
-      // await register(formData);
-      console.log("Registration data:", formData);
-
-      // Simulate successful registration
-      setTimeout(() => {
-        navigate("/login");
-      }, 1500);
+      // Send only required fields to backend
+      const { confirmPassword, ...registerData } = formData;
+      await register(registerData);
+      console.log("Registration successful");
+      navigate("/login");
     } catch (error) {
       console.error("Registration error:", error);
       alert("Registration failed. Please try again.");
