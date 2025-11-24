@@ -2,30 +2,13 @@ import styled from "styled-components";
 import NoWorkoutPage from "./NoWorkoutPage";
 import WeekAgenda from "./WeekAgenda";
 import WorkoutPreview from "./WorkoutPreview";
-import { useWorkouts } from "../../context/WorkoutContext";
+import {
+  useWorkouts,
+  Workout,
+} from "../../context/WorkoutContext";
 import { useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { isSameDay } from "date-fns";
-
-interface Workout {
-  _id: string;
-  name: string;
-  date: string;
-  completed: boolean;
-  sections: Array<{
-    name: string;
-    exercises: Array<{
-      name: string;
-      timeBased: boolean;
-      exerciseSets: Array<{
-        weight?: number;
-        reps?: number;
-        time?: number;
-        rest: number;
-      }>;
-    }>;
-  }>;
-}
 
 function WorkoutPlanner() {
   const { workouts } = useWorkouts();
@@ -46,7 +29,7 @@ function WorkoutPlanner() {
       return isSameDay(workoutDate, selectedDate);
     });
 
-    setSelectedWorkout(workout);
+    setSelectedWorkout(workout || null);
   }, [selectedDate, workouts]);
 
   return (

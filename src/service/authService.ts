@@ -64,3 +64,31 @@ export const getUserProfile = async (token: string) => {
     );
   }
 };
+
+export const updateProfile = async (
+  data: any,
+  token: string
+) => {
+  return fetchApi("/auth/me", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+};
+
+export const deleteAccount = async (token: string) => {
+  return fetchApi("/auth/me", {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const logout = () => {
+  localStorage.removeItem("token");
+};

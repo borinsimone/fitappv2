@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from "react";
+import styled from "styled-components";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   MdClose,
   MdSentimentDissatisfied,
@@ -8,57 +8,80 @@ import {
   MdSentimentSatisfied,
   MdSentimentVeryDissatisfied,
   MdSentimentVerySatisfied,
-} from 'react-icons/md';
-import { BiBody, BiDumbbell, BiNote } from 'react-icons/bi';
-import { useWorkouts } from '../../../context/WorkoutContext';
-import { useNavigate } from 'react-router-dom';
+} from "react-icons/md";
+import { BiBody, BiDumbbell, BiNote } from "react-icons/bi";
+import { useWorkouts } from "../../../context/WorkoutContext";
+import { useNavigate } from "react-router-dom";
 
 interface FeedBackFormProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-function FeedBackForm({ isOpen, onClose }: FeedBackFormProps) {
-  const { activeWorkout, setActiveWorkout, editWorkout } = useWorkouts();
+function FeedBackForm({
+  isOpen,
+  onClose,
+}: FeedBackFormProps) {
+  const { activeWorkout, setActiveWorkout, editWorkout } =
+    useWorkouts();
   const navigate = useNavigate();
 
   const [feeling, setFeeling] = useState<number>(3); // 1-5 scale
   const [energyLevel, setEnergyLevel] = useState<number>(3); // 1-5 scale
   const [difficulty, setDifficulty] = useState<number>(3); // 1-5 scale
-  const [notes, setNotes] = useState<string>('');
+  const [notes, setNotes] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
-    if (!activeWorkout || !activeWorkout._id || isSubmitting) return;
+    if (
+      !activeWorkout ||
+      !activeWorkout._id ||
+      isSubmitting
+    )
+      return;
 
     setIsSubmitting(true);
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
-        throw new Error('Token mancante');
+        throw new Error("Token mancante");
       }
 
-      console.log('Preparazione dati per il completamento del workout');
+      console.log(
+        "Preparazione dati per il completamento del workout"
+      );
       const endTime = new Date().toISOString();
 
       // Calcola la durata in minuti
       let duration = 0;
       if (activeWorkout.startTime) {
-        const startTimeMs = new Date(activeWorkout.startTime).getTime();
+        const startTimeMs = new Date(
+          activeWorkout.startTime
+        ).getTime();
         const endTimeMs = new Date(endTime).getTime();
-        duration = Math.round((endTimeMs - startTimeMs) / (1000 * 60));
+        duration = Math.round(
+          (endTimeMs - startTimeMs) / (1000 * 60)
+        );
       }
 
       // Verifica che i valori siano effettivamente numeri e nell'intervallo corretto
-      const feelingValue = Math.min(Math.max(Number(feeling), 1), 5);
-      const energyLevelValue = Math.min(Math.max(Number(energyLevel), 1), 5);
-      const difficultyValue = Math.min(Math.max(Number(difficulty), 1), 5);
+      const feelingValue = Math.min(
+        Math.max(Number(feeling), 1),
+        5
+      );
+      const energyLevelValue = Math.min(
+        Math.max(Number(energyLevel), 1),
+        5
+      );
+      const difficultyValue = Math.min(
+        Math.max(Number(difficulty), 1),
+        5
+      );
 
       // IMPORTANTE: Mantieni l'intero activeWorkout e aggiungi/aggiorna solo
       // i campi necessari per il completamento
-      const updatedWorkout = {
-        ...activeWorkout,
+      const updates = {
         completed: true,
         endTime: endTime,
         duration: duration,
@@ -67,31 +90,39 @@ function FeedBackForm({ isOpen, onClose }: FeedBackFormProps) {
           feeling: feelingValue,
           energyLevel: energyLevelValue,
           difficulty: difficultyValue,
-          notes: notes || '',
+          notes: notes || "",
           completedAt: endTime,
         },
       };
 
-      console.log('Dati completi per il salvataggio:', updatedWorkout);
+      console.log(
+        "Dati completi per il salvataggio:",
+        updates
+      );
 
       // Invia l'intero workout aggiornato al server
-      await editWorkout(activeWorkout._id, updatedWorkout, token);
+      await editWorkout(activeWorkout._id, updates);
 
-      console.log('Workout completato con successo');
+      console.log("Workout completato con successo");
 
       // Clean up
-      localStorage.removeItem('activeWorkout');
+      localStorage.removeItem("activeWorkout");
       setActiveWorkout(null);
 
       // Navigate back to workout planner
-      navigate('/workout-planner');
+      navigate("/workout-planner");
     } catch (error) {
-      console.error('Errore durante il salvataggio del workout:', error);
+      console.error(
+        "Errore durante il salvataggio del workout:",
+        error
+      );
 
       if (error instanceof Error) {
         alert(`Errore: ${error.message}`);
       } else {
-        alert('Si è verificato un errore durante il salvataggio del workout.');
+        alert(
+          "Si è verificato un errore durante il salvataggio del workout."
+        );
       }
     } finally {
       setIsSubmitting(false);
@@ -100,11 +131,26 @@ function FeedBackForm({ isOpen, onClose }: FeedBackFormProps) {
 
   // Mapping feeling to emoji and text
   const feelingEmojis = [
-    { icon: <MdSentimentVeryDissatisfied size={28} />, text: 'Pessimo' },
-    { icon: <MdSentimentDissatisfied size={28} />, text: 'Scarso' },
-    { icon: <MdSentimentNeutral size={28} />, text: 'Normale' },
-    { icon: <MdSentimentSatisfied size={28} />, text: 'Buono' },
-    { icon: <MdSentimentVerySatisfied size={28} />, text: 'Ottimo' },
+    {
+      icon: <MdSentimentVeryDissatisfied size={28} />,
+      text: "Pessimo",
+    },
+    {
+      icon: <MdSentimentDissatisfied size={28} />,
+      text: "Scarso",
+    },
+    {
+      icon: <MdSentimentNeutral size={28} />,
+      text: "Normale",
+    },
+    {
+      icon: <MdSentimentSatisfied size={28} />,
+      text: "Buono",
+    },
+    {
+      icon: <MdSentimentVerySatisfied size={28} />,
+      text: "Ottimo",
+    },
   ];
 
   return (
@@ -121,7 +167,7 @@ function FeedBackForm({ isOpen, onClose }: FeedBackFormProps) {
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            transition={{ type: 'spring', damping: 25 }}
+            transition={{ type: "spring", damping: 25 }}
           >
             <Header>
               <Title>Completa Allenamento</Title>
@@ -159,11 +205,13 @@ function FeedBackForm({ isOpen, onClose }: FeedBackFormProps) {
               </SectionTitle>
               <Slider>
                 <SliderInput
-                  type='range'
-                  min='1'
-                  max='5'
+                  type="range"
+                  min="1"
+                  max="5"
                   value={energyLevel}
-                  onChange={(e) => setEnergyLevel(parseInt(e.target.value))}
+                  onChange={(e) =>
+                    setEnergyLevel(parseInt(e.target.value))
+                  }
                 />
                 <SliderLabels>
                   <SliderLabel>Basso</SliderLabel>
@@ -179,11 +227,13 @@ function FeedBackForm({ isOpen, onClose }: FeedBackFormProps) {
               </SectionTitle>
               <Slider>
                 <SliderInput
-                  type='range'
-                  min='1'
-                  max='5'
+                  type="range"
+                  min="1"
+                  max="5"
                   value={difficulty}
-                  onChange={(e) => setDifficulty(parseInt(e.target.value))}
+                  onChange={(e) =>
+                    setDifficulty(parseInt(e.target.value))
+                  }
                 />
                 <SliderLabels>
                   <SliderLabel>Facile</SliderLabel>
@@ -265,7 +315,8 @@ const Header = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.white10};
+  border-bottom: 1px solid
+    ${({ theme }) => theme.colors.white10};
 `;
 
 const Title = styled.h2`
@@ -295,7 +346,8 @@ const CloseButton = styled.button`
 
 const FormSection = styled.div`
   padding: 20px;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.white10};
+  border-bottom: 1px solid
+    ${({ theme }) => theme.colors.white10};
 `;
 
 const SectionTitle = styled.div`
@@ -328,9 +380,10 @@ const RatingOption = styled.div<{ selected: boolean }>`
   border-radius: 12px;
   transition: all 0.2s;
   background: ${({ selected, theme }) =>
-    selected ? `${theme.colors.neon}15` : 'transparent'};
+    selected ? `${theme.colors.neon}15` : "transparent"};
   border: 1px solid
-    ${({ selected, theme }) => (selected ? theme.colors.neon : 'transparent')};
+    ${({ selected, theme }) =>
+      selected ? theme.colors.neon : "transparent"};
   color: ${({ selected, theme }) =>
     selected ? theme.colors.neon : theme.colors.white70};
 

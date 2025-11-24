@@ -15,19 +15,10 @@ import {
   AnimatePresence,
   PanInfo,
 } from "framer-motion";
-
-interface ExerciseSet {
-  weight?: number;
-  reps?: number;
-  time?: number;
-  rest: number;
-}
-
-interface Exercise {
-  name: string;
-  timeBased: boolean;
-  exerciseSets: ExerciseSet[];
-}
+import {
+  Exercise,
+  WorkoutSet as ExerciseSet,
+} from "../../../context/WorkoutContext";
 
 interface SetActiveProps {
   currentExercise: Exercise | null;
@@ -284,9 +275,9 @@ function SetActive({
                       <>
                         <Cell>
                           <EditInput
-                            ref={(el) =>
-                              (inputRefs.current[0] = el)
-                            }
+                            ref={(el) => {
+                              inputRefs.current[0] = el;
+                            }}
                             type="number"
                             min="0"
                             value={
@@ -311,9 +302,9 @@ function SetActive({
                         </Cell>
                         <Cell>
                           <EditInput
-                            ref={(el) =>
-                              (inputRefs.current[1] = el)
-                            }
+                            ref={(el) => {
+                              inputRefs.current[1] = el;
+                            }}
                             type="number"
                             min="0"
                             value={
@@ -341,9 +332,9 @@ function SetActive({
                       <>
                         <Cell>
                           <EditInput
-                            ref={(el) =>
-                              (inputRefs.current[0] = el)
-                            }
+                            ref={(el) => {
+                              inputRefs.current[0] = el;
+                            }}
                             type="number"
                             min="0"
                             step="0.5"
@@ -370,9 +361,9 @@ function SetActive({
                         </Cell>
                         <Cell>
                           <EditInput
-                            ref={(el) =>
-                              (inputRefs.current[1] = el)
-                            }
+                            ref={(el) => {
+                              inputRefs.current[1] = el;
+                            }}
                             type="number"
                             min="0"
                             value={
@@ -397,9 +388,9 @@ function SetActive({
                         </Cell>
                         <Cell>
                           <EditInput
-                            ref={(el) =>
-                              (inputRefs.current[2] = el)
-                            }
+                            ref={(el) => {
+                              inputRefs.current[2] = el;
+                            }}
                             type="number"
                             min="0"
                             value={

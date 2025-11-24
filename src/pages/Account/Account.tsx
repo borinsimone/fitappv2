@@ -121,7 +121,7 @@ function Account() {
                 console.log(userProfile);
               }}
             >
-              {userProfile.photoURL ? (
+              {userProfile?.photoURL ? (
                 <img
                   src={userProfile.photoURL}
                   alt="Profile"
@@ -133,10 +133,10 @@ function Account() {
 
             <ProfileInfo>
               <ProfileName>
-                {userProfile.name || "User"}
+                {userProfile?.name || "User"}
               </ProfileName>
               <ProfileEmail>
-                {userProfile.email}
+                {userProfile?.email}
               </ProfileEmail>
             </ProfileInfo>
 

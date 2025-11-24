@@ -26,7 +26,7 @@ interface WorkoutCardProps {
   showDetails: () => void;
   deleteWorkout: () => void;
   renderFeedbackStars: (
-    feeling?: 1 | 2 | 3 | 4 | 5
+    feeling?: number
   ) => React.ReactNode;
   formatDuration: (minutes?: number) => string;
   getTotalExercises: (workout: Workout) => number;

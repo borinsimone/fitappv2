@@ -1,25 +1,20 @@
-import React from 'react';
-import styled from 'styled-components';
-import { motion } from 'framer-motion';
-import { BiDumbbell, BiTime, BiCheck, BiListOl } from 'react-icons/bi';
-
-interface Exercise {
-  name: string;
-  timeBased: boolean;
-  exerciseSets: Array<{
-    time?: number;
-    reps?: number;
-    weight?: number;
-    rest: number;
-  }>;
-}
+import React from "react";
+import styled from "styled-components";
+import { motion } from "framer-motion";
+import {
+  BiDumbbell,
+  BiTime,
+  BiCheck,
+  BiListOl,
+} from "react-icons/bi";
+import { Exercise } from "../../../context/WorkoutContext";
 
 interface ExerciseSummaryProps {
   nextExercises: Exercise[];
   prevExercises: Exercise[];
   currentExerciseIndex: number;
   setCurrentExerciseIndex: (index: number) => void;
-  setCurrentExercise: (index: number) => void;
+  setCurrentExercise: (exercise: Exercise) => void;
 }
 
 function ExerciseSummary({
@@ -31,7 +26,9 @@ function ExerciseSummary({
 }: ExerciseSummaryProps) {
   return (
     <Container>
-      {nextExercises?.length > 0 && <SectionTitle>Coming Up Next</SectionTitle>}
+      {nextExercises?.length > 0 && (
+        <SectionTitle>Coming Up Next</SectionTitle>
+      )}
 
       <ExerciseList>
         {nextExercises.map((exercise, index) => (
@@ -45,7 +42,9 @@ function ExerciseSummary({
             transition={{ duration: 0.2 }}
             onClick={() => {
               setCurrentExercise(exercise);
-              setCurrentExerciseIndex(currentExerciseIndex + index + 1);
+              setCurrentExerciseIndex(
+                currentExerciseIndex + index + 1
+              );
             }}
             $isNext={index === 0}
           >
@@ -63,19 +62,27 @@ function ExerciseSummary({
               <ExerciseMetrics>
                 <MetricItem>
                   <BiListOl size={14} />
-                  <span>{exercise.exerciseSets.length} sets</span>
+                  <span>
+                    {exercise.exerciseSets.length} sets
+                  </span>
                 </MetricItem>
 
                 <MetricItem>
                   {exercise.timeBased ? (
                     <>
                       <BiTime size={14} />
-                      <span>{exercise.exerciseSets[0]?.time}" each</span>
+                      <span>
+                        {exercise.exerciseSets[0]?.time}"
+                        each
+                      </span>
                     </>
                   ) : (
                     <>
                       <BiDumbbell size={14} />
-                      <span>{exercise.exerciseSets[0]?.reps} reps</span>
+                      <span>
+                        {exercise.exerciseSets[0]?.reps}{" "}
+                        reps
+                      </span>
                     </>
                   )}
                 </MetricItem>
@@ -85,15 +92,13 @@ function ExerciseSummary({
         ))}
       </ExerciseList>
 
-      {nextExercises.length === 0 && prevExercises.length === 0 && (
-        <EmptyState>
-          <BiDumbbell
-            size={32}
-            opacity={0.5}
-          />
-          <EmptyTitle>No exercises to display</EmptyTitle>
-        </EmptyState>
-      )}
+      {nextExercises.length === 0 &&
+        prevExercises.length === 0 && (
+          <EmptyState>
+            <BiDumbbell size={32} opacity={0.5} />
+            <EmptyTitle>No exercises to display</EmptyTitle>
+          </EmptyState>
+        )}
       {prevExercises?.length > 0 && (
         <SectionTitle>Completed Exercises</SectionTitle>
       )}
@@ -104,7 +109,10 @@ function ExerciseSummary({
             as={motion.div}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3, delay: index * 0.05 }}
+            transition={{
+              duration: 0.3,
+              delay: index * 0.05,
+            }}
           >
             <ExerciseStatus>
               <StatusIcon>
@@ -118,19 +126,27 @@ function ExerciseSummary({
               <ExerciseMetrics>
                 <MetricItem>
                   <BiListOl size={14} />
-                  <span>{exercise.exerciseSets.length} sets</span>
+                  <span>
+                    {exercise.exerciseSets.length} sets
+                  </span>
                 </MetricItem>
 
                 <MetricItem>
                   {exercise.timeBased ? (
                     <>
                       <BiTime size={14} />
-                      <span>{exercise.exerciseSets[0]?.time}" each</span>
+                      <span>
+                        {exercise.exerciseSets[0]?.time}"
+                        each
+                      </span>
                     </>
                   ) : (
                     <>
                       <BiDumbbell size={14} />
-                      <span>{exercise.exerciseSets[0]?.reps} reps</span>
+                      <span>
+                        {exercise.exerciseSets[0]?.reps}{" "}
+                        reps
+                      </span>
                     </>
                   )}
                 </MetricItem>
@@ -179,19 +195,22 @@ const BaseExerciseItem = styled(motion.div)`
   overflow: hidden;
 `;
 
-const UpcomingExerciseItem = styled(BaseExerciseItem)<{ $isNext: boolean }>`
+const UpcomingExerciseItem = styled(BaseExerciseItem)<{
+  $isNext: boolean;
+}>`
   background: ${({ theme, $isNext }) =>
     $isNext
       ? `linear-gradient(90deg, ${theme.colors.neon}10, ${theme.colors.white}10)`
       : theme.colors.white10};
   border: 1px solid
-    ${({ theme, $isNext }) => ($isNext ? theme.colors.neon : 'transparent')};
+    ${({ theme, $isNext }) =>
+      $isNext ? theme.colors.neon : "transparent"};
   box-shadow: ${({ $isNext }) =>
-    $isNext ? '0 4px 12px rgba(0, 198, 190, 0.1)' : 'none'};
+    $isNext ? "0 4px 12px rgba(0, 198, 190, 0.1)" : "none"};
   cursor: pointer;
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     left: 0;
     top: 0;

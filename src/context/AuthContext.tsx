@@ -10,6 +10,8 @@ import { jwtDecode } from "jwt-decode";
 import {
   login as apiLogin,
   getUserProfile,
+  updateProfile as apiUpdateProfile,
+  deleteAccount as apiDeleteAccount,
 } from "../service/authService";
 
 // Estendi l'interfaccia UserData per includere più informazioni del profilo
@@ -33,6 +35,8 @@ interface AuthContextType {
   logout: () => void;
   isAuthenticated: boolean;
   loadUserProfile: () => Promise<void>;
+  updateProfile: (data: Partial<UserData>) => Promise<void>;
+  deleteAccount: () => Promise<void>;
 }
 
 const AuthContext = createContext<
@@ -89,6 +93,34 @@ export const AuthProvider: React.FC<{
     setToken(null);
     setUserProfile(null); // Cancella anche i dati del profilo
     navigate("/login");
+  };
+
+  const updateProfile = async (data: Partial<UserData>) => {
+    if (!token) return;
+    try {
+      await apiUpdateProfile(data, token);
+      await loadUserProfile(); // Ricarica il profilo aggiornato
+    } catch (error) {
+      console.error(
+        "Errore nell'aggiornamento del profilo:",
+        error
+      );
+      throw error;
+    }
+  };
+
+  const deleteAccount = async () => {
+    if (!token) return;
+    try {
+      await apiDeleteAccount(token);
+      logout();
+    } catch (error) {
+      console.error(
+        "Errore nell'eliminazione dell'account:",
+        error
+      );
+      throw error;
+    }
   };
 
   // Controlla la scadenza del token e carica il profilo utente all'avvio
@@ -149,6 +181,8 @@ export const AuthProvider: React.FC<{
         logout,
         isAuthenticated: !!token,
         loadUserProfile, // Esponi la funzione di caricamento
+        updateProfile,
+        deleteAccount,
       }}
     >
       {children}

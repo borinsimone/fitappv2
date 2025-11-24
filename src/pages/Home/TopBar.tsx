@@ -100,7 +100,10 @@ function TopBar() {
           onClick={() => console.log(userProfile)}
         >
           {userProfile?.photoURL ? (
-            <img src={user.photoURL} alt={user?.name} />
+            <img
+              src={userProfile.photoURL}
+              alt={userProfile?.name}
+            />
           ) : (
             <BiUser size={24} />
           )}
@@ -383,7 +386,9 @@ const NotificationsList = styled.div`
   overflow-y: auto;
 `;
 
-const NotificationItem = styled.div<{ $type: string }>`
+const NotificationItem = styled(motion.div)<{
+  $type: string;
+}>`
   display: flex;
   align-items: center;
   justify-content: space-between;

@@ -10,7 +10,7 @@ import {
 import { it } from "date-fns/locale";
 import DailyMeals from "./DailyMeals";
 import AddMealForm from "./AddMealForm";
-import { Meal } from "../../types/meal";
+import { Meal } from "./types/meal";
 import {
   PageContainer,
   WeekNavigation,

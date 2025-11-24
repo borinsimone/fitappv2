@@ -201,17 +201,15 @@ const FadeGradient = styled.div<{
   z-index: 2;
   pointer-events: none;
 
-  ${({ position }) =>
+  ${({ position, theme }) =>
     position === "left"
       ? `
     left: 0;
-    background: linear-gradient(90deg, ${({ theme }) =>
-      theme.colors.dark}, transparent);
+    background: linear-gradient(90deg, ${theme.colors.dark}, transparent);
   `
       : `
     right: 0;
-    background: linear-gradient(270deg, ${({ theme }) =>
-      theme.colors.dark}, transparent);
+    background: linear-gradient(270deg, ${theme.colors.dark}, transparent);
   `}
 `;
 

@@ -65,17 +65,22 @@ import {
   SelectedFoodItem,
   SelectedFoodsList,
   TextArea,
+  Label,
 } from "./mealStyles";
-import { Label } from "recharts";
 // import { searchFoodProducts } from '../../service/foodApiService';
 
 const AddMealForm: React.FC<{
   onSave: (meal: Meal) => void;
   onCancel: () => void;
   date: Date;
-}> = ({ onSave, onCancel, date }) => {
-  const [mealName, setMealName] = useState("");
-  const [mealTime, setMealTime] = useState("");
+  editingMeal?: Meal;
+}> = ({ onSave, onCancel, date, editingMeal }) => {
+  const [mealName, setMealName] = useState(
+    editingMeal?.name || ""
+  );
+  const [mealTime, setMealTime] = useState(
+    editingMeal?.time || ""
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<
     Array<{
@@ -88,12 +93,16 @@ const AddMealForm: React.FC<{
         fat?: number;
       };
       image_url?: string;
+      image_small_url?: string;
+      code?: string;
     }>
   >([]);
   const [selectedFoods, setSelectedFoods] = useState<
     FoodItem[]
-  >([]);
-  const [notes, setNotes] = useState("");
+  >(editingMeal?.foodItems || []);
+  const [notes, setNotes] = useState(
+    editingMeal?.notes || ""
+  );
   const [loading, setLoading] = useState(false);
 
   const handleSearch = async (e: React.FormEvent) => {

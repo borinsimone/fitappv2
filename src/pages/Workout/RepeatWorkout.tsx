@@ -1,5 +1,8 @@
 import styled from "styled-components";
-import { useWorkouts } from "../../context/WorkoutContext";
+import {
+  useWorkouts,
+  Workout,
+} from "../../context/WorkoutContext";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -8,27 +11,11 @@ import {
   BiDumbbell,
 } from "react-icons/bi";
 
-interface Workout {
-  name: string;
-  date: string;
-  completed: boolean;
-  feedback: {
-    feeling: number | null;
-    notes: string;
-  };
-  title: string;
-  load: number;
-  reps: number;
-  notes: string;
-  startTime: Date | null;
-  endTime: Date | null;
-  duration: number | null;
-}
-
 interface RepeatWorkoutProps {
   workouts: Workout[];
   setRepeatWorkout: (value: boolean) => void;
   setAddWorkoutDialog: (value: boolean) => void;
+  selectedDate: Date;
 }
 
 function RepeatWorkout({
@@ -78,12 +65,6 @@ function RepeatWorkout({
       duration: undefined,
       notes: workout.notes || "",
     };
-
-    // Rimuovi campi obsoleti che potrebbero esistere nel vecchio workout
-    // ma non sono parte del modello attuale
-    if ("title" in newWorkout) delete newWorkout.title;
-    if ("load" in newWorkout) delete newWorkout.load;
-    if ("reps" in newWorkout) delete newWorkout.reps;
 
     console.log("Nuovo workout da aggiungere:", newWorkout);
 

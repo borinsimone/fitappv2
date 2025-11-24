@@ -34,7 +34,7 @@ export const GlobalProvider: React.FC<
 > = ({ children }) => {
   // Add your state management here
   const [isLoading, setIsLoading] = useState(false);
-  const [user, setUser] = useState();
+  const [user, setUser] = useState<User | null>(null);
 
   const value = {
     isLoading,

@@ -53,7 +53,7 @@ const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({
   // Aggiungi una funzione per verificare se il workout è stato modificato
   useEffect(() => {
     // Trova il workout originale nell'array workouts
-    const originalWorkout = workouts.find(
+    const originalWorkout = workouts?.find(
       (w) => w._id === workout._id
     );
 
@@ -162,9 +162,11 @@ const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({
     if (!newWorkout.sections) return;
 
     // Aggiorna il valore nel campo appropriato
-    newWorkout.sections[sectionIndex].exercises[
-      exerciseIndex
-    ].exerciseSets[setIndex][field] = value;
+    (
+      newWorkout.sections[sectionIndex].exercises[
+        exerciseIndex
+      ].exerciseSets[setIndex] as any
+    )[field] = value;
     setSelectedWorkout(newWorkout);
   };
 
@@ -186,14 +188,14 @@ const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({
 
       // Importante: aggiorna il workout selezionato con la versione aggiornata dal database
       // Trova il workout aggiornato nell'array workouts (che è stato aggiornato da editWorkout)
-      const updatedWorkout = workouts.find(
+      const updatedWorkout = workouts?.find(
         (w) => w._id === selectedWorkout._id
       );
 
       if (updatedWorkout) {
         // Aggiorna selectedWorkout con i dati dal database
         setSelectedWorkout(
-          workouts.find(
+          workouts?.find(
             (w) => w._id === selectedWorkout._id
           ) || selectedWorkout
         );
@@ -269,9 +271,11 @@ const WorkoutPreview: React.FC<WorkoutPreviewProps> = ({
         exerciseIndex
       ]?.exerciseSets?.[setIndex]
     ) {
-      newWorkout.sections[sectionIndex].exercises[
-        exerciseIndex
-      ].exerciseSets[setIndex][field] = numericValue;
+      (
+        newWorkout.sections[sectionIndex].exercises[
+          exerciseIndex
+        ].exerciseSets[setIndex] as any
+      )[field] = numericValue;
 
       // Aggiorna lo stato
       setSelectedWorkout(newWorkout);

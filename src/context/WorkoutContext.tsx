@@ -49,22 +49,32 @@ export interface Workout {
   date: string;
   completed: boolean;
   feedback?: WorkoutFeedback;
-  notes?: string | null;
-  startTime?: Date | null;
+  notes?: string;
+  startTime?: string;
   endTime?: string;
   duration?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface WorkoutContextType {
   workouts: Workout[] | null;
   fetchWorkouts: () => Promise<void>;
   addWorkout: (
-    workout: Omit<Workout, "_id">
+    workout: Omit<
+      Workout,
+      "_id" | "userId" | "createdAt" | "updatedAt"
+    >
   ) => Promise<void>;
   removeWorkout: (id: string) => Promise<void>;
   editWorkout: (
     id: string,
-    updatedData: Partial<Workout>
+    updatedData: Partial<
+      Omit<
+        Workout,
+        "_id" | "userId" | "createdAt" | "updatedAt"
+      >
+    >
   ) => Promise<void>;
   loadWorkouts: () => Promise<void>;
   activeWorkout: Workout | null;
@@ -101,7 +111,10 @@ export const WorkoutProvider = ({
   };
 
   const addWorkout = async (
-    workout: Omit<Workout, "_id">
+    workout: Omit<
+      Workout,
+      "_id" | "userId" | "createdAt" | "updatedAt"
+    >
   ): Promise<void> => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -124,7 +137,12 @@ export const WorkoutProvider = ({
 
   const editWorkout = async (
     id: string,
-    updatedData: Partial<Workout>
+    updatedData: Partial<
+      Omit<
+        Workout,
+        "_id" | "userId" | "createdAt" | "updatedAt"
+      >
+    >
   ): Promise<void> => {
     const token = localStorage.getItem("token");
     if (!token) return;

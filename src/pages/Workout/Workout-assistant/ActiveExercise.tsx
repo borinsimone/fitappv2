@@ -1,41 +1,20 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { useWorkouts } from "../../../context/WorkoutContext";
+import {
+  useWorkouts,
+  Exercise,
+  WorkoutSet as ExerciseSet,
+  Section as WorkoutSection,
+} from "../../../context/WorkoutContext";
 import Timer from "./Timer";
 import SetActive from "./SetActive";
 
-interface WorkoutSection {
-  exercises: Exercise[];
-}
-
-interface Exercise {
-  name: string;
-  timeBased: boolean;
-  exerciseSets: Array<{
-    weight?: number;
-    reps?: number;
-    time?: number;
-    rest: number;
-  }>;
-}
-
-type CurrentExerciseType =
-  | {
-      name: string;
-      timeBased: boolean;
-      exerciseSets: Array<{
-        weight?: number;
-        reps?: number;
-        time?: number;
-        rest: number;
-      }>;
-    }
-  | undefined;
+type CurrentExerciseType = Exercise | undefined;
 
 interface ActiveExerciseProps {
   currentExercise: CurrentExerciseType;
   setCurrentExercise: React.Dispatch<
-    React.SetStateAction<CurrentExerciseType>
+    React.SetStateAction<Exercise | undefined>
   >;
   currentSectionIndex: number;
   currentExerciseIndex: number;
@@ -97,19 +76,10 @@ function ActiveExercise({
   }, [activeWorkout, completedSets]);
   // Update the state definition with proper type
   const [activeSet, setActiveSet] = useState<
-    number | ExerciseSet | undefined
+    ExerciseSet | undefined
   >(currentExercise?.exerciseSets[0]);
 
-  interface ExerciseSet {
-    weight?: number;
-    reps?: number;
-    time?: number;
-    rest: number;
-  }
-
-  const handleSetClick = (
-    set: ExerciseSet | number
-  ): void => {
+  const handleSetClick = (set: ExerciseSet): void => {
     setActiveSet(set);
   };
   useEffect(() => {
@@ -124,13 +94,16 @@ function ActiveExercise({
         name={currentExercise?.name}
       />
       <SetActive
-        currentExercise={currentExercise}
-        updateExercise={setCurrentExercise}
-        activeSet={activeSet}
+        currentExercise={currentExercise || null}
+        updateExercise={(exercise) =>
+          setCurrentExercise(exercise)
+        }
+        activeSet={activeSet || null}
         handleSetClick={handleSetClick}
         handleSetComplete={handleSetComplete}
         completedSets={completedSets}
         currentSectionIndex={currentSectionIndex}
+        currentExerciseIndex={currentExerciseIndex}
       />
     </Container>
   );
