@@ -11,11 +11,9 @@ import Register from "../pages/Auth/Register";
 import WorkoutPlanner from "../pages/Workout/WorkoutPlanner";
 import Account from "../pages/Account/Account";
 import ProtectedRoute from "./ProtectedRoute";
-import { AuthProvider } from "../context/AuthContext";
 import Test from "../pages/Test";
 import Navbar from "../components/Navbar";
 import { AnimatePresence } from "framer-motion";
-import { WorkoutProvider } from "../context/WorkoutContext";
 import Loading from "../components/ui/Loading";
 import { useGlobalContext } from "../context/GlobalContext";
 import WorkoutAssistant from "../pages/Workout/Workout-assistant/WorkoutAssistant";
@@ -98,12 +96,6 @@ const AppContent = () => {
   );
 };
 const AppRoutes = () => {
-  return (
-    <AuthProvider>
-      <WorkoutProvider>
-        <AppContent />
-      </WorkoutProvider>
-    </AuthProvider>
-  );
+  return <AppContent />;
 };
 export default AppRoutes;

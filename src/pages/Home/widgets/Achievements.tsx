@@ -86,7 +86,7 @@ function Achievements() {
       </HeaderSection>
 
       <ScrollContainer ref={scrollRef}>
-        {showLeftFade && <FadeGradient position="left" />}
+        {showLeftFade && <FadeGradient $position="left" />}
 
         <AchievementsRow>
           {achievementData.map((achievement) => {
@@ -106,11 +106,11 @@ function Achievements() {
                 }}
               >
                 <ProgressRing
-                  progress={achievement.progress}
+                  $progress={achievement.progress}
                   color={achievement.color}
                 >
                   <IconContainer
-                    bgColor={achievement.color}
+                    $bgColor={achievement.color}
                   >
                     <Icon size={24} />
                   </IconContainer>
@@ -129,7 +129,9 @@ function Achievements() {
           })}
         </AchievementsRow>
 
-        {showRightFade && <FadeGradient position="right" />}
+        {showRightFade && (
+          <FadeGradient $position="right" />
+        )}
       </ScrollContainer>
     </Container>
   );
@@ -192,7 +194,7 @@ const AchievementsRow = styled.div`
 `;
 
 const FadeGradient = styled.div<{
-  position: "left" | "right";
+  $position: "left" | "right";
 }>`
   position: absolute;
   top: 0;
@@ -201,8 +203,8 @@ const FadeGradient = styled.div<{
   z-index: 2;
   pointer-events: none;
 
-  ${({ position, theme }) =>
-    position === "left"
+  ${({ $position, theme }) =>
+    $position === "left"
       ? `
     left: 0;
     background: linear-gradient(90deg, ${theme.colors.dark}, transparent);
@@ -227,7 +229,7 @@ const AchievementCard = styled(motion.div)`
 `;
 
 interface ProgressRingProps {
-  progress: number;
+  $progress: number;
   color: string;
 }
 
@@ -247,9 +249,9 @@ const ProgressRing = styled.div<ProgressRingProps>`
     border-radius: 50%;
     background: conic-gradient(
       ${({ color }) => color}
-        ${({ progress }) => progress * 100}%,
+        ${({ $progress }) => $progress * 100}%,
       ${({ theme }) => theme.colors.white10}
-        ${({ progress }) => progress * 100}%
+        ${({ $progress }) => $progress * 100}%
     );
     mask: radial-gradient(
       farthest-side,
@@ -259,12 +261,12 @@ const ProgressRing = styled.div<ProgressRingProps>`
   }
 `;
 
-const IconContainer = styled.div<{ bgColor: string }>`
+const IconContainer = styled.div<{ $bgColor: string }>`
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background: ${({ bgColor }) => `${bgColor}30`};
-  color: ${({ bgColor }) => bgColor};
+  background: ${({ $bgColor }) => `${$bgColor}30`};
+  color: ${({ $bgColor }) => $bgColor};
   display: flex;
   align-items: center;
   justify-content: center;

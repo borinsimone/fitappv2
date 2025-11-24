@@ -84,10 +84,8 @@ function TopBar() {
       month: "long",
     }
   );
-  const { userProfile, loadUserProfile } = useAuth();
-  useEffect(() => {
-    loadUserProfile();
-  }, [loadUserProfile]);
+  const { userProfile } = useAuth();
+
   return (
     <Container
       as={motion.div}
@@ -478,7 +476,9 @@ const AnimatedNotificationItem = ({
   const isPresent = useIsPresent();
   const animations = {
     style: {
-      position: isPresent ? "static" : "absolute",
+      position: (isPresent ? "static" : "absolute") as
+        | "static"
+        | "absolute",
     },
     initial: { scale: 0, opacity: 0 },
     animate: { scale: 1, opacity: 1 },

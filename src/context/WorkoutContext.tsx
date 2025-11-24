@@ -34,7 +34,7 @@ export interface Section {
 }
 
 export interface WorkoutFeedback {
-  feeling?: number; // 1-5 scale
+  feeling: number; // 1-5 scale
   energyLevel?: number; // 1-5 scale
   difficulty?: number; // 1-5 scale
   notes?: string;
@@ -103,12 +103,13 @@ export const WorkoutProvider = ({
         : null
     );
 
-  const fetchWorkouts = async (): Promise<void> => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-    const data = await getWorkouts(token);
-    setWorkouts(data as Workout[]);
-  };
+  const fetchWorkouts =
+    useCallback(async (): Promise<void> => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      const data = await getWorkouts(token);
+      setWorkouts(data as Workout[]);
+    }, []);
 
   const addWorkout = async (
     workout: Omit<
@@ -164,7 +165,7 @@ export const WorkoutProvider = ({
         console.log("Finishing loadWorkouts...");
         setIsLoading(false); // Assicura che venga eseguito sempre
       }
-    }, [setIsLoading]);
+    }, [setIsLoading, fetchWorkouts]);
 
   // Carica i workout all'avvio
   useEffect(() => {

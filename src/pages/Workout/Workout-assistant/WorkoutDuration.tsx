@@ -1,9 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { BiStopwatch } from 'react-icons/bi';
+import React, { useState, useEffect } from "react";
+import styled from "styled-components";
+import { BiStopwatch } from "react-icons/bi";
 
 // Modifica la definizione del tipo per accettare sia Date che string
-function WorkoutDuration({ start }: { start: Date | string | null }) {
+function WorkoutDuration({
+  start,
+}: {
+  start: Date | string | null | undefined;
+}) {
   const [elapsed, setElapsed] = useState<number>(0);
 
   useEffect(() => {
@@ -13,7 +17,8 @@ function WorkoutDuration({ start }: { start: Date | string | null }) {
     }
 
     // Converti la stringa ISO in un oggetto Date se necessario
-    const startDate = typeof start === 'string' ? new Date(start) : start;
+    const startDate =
+      typeof start === "string" ? new Date(start) : start;
 
     // Calcola il tempo trascorso iniziale (per gestire ricariche pagina)
     const initialElapsed = Math.floor(
@@ -23,7 +28,9 @@ function WorkoutDuration({ start }: { start: Date | string | null }) {
 
     // Imposta un intervallo per aggiornare il tempo trascorso ogni secondo
     const intervalId = setInterval(() => {
-      const newElapsed = Math.floor((Date.now() - startDate.getTime()) / 1000);
+      const newElapsed = Math.floor(
+        (Date.now() - startDate.getTime()) / 1000
+      );
       setElapsed(newElapsed > 0 ? newElapsed : 0);
     }, 1000);
 
@@ -37,9 +44,15 @@ function WorkoutDuration({ start }: { start: Date | string | null }) {
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
 
-    const formattedHours = hours.toString().padStart(2, '0');
-    const formattedMinutes = minutes.toString().padStart(2, '0');
-    const formattedSeconds = secs.toString().padStart(2, '0');
+    const formattedHours = hours
+      .toString()
+      .padStart(2, "0");
+    const formattedMinutes = minutes
+      .toString()
+      .padStart(2, "0");
+    const formattedSeconds = secs
+      .toString()
+      .padStart(2, "0");
 
     return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
   };

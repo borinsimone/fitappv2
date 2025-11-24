@@ -1,18 +1,30 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import doggoimg from '../../assets/sad-doggo.png';
-import { MdClose, MdOutlineAutoAwesome } from 'react-icons/md';
-import { BiRepeat, BiPlus, BiDumbbell } from 'react-icons/bi';
-import { FiArrowLeft } from 'react-icons/fi';
-import { useWorkouts } from '../../context/WorkoutContext';
-import { AnimatePresence, motion } from 'framer-motion';
-import WorkoutForm from './WorkoutForm';
-import RepeatWorkout from './RepeatWorkout';
-import { TiMessageTyping } from 'react-icons/ti';
+import React, { useState } from "react";
+import styled from "styled-components";
+import doggoimg from "../../assets/sad-doggo.png";
+import {
+  MdClose,
+  MdOutlineAutoAwesome,
+} from "react-icons/md";
+import {
+  BiRepeat,
+  BiPlus,
+  BiDumbbell,
+} from "react-icons/bi";
+import { FiArrowLeft } from "react-icons/fi";
+import { useWorkouts } from "../../context/WorkoutContext";
+import { AnimatePresence, motion } from "framer-motion";
+import WorkoutForm from "./WorkoutForm";
+import RepeatWorkout from "./RepeatWorkout";
+import { TiMessageTyping } from "react-icons/ti";
 
-function NoWorkoutPage({ selectedDate }: { selectedDate?: Date }) {
+function NoWorkoutPage({
+  selectedDate = new Date(),
+}: {
+  selectedDate?: Date;
+}) {
   const { workouts, addWorkout } = useWorkouts();
-  const [addWorkoutDialog, setAddWorkoutDialog] = useState(false);
+  const [addWorkoutDialog, setAddWorkoutDialog] =
+    useState(false);
   const [repeatWorkout, setRepeatWorkout] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
 
@@ -33,14 +45,14 @@ function NoWorkoutPage({ selectedDate }: { selectedDate?: Date }) {
   return (
     <PageContainer
       as={motion.div}
-      key='no-workout-page'
+      key="no-workout-page"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
       <EmptyStateContainer
         as={motion.div}
-        key='empty-state'
+        key="empty-state"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
@@ -49,7 +61,7 @@ function NoWorkoutPage({ selectedDate }: { selectedDate?: Date }) {
         <IllustrationWrapper>
           <motion.img
             src={doggoimg}
-            alt='No workout scheduled'
+            alt="No workout scheduled"
             initial={{ scale: 0.8, opacity: 0.8 }}
             animate={{
               scale: [0.8, 0.85, 0.8],
@@ -58,16 +70,19 @@ function NoWorkoutPage({ selectedDate }: { selectedDate?: Date }) {
             transition={{
               duration: 4,
               repeat: Infinity,
-              repeatType: 'reverse',
+              repeatType: "reverse",
             }}
           />
         </IllustrationWrapper>
 
         <EmptyStateContent>
-          <EmptyStateTitle>Nessun allenamento programmato</EmptyStateTitle>
+          <EmptyStateTitle>
+            Nessun allenamento programmato
+          </EmptyStateTitle>
           <EmptyStateDescription>
-            Crea il tuo primo allenamento o scegli tra quelli già creati per
-            iniziare a tracciare i tuoi progressi
+            Crea il tuo primo allenamento o scegli tra
+            quelli già creati per iniziare a tracciare i
+            tuoi progressi
           </EmptyStateDescription>
         </EmptyStateContent>
 
@@ -95,7 +110,7 @@ function NoWorkoutPage({ selectedDate }: { selectedDate?: Date }) {
               initial={{ y: 50, opacity: 0, scale: 0.9 }}
               animate={{ y: 0, opacity: 1, scale: 1 }}
               exit={{ y: 20, opacity: 0, scale: 0.9 }}
-              transition={{ type: 'spring', damping: 25 }}
+              transition={{ type: "spring", damping: 25 }}
               onClick={(e) => e.stopPropagation()}
             >
               <ModalHeader>
@@ -114,10 +129,10 @@ function NoWorkoutPage({ selectedDate }: { selectedDate?: Date }) {
 
                 <ModalTitle>
                   {formOpen
-                    ? 'Nuovo Allenamento'
+                    ? "Nuovo Allenamento"
                     : repeatWorkout
-                    ? 'Seleziona Allenamento'
-                    : 'Aggiungi Allenamento'}
+                    ? "Seleziona Allenamento"
+                    : "Aggiungi Allenamento"}
                 </ModalTitle>
 
                 <CloseButton onClick={closeDialog}>
@@ -125,11 +140,11 @@ function NoWorkoutPage({ selectedDate }: { selectedDate?: Date }) {
                 </CloseButton>
               </ModalHeader>
 
-              <AnimatePresence mode='wait'>
+              <AnimatePresence mode="wait">
                 {!repeatWorkout && !formOpen && (
                   <OptionsContainer
                     as={motion.div}
-                    key='options'
+                    key="options"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
@@ -137,21 +152,23 @@ function NoWorkoutPage({ selectedDate }: { selectedDate?: Date }) {
                   >
                     <OptionCard
                       onClick={() => {
-                        console.log('Adding test workout...');
+                        console.log(
+                          "Adding test workout..."
+                        );
                         const workoutCompletato = {
-                          name: 'Allenamento Full Body',
+                          name: "Allenamento Full Body",
                           date: new Date(
-                            '2025-03-24T10:00:00.000Z'
+                            "2025-03-24T10:00:00.000Z"
                           ).toISOString(),
 
                           sections: [
                             {
-                              name: 'Riscaldamento',
+                              name: "Riscaldamento",
                               exercises: [
                                 {
-                                  name: 'Corsa sul posto',
+                                  name: "Corsa sul posto",
                                   notes:
-                                    'Leggera, per aumentare la frequenza cardiaca',
+                                    "Leggera, per aumentare la frequenza cardiaca",
                                   timeBased: true,
                                   exerciseSets: [
                                     {
@@ -161,7 +178,7 @@ function NoWorkoutPage({ selectedDate }: { selectedDate?: Date }) {
                                   ],
                                 },
                                 {
-                                  name: 'Stretching dinamico',
+                                  name: "Stretching dinamico",
                                   timeBased: true,
                                   exerciseSets: [
                                     {
@@ -173,11 +190,12 @@ function NoWorkoutPage({ selectedDate }: { selectedDate?: Date }) {
                               ],
                             },
                             {
-                              name: 'Parte principale',
+                              name: "Parte principale",
                               exercises: [
                                 {
-                                  name: 'Squat',
-                                  notes: 'Mantieni la schiena dritta',
+                                  name: "Squat",
+                                  notes:
+                                    "Mantieni la schiena dritta",
                                   timeBased: false,
                                   exerciseSets: [
                                     {
@@ -198,8 +216,8 @@ function NoWorkoutPage({ selectedDate }: { selectedDate?: Date }) {
                                   ],
                                 },
                                 {
-                                  name: 'Panca piana',
-                                  notes: 'Presa media',
+                                  name: "Panca piana",
+                                  notes: "Presa media",
                                   timeBased: false,
                                   exerciseSets: [
                                     {
@@ -220,7 +238,7 @@ function NoWorkoutPage({ selectedDate }: { selectedDate?: Date }) {
                                   ],
                                 },
                                 {
-                                  name: 'Stacchi da terra',
+                                  name: "Stacchi da terra",
                                   timeBased: false,
                                   exerciseSets: [
                                     {
@@ -243,10 +261,10 @@ function NoWorkoutPage({ selectedDate }: { selectedDate?: Date }) {
                               ],
                             },
                             {
-                              name: 'Defaticamento',
+                              name: "Defaticamento",
                               exercises: [
                                 {
-                                  name: 'Stretching statico',
+                                  name: "Stretching statico",
                                   timeBased: true,
                                   exerciseSets: [
                                     {
@@ -260,15 +278,15 @@ function NoWorkoutPage({ selectedDate }: { selectedDate?: Date }) {
                           ],
 
                           startTime: new Date(
-                            '2025-03-24T10:00:00.000Z'
+                            "2025-03-24T10:00:00.000Z"
                           ).toISOString(),
                           endTime: new Date(
-                            '2025-03-24T11:15:00.000Z'
+                            "2025-03-24T11:15:00.000Z"
                           ).toISOString(),
                           duration: 75,
 
                           notes:
-                            'Allenamento completato con buona intensità. Da aumentare i carichi la prossima volta.',
+                            "Allenamento completato con buona intensità. Da aumentare i carichi la prossima volta.",
 
                           completed: false,
 
@@ -277,40 +295,51 @@ function NoWorkoutPage({ selectedDate }: { selectedDate?: Date }) {
                             energyLevel: 4,
                             difficulty: 3,
                             notes:
-                              'Mi sono sentito in forma. Squat particolarmente efficaci oggi.',
+                              "Mi sono sentito in forma. Squat particolarmente efficaci oggi.",
                             completedAt: new Date(
-                              '2025-03-24T11:20:00.000Z'
+                              "2025-03-24T11:20:00.000Z"
                             ).toISOString(),
                           },
 
                           createdAt: new Date(
-                            '2025-03-24T09:45:00.000Z'
+                            "2025-03-24T09:45:00.000Z"
                           ).toISOString(),
                           updatedAt: new Date(
-                            '2025-03-24T11:20:00.000Z'
+                            "2025-03-24T11:20:00.000Z"
                           ).toISOString(),
                         };
 
                         try {
-                          console.log('Workout data:', workoutCompletato);
+                          console.log(
+                            "Workout data:",
+                            workoutCompletato
+                          );
                           addWorkout(workoutCompletato);
-                          console.log('Workout added successfully');
+                          console.log(
+                            "Workout added successfully"
+                          );
                           closeDialog();
                         } catch (error) {
-                          console.error('Error adding workout:', error);
+                          console.error(
+                            "Error adding workout:",
+                            error
+                          );
                         }
                       }}
                       whileHover={{
                         y: -4,
-                        boxShadow: '0 10px 25px rgba(0, 198, 190, 0.2)',
+                        boxShadow:
+                          "0 10px 25px rgba(0, 198, 190, 0.2)",
                       }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      <OptionIconWrapper accent='primary'>
+                      <OptionIconWrapper accent="primary">
                         <TiMessageTyping size={24} />
                       </OptionIconWrapper>
                       <OptionContent>
-                        <OptionTitle>Test Workout </OptionTitle>
+                        <OptionTitle>
+                          Test Workout{" "}
+                        </OptionTitle>
                         <OptionDescription>
                           Add a test full body workout
                         </OptionDescription>
@@ -320,17 +349,21 @@ function NoWorkoutPage({ selectedDate }: { selectedDate?: Date }) {
                       onClick={() => setFormOpen(true)}
                       whileHover={{
                         y: -4,
-                        boxShadow: '0 10px 25px rgba(0, 198, 190, 0.2)',
+                        boxShadow:
+                          "0 10px 25px rgba(0, 198, 190, 0.2)",
                       }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      <OptionIconWrapper accent='primary'>
+                      <OptionIconWrapper accent="primary">
                         <BiPlus size={24} />
                       </OptionIconWrapper>
                       <OptionContent>
-                        <OptionTitle>Crea nuovo</OptionTitle>
+                        <OptionTitle>
+                          Crea nuovo
+                        </OptionTitle>
                         <OptionDescription>
-                          Crea un nuovo allenamento personalizzato
+                          Crea un nuovo allenamento
+                          personalizzato
                         </OptionDescription>
                       </OptionContent>
                     </OptionCard>
@@ -339,20 +372,25 @@ function NoWorkoutPage({ selectedDate }: { selectedDate?: Date }) {
                       onClick={() => setRepeatWorkout(true)}
                       whileHover={{
                         y: -4,
-                        boxShadow: '0 10px 25px rgba(0, 198, 190, 0.2)',
+                        boxShadow:
+                          "0 10px 25px rgba(0, 198, 190, 0.2)",
                       }}
                       whileTap={{ scale: 0.98 }}
-                      disabled={!workouts || workouts.length === 0}
+                      disabled={
+                        !workouts || workouts.length === 0
+                      }
                     >
-                      <OptionIconWrapper accent='secondary'>
+                      <OptionIconWrapper accent="secondary">
                         <BiRepeat size={24} />
                       </OptionIconWrapper>
                       <OptionContent>
-                        <OptionTitle>Usa esistente</OptionTitle>
+                        <OptionTitle>
+                          Usa esistente
+                        </OptionTitle>
                         <OptionDescription>
                           {workouts && workouts.length > 0
                             ? `Scegli tra ${workouts.length} allenamenti esistenti`
-                            : 'Non hai ancora allenamenti salvati'}
+                            : "Non hai ancora allenamenti salvati"}
                         </OptionDescription>
                       </OptionContent>
                     </OptionCard>
@@ -360,20 +398,25 @@ function NoWorkoutPage({ selectedDate }: { selectedDate?: Date }) {
                     <OptionCard
                       whileHover={{
                         y: -4,
-                        boxShadow: '0 10px 25px rgba(0, 198, 190, 0.2)',
+                        boxShadow:
+                          "0 10px 25px rgba(0, 198, 190, 0.2)",
                       }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      <OptionIconWrapper accent='tertiary'>
+                      <OptionIconWrapper accent="tertiary">
                         <MdOutlineAutoAwesome size={24} />
                       </OptionIconWrapper>
                       <OptionContent>
-                        <OptionTitle>Suggerisci allenamento</OptionTitle>
+                        <OptionTitle>
+                          Suggerisci allenamento
+                        </OptionTitle>
                         <OptionDescription>
-                          Fatti suggerire un allenamento in base ai tuoi
-                          obiettivi
+                          Fatti suggerire un allenamento in
+                          base ai tuoi obiettivi
                         </OptionDescription>
-                        <ComingSoonBadge>Presto disponibile</ComingSoonBadge>
+                        <ComingSoonBadge>
+                          Presto disponibile
+                        </ComingSoonBadge>
                       </OptionContent>
                     </OptionCard>
                   </OptionsContainer>
@@ -381,16 +424,18 @@ function NoWorkoutPage({ selectedDate }: { selectedDate?: Date }) {
 
                 {repeatWorkout && (
                   <motion.div
-                    key='repeat'
+                    key="repeat"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    style={{ width: '100%' }}
+                    style={{ width: "100%" }}
                   >
                     <RepeatWorkout
                       workouts={workouts ?? []}
                       setRepeatWorkout={setRepeatWorkout}
-                      setAddWorkoutDialog={setAddWorkoutDialog}
+                      setAddWorkoutDialog={
+                        setAddWorkoutDialog
+                      }
                       selectedDate={selectedDate} // Passa la data selezionata
                     />
                   </motion.div>
@@ -398,11 +443,11 @@ function NoWorkoutPage({ selectedDate }: { selectedDate?: Date }) {
 
                 {formOpen && (
                   <motion.div
-                    key='form'
+                    key="form"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    style={{ width: '100%' }}
+                    style={{ width: "100%" }}
                   >
                     <WorkoutForm
                       closeForm={() => setFormOpen(false)}
@@ -524,7 +569,8 @@ const ModalHeader = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.white10};
+  border-bottom: 1px solid
+    ${({ theme }) => theme.colors.white10};
 `;
 
 const ModalTitle = styled.h3`
@@ -578,25 +624,30 @@ const OptionsContainer = styled.div`
   overflow-y: auto;
 `;
 
-const OptionCard = styled(motion.div)<{ disabled?: boolean }>`
+const OptionCard = styled(motion.div)<{
+  disabled?: boolean;
+}>`
   display: flex;
   align-items: center;
   padding: 16px;
   background: ${({ theme }) => theme.colors.white05};
   border-radius: 16px;
-  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
+  cursor: ${({ disabled }) =>
+    disabled ? "not-allowed" : "pointer"};
   opacity: ${({ disabled }) => (disabled ? 0.6 : 1)};
   position: relative;
   transition: all 0.2s ease;
 
   &:hover {
     background: ${({ theme, disabled }) =>
-      disabled ? theme.colors.white05 : theme.colors.white10};
+      disabled
+        ? theme.colors.white05
+        : theme.colors.white10};
   }
 `;
 
 const OptionIconWrapper = styled.div<{
-  accent: 'primary' | 'secondary' | 'tertiary';
+  accent: "primary" | "secondary" | "tertiary";
 }>`
   display: flex;
   align-items: center;
@@ -608,16 +659,16 @@ const OptionIconWrapper = styled.div<{
   flex-shrink: 0;
 
   background: ${({ theme, accent }) =>
-    accent === 'primary'
+    accent === "primary"
       ? `${theme.colors.neon}20`
-      : accent === 'secondary'
+      : accent === "secondary"
       ? `${theme.colors.white20}`
       : `${theme.colors.white10}`};
 
   color: ${({ theme, accent }) =>
-    accent === 'primary'
+    accent === "primary"
       ? theme.colors.neon
-      : accent === 'secondary'
+      : accent === "secondary"
       ? theme.colors.white
       : theme.colors.white70};
 `;

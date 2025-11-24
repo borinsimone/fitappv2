@@ -37,7 +37,7 @@ import {
   ActionButton,
   EmptyState,
   AddFirstMealButton,
-} from "./mealStyles";
+} from "./MealStyles";
 interface DailyMealsProps {
   date: Date;
   meals: Meal[];

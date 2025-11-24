@@ -3,6 +3,7 @@ import React, {
   useContext,
   ReactNode,
   useState,
+  useMemo,
 } from "react";
 
 interface User {
@@ -36,12 +37,15 @@ export const GlobalProvider: React.FC<
   const [isLoading, setIsLoading] = useState(false);
   const [user, setUser] = useState<User | null>(null);
 
-  const value = {
-    isLoading,
-    setIsLoading,
-    user,
-    setUser,
-  };
+  const value = useMemo(
+    () => ({
+      isLoading,
+      setIsLoading,
+      user,
+      setUser,
+    }),
+    [isLoading, user]
+  );
 
   return (
     <GlobalContext.Provider value={value}>

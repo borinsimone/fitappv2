@@ -66,7 +66,7 @@ import {
   SelectedFoodsList,
   TextArea,
   Label,
-} from "./mealStyles";
+} from "./MealStyles";
 // import { searchFoodProducts } from '../../service/foodApiService';
 
 const AddMealForm: React.FC<{

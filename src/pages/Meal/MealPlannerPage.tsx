@@ -2,25 +2,18 @@
 import React, { useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import {
-  format,
   addDays,
-  subDays,
   isSameDay,
 } from "date-fns";
-import { it } from "date-fns/locale";
 import DailyMeals from "./DailyMeals";
 import AddMealForm from "./AddMealForm";
 import { Meal } from "./types/meal";
 import {
   PageContainer,
-  WeekNavigation,
-  NavigationButton,
-  DaysList,
-  DayButton,
-  DayName,
-  DayNumber,
   MainContent,
-} from "./mealStyles";
+} from "./MealStyles";
+import MealAgenda from "./components/agenda/MealAgenda";
+
 const MealPlannerPage: React.FC = () => {
   const [meals, setMeals] = useState<Meal[]>([]);
   const [selectedDate, setSelectedDate] = useState(
@@ -30,15 +23,6 @@ const MealPlannerPage: React.FC = () => {
   const [editingMealId, setEditingMealId] = useState<
     string | null
   >(null);
-
-  // Funzione per generare una settimana da visualizzare
-  const getWeekDays = () => {
-    const days = [];
-    for (let i = -3; i <= 3; i++) {
-      days.push(addDays(selectedDate, i));
-    }
-    return days;
-  };
 
   // Filtra i pasti per la data selezionata
   const mealsForSelectedDate = meals.filter((meal) =>
@@ -86,36 +70,11 @@ const MealPlannerPage: React.FC = () => {
 
   return (
     <PageContainer>
-      <WeekNavigation>
-        <NavigationButton
-          onClick={() =>
-            setSelectedDate(subDays(selectedDate, 7))
-          }
-        >
-          &lt;&lt;
-        </NavigationButton>
-        <DaysList>
-          {getWeekDays().map((day) => (
-            <DayButton
-              key={day.toISOString()}
-              isSelected={isSameDay(day, selectedDate)}
-              onClick={() => setSelectedDate(day)}
-            >
-              <DayName>
-                {format(day, "EEE", { locale: it })}
-              </DayName>
-              <DayNumber>{format(day, "d")}</DayNumber>
-            </DayButton>
-          ))}
-        </DaysList>
-        <NavigationButton
-          onClick={() =>
-            setSelectedDate(addDays(selectedDate, 7))
-          }
-        >
-          &gt;&gt;
-        </NavigationButton>
-      </WeekNavigation>
+      <MealAgenda
+        onSelectDay={setSelectedDate}
+        selectedDate={selectedDate}
+        meals={meals}
+      />
 
       <MainContent>
         <AnimatePresence mode="wait">
