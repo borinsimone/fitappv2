@@ -3,6 +3,7 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Meal, calculateMealTotals } from "./types/meal";
 import { PieChart } from "react-minimal-pie-chart";
+import { BiBowlRice } from "react-icons/bi";
 import {
   Container,
   Header,
@@ -177,23 +178,30 @@ const DailyMeals: React.FC<DailyMealsProps> = ({
                         <MacroBar>
                           <ProteinSegment
                             width={
-                              ((mealTotals.protein * 4) /
-                                mealTotals.calories) *
-                              100
+                              mealTotals.calories > 0
+                                ? ((mealTotals.protein *
+                                    4) /
+                                    mealTotals.calories) *
+                                  100
+                                : 0
                             }
                           />
                           <CarbsSegment
                             width={
-                              ((mealTotals.carbs * 4) /
-                                mealTotals.calories) *
-                              100
+                              mealTotals.calories > 0
+                                ? ((mealTotals.carbs * 4) /
+                                    mealTotals.calories) *
+                                  100
+                                : 0
                             }
                           />
                           <FatSegment
                             width={
-                              ((mealTotals.fat * 9) /
-                                mealTotals.calories) *
-                              100
+                              mealTotals.calories > 0
+                                ? ((mealTotals.fat * 9) /
+                                    mealTotals.calories) *
+                                  100
+                                : 0
                             }
                           />
                         </MacroBar>
@@ -248,6 +256,10 @@ const DailyMeals: React.FC<DailyMealsProps> = ({
               })
           ) : (
             <EmptyState>
+              <BiBowlRice
+                size={48}
+                style={{ marginBottom: 16, opacity: 0.5 }}
+              />
               Nessun pasto registrato per oggi.
               <br />
               <AddFirstMealButton onClick={onAddMeal}>

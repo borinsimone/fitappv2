@@ -1,5 +1,9 @@
-import React, { useEffect, useState, useRef } from "react";
-import { useGlobalContext } from "../../context/GlobalContext";
+import {
+  useEffect,
+  useState,
+  useRef,
+  ReactNode,
+} from "react";
 import { BiBell, BiX, BiUser } from "react-icons/bi";
 import styled from "styled-components";
 // import NotificationPanel from './NotificationPanel';
@@ -12,7 +16,7 @@ import {
 import { useAuth } from "../../context/AuthContext";
 
 function TopBar() {
-  const { user } = useGlobalContext();
+  // const { user } = useGlobalContext();
   const [notificationPanelOpen, setNotificationPanelOpen] =
     useState(false);
   const [notBadge, setNotBadge] = useState(false);
@@ -469,7 +473,7 @@ const AnimatedNotificationItem = ({
   onClick,
   $type,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   onClick?: () => void;
   $type: string;
 }) => {

@@ -1,5 +1,5 @@
-import styled from 'styled-components';
-import { motion } from 'framer-motion';
+import styled from "styled-components";
+import { motion } from "framer-motion";
 
 // ------------ Componenti principali pagina ------------
 export const PageContainer = styled.div`
@@ -25,70 +25,7 @@ export const MainContent = styled.div`
 `;
 
 // ------------ Componenti navigazione settimanale ------------
-export const WeekNavigation = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 90%;
-  padding: 8px 0;
-`;
-
-export const NavigationButton = styled.button`
-  background: none;
-  border: none;
-  color: ${({ theme }) => theme.colors.neon};
-  font-size: 18px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px;
-  border-radius: 50%;
-
-  &:hover {
-    background: ${({ theme }) => theme.colors.white10};
-  }
-`;
-
-export const DaysList = styled.div`
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
-  width: 100%;
-`;
-
-export const DayButton = styled.button<{ isSelected: boolean }>`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 8px 4px;
-  border-radius: 8px;
-  border: none;
-  background: ${({ isSelected, theme }) =>
-    isSelected ? `${theme.colors.neon}10` : 'transparent'};
-  color: ${({ isSelected, theme }) =>
-    isSelected ? theme.colors.neon : theme.colors.white};
-  border: ${({ isSelected, theme }) =>
-    isSelected ? `2px solid ${theme.colors.neon}` : `2px solid transparent`};
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: ${({ theme }) => theme.colors.white10};
-  }
-`;
-
-export const DayName = styled.div`
-  font-size: 12px;
-  text-transform: capitalize;
-  opacity: 0.8;
-`;
-
-export const DayNumber = styled.div`
-  font-size: 16px;
-  font-weight: 500;
-`;
+// (Removed as replaced by MealAgenda component)
 
 // ------------ Componenti Daily Meals ------------
 export const Container = styled.div`
@@ -226,7 +163,8 @@ export const MealHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 16px;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.white10};
+  border-bottom: 1px solid
+    ${({ theme }) => theme.colors.white10};
 `;
 
 export const MealTime = styled.div`
@@ -254,13 +192,13 @@ export const MacroDistribution = styled.div`
   margin-bottom: 16px;
 `;
 
-// export const MacroBar = styled.div`
-//   height: 8px;
-//   border-radius: 4px;
-//   overflow: hidden;
-//   display: flex;
-//   margin-bottom: 8px;
-// `;
+export const MacroBar = styled.div`
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  margin-bottom: 8px;
+`;
 
 export const ProteinSegment = styled.div<{ width: number }>`
   width: ${({ width }) => `${width}%`};
@@ -330,7 +268,8 @@ export const MealActions = styled.div`
   justify-content: flex-end;
   gap: 8px;
   padding: 12px 16px;
-  border-top: 1px solid ${({ theme }) => theme.colors.white10};
+  border-top: 1px solid
+    ${({ theme }) => theme.colors.white10};
 `;
 
 export const ActionButton = styled.button`
@@ -535,7 +474,8 @@ export const SearchResultItem = styled.div`
   display: flex;
   align-items: center;
   padding: 12px;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.white10};
+  border-bottom: 1px solid
+    ${({ theme }) => theme.colors.white10};
   cursor: pointer;
 
   &:hover {
@@ -687,7 +627,7 @@ export const MacroChart = styled.div`
   margin: 16px 0;
 `;
 
-export const MacroBar = styled.div`
+export const FormMacroBar = styled.div`
   height: 12px;
   border-radius: 6px;
   overflow: hidden;
@@ -717,13 +657,15 @@ export const MacroLegend = styled.div`
   font-size: 12px;
 `;
 
-export const MacroLegendItem = styled.div<{ color: string }>`
+export const MacroLegendItem = styled.div<{
+  color: string;
+}>`
   display: flex;
   align-items: center;
   gap: 4px;
 
   &:before {
-    content: '';
+    content: "";
     display: block;
     width: 10px;
     height: 10px;

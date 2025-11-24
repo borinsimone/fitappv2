@@ -28,9 +28,15 @@ const MealAgenda: React.FC<MealAgendaProps> = ({
   selectedDate,
   meals,
 }) => {
-  const [currentWeek, setCurrentWeek] = useState(new Date());
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [currentWeek, setCurrentWeek] = useState(
+    new Date()
+  );
+  const [touchStart, setTouchStart] = useState<
+    number | null
+  >(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(
+    null
+  );
   const [direction, setDirection] = useState<number>(0);
 
   const weekDays = [...Array(7)].map((_, i) => {
@@ -52,11 +58,13 @@ const MealAgenda: React.FC<MealAgendaProps> = ({
 
   const handleGoToToday = () => {
     const today = new Date();
-    if (isSameWeek(currentWeek, today, { weekStartsOn: 1 })) {
+    if (
+      isSameWeek(currentWeek, today, { weekStartsOn: 1 })
+    ) {
       onSelectDay(today);
       return;
     }
-    
+
     setDirection(today > currentWeek ? 1 : -1);
     setCurrentWeek(today);
     onSelectDay(today);
@@ -126,9 +134,12 @@ const MealAgenda: React.FC<MealAgendaProps> = ({
         <MonthDisplay>
           {format(currentWeek, "MMMM yyyy", { locale: it })}
         </MonthDisplay>
-        
+
         <Controls>
-          <IconButton onClick={handleGoToToday} title="Oggi">
+          <IconButton
+            onClick={handleGoToToday}
+            title="Oggi"
+          >
             <BiCalendar size="20px" />
             <TodayText>Oggi</TodayText>
           </IconButton>
@@ -163,8 +174,13 @@ const MealAgenda: React.FC<MealAgendaProps> = ({
         >
           <WeekGrid>
             {weekDays.map((day) => {
-              const isSelected = selectedDate && isSameDay(day, selectedDate);
-              const isTodayDate = isSameDay(day, new Date());
+              const isSelected =
+                selectedDate &&
+                isSameDay(day, selectedDate);
+              const isTodayDate = isSameDay(
+                day,
+                new Date()
+              );
               const hasMeal = hasMealOnDay(day);
 
               return (
@@ -175,8 +191,13 @@ const MealAgenda: React.FC<MealAgendaProps> = ({
                   onClick={() => onSelectDay(day)}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <DayName>{format(day, "EEE", { locale: it })}</DayName>
-                  <DayNumber $isSelected={!!isSelected} $isToday={isTodayDate}>
+                  <DayName>
+                    {format(day, "EEE", { locale: it })}
+                  </DayName>
+                  <DayNumber
+                    $isSelected={!!isSelected}
+                    $isToday={isTodayDate}
+                  >
                     {format(day, "d")}
                     {hasMeal && <MealDot />}
                   </DayNumber>
@@ -268,7 +289,10 @@ const WeekGrid = styled.div`
   gap: 6px;
 `;
 
-const DayCard = styled(motion.div)<{ $isSelected: boolean; $isToday: boolean }>`
+const DayCard = styled(motion.div)<{
+  $isSelected: boolean;
+  $isToday: boolean;
+}>`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -276,16 +300,22 @@ const DayCard = styled(motion.div)<{ $isSelected: boolean; $isToday: boolean }>`
   padding: 8px 4px;
   border-radius: 12px;
   cursor: pointer;
-  background: ${({ $isSelected, theme }) => 
-    $isSelected ? `${theme.colors.neon}15` : 'transparent'};
-  border: 1px solid ${({ $isSelected, $isToday, theme }) => 
-    $isSelected ? theme.colors.neon : 
-    $isToday ? theme.colors.white20 : 'transparent'};
+  background: ${({ $isSelected, theme }) =>
+    $isSelected ? `${theme.colors.neon}15` : "transparent"};
+  border: 1px solid
+    ${({ $isSelected, $isToday, theme }) =>
+      $isSelected
+        ? theme.colors.neon
+        : $isToday
+        ? theme.colors.white20
+        : "transparent"};
   transition: all 0.2s ease;
 
   &:hover {
-    background: ${({ $isSelected, theme }) => 
-      $isSelected ? `${theme.colors.neon}20` : theme.colors.white05};
+    background: ${({ $isSelected, theme }) =>
+      $isSelected
+        ? `${theme.colors.neon}20`
+        : theme.colors.white05};
   }
 `;
 
@@ -296,7 +326,10 @@ const DayName = styled.div`
   color: ${({ theme }) => theme.colors.white50};
 `;
 
-const DayNumber = styled.div<{ $isSelected: boolean; $isToday: boolean }>`
+const DayNumber = styled.div<{
+  $isSelected: boolean;
+  $isToday: boolean;
+}>`
   position: relative;
   display: flex;
   align-items: center;
@@ -306,12 +339,15 @@ const DayNumber = styled.div<{ $isSelected: boolean; $isToday: boolean }>`
   border-radius: 50%;
   font-size: 14px;
   font-weight: 600;
-  
-  background: ${({ $isToday, theme }) => 
-    $isToday ? theme.colors.white : 'transparent'};
-  color: ${({ $isToday, $isSelected, theme }) => 
-    $isToday ? theme.colors.dark : 
-    $isSelected ? theme.colors.neon : theme.colors.white};
+
+  background: ${({ $isToday, theme }) =>
+    $isToday ? theme.colors.white : "transparent"};
+  color: ${({ $isToday, $isSelected, theme }) =>
+    $isToday
+      ? theme.colors.dark
+      : $isSelected
+      ? theme.colors.neon
+      : theme.colors.white};
 `;
 
 const MealDot = styled.div`
@@ -323,4 +359,3 @@ const MealDot = styled.div`
   bottom: -4px;
   box-shadow: 0 0 4px ${({ theme }) => theme.colors.neon};
 `;
-

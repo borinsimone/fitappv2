@@ -37,7 +37,7 @@ import {
   FormHeader,
   Input,
   LoadingIndicator,
-  MacroBar,
+  FormMacroBar,
   MacroChart,
   MacroLegend,
   MacroLegendItem,
@@ -409,57 +409,72 @@ const AddMealForm: React.FC<{
             </NutritionGrid>
 
             <MacroChart>
-              <MacroBar>
+              <FormMacroBar>
                 <ProteinBar
                   style={{
                     width: `${
-                      ((totals.protein * 4) /
-                        totals.calories) *
-                      100
+                      totals.calories > 0
+                        ? ((totals.protein * 4) /
+                            totals.calories) *
+                          100
+                        : 0
                     }%`,
                   }}
                 />
                 <CarbsBar
                   style={{
                     width: `${
-                      ((totals.carbs * 4) /
-                        totals.calories) *
-                      100
+                      totals.calories > 0
+                        ? ((totals.carbs * 4) /
+                            totals.calories) *
+                          100
+                        : 0
                     }%`,
                   }}
                 />
                 <FatBar
                   style={{
                     width: `${
-                      ((totals.fat * 9) / totals.calories) *
-                      100
+                      totals.calories > 0
+                        ? ((totals.fat * 9) /
+                            totals.calories) *
+                          100
+                        : 0
                     }%`,
                   }}
                 />
-              </MacroBar>
+              </FormMacroBar>
               <MacroLegend>
                 <MacroLegendItem color="#75c9b7">
                   Proteine{" "}
                   {Math.round(
-                    ((totals.protein * 4) /
-                      totals.calories) *
-                      100
+                    totals.calories > 0
+                      ? ((totals.protein * 4) /
+                          totals.calories) *
+                          100
+                      : 0
                   )}
                   %
                 </MacroLegendItem>
                 <MacroLegendItem color="#abd699">
                   Carboidrati{" "}
                   {Math.round(
-                    ((totals.carbs * 4) / totals.calories) *
-                      100
+                    totals.calories > 0
+                      ? ((totals.carbs * 4) /
+                          totals.calories) *
+                          100
+                      : 0
                   )}
                   %
                 </MacroLegendItem>
                 <MacroLegendItem color="#e8a99e">
                   Grassi{" "}
                   {Math.round(
-                    ((totals.fat * 9) / totals.calories) *
-                      100
+                    totals.calories > 0
+                      ? ((totals.fat * 9) /
+                          totals.calories) *
+                          100
+                      : 0
                   )}
                   %
                 </MacroLegendItem>

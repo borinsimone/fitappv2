@@ -1,17 +1,11 @@
 // src/pages/Meal/MealPlannerPage.tsx
 import React, { useState } from "react";
 import { AnimatePresence } from "framer-motion";
-import {
-  addDays,
-  isSameDay,
-} from "date-fns";
+import { isSameDay } from "date-fns";
 import DailyMeals from "./DailyMeals";
 import AddMealForm from "./AddMealForm";
 import { Meal } from "./types/meal";
-import {
-  PageContainer,
-  MainContent,
-} from "./MealStyles";
+import { PageContainer, MainContent } from "./MealStyles";
 import MealAgenda from "./components/agenda/MealAgenda";
 
 const MealPlannerPage: React.FC = () => {

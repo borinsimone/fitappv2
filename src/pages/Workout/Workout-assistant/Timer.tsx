@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import { useState, useEffect } from "react";
+import styled from "styled-components";
 import {
   BiPlay,
   BiPause,
@@ -7,9 +7,9 @@ import {
   BiTime,
   BiDumbbell,
   BiHourglass,
-} from 'react-icons/bi';
-import { CountdownCircleTimer } from 'react-countdown-circle-timer';
-import { motion, AnimatePresence } from 'framer-motion';
+} from "react-icons/bi";
+import { CountdownCircleTimer } from "react-countdown-circle-timer";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ExerciseSet {
   weight?: number;
@@ -28,7 +28,8 @@ function Timer({ activeSet, name }: TimerProps) {
   const [restTimerOn, setRestTimerOn] = useState(false);
   const [workKey, setWorkKey] = useState(0);
   const [restKey, setRestKey] = useState(0);
-  const [timerCompleted, setTimerCompleted] = useState(false);
+  const [timerCompleted, setTimerCompleted] =
+    useState(false);
 
   // Get values from active set
   const workTime = activeSet?.time || 0;
@@ -70,8 +71,12 @@ function Timer({ activeSet, name }: TimerProps) {
     setRestTimerOn(false);
 
     // Play notification sound
-    const audio = new Audio('/notification.mp3');
-    audio.play().catch((e) => console.log('Audio playback error:', e));
+    const audio = new Audio("/notification.mp3");
+    audio
+      .play()
+      .catch((e) =>
+        console.log("Audio playback error:", e)
+      );
 
     // Vibrate if supported
     if (navigator.vibrate) {
@@ -90,19 +95,16 @@ function Timer({ activeSet, name }: TimerProps) {
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs
+    return `${mins.toString().padStart(2, "0")}:${secs
       .toString()
-      .padStart(2, '0')}`;
+      .padStart(2, "0")}`;
   };
 
   if (!activeSet) {
     return (
       <Container>
         <EmptyState>
-          <BiTime
-            size={40}
-            opacity={0.5}
-          />
+          <BiTime size={40} opacity={0.5} />
           <EmptyTitle>No Set Selected</EmptyTitle>
           <EmptyDescription>
             Select a set to start timing your workout
@@ -127,7 +129,7 @@ function Timer({ activeSet, name }: TimerProps) {
         as={motion.div}
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.4, type: 'spring' }}
+        transition={{ duration: 0.4, type: "spring" }}
       >
         <AnimatePresence>
           {timerCompleted && (
@@ -139,7 +141,7 @@ function Timer({ activeSet, name }: TimerProps) {
               <CompletedMessage
                 initial={{ scale: 0.8 }}
                 animate={{ scale: 1 }}
-                transition={{ type: 'spring', damping: 10 }}
+                transition={{ type: "spring", damping: 10 }}
               >
                 <BiDumbbell size={30} />
                 Completed!
@@ -154,9 +156,20 @@ function Timer({ activeSet, name }: TimerProps) {
               key={workKey}
               isPlaying={workTimerOn}
               duration={workTime}
-              colors={['#00C6BE', '#00C6BE', '#F7B801', '#F7B801', '#FF5722']}
-              colorsTime={[workTime, workTime * 0.66, workTime * 0.33, 0]}
-              trailColor='rgba(255, 255, 255, 0.1)'
+              colors={[
+                "#00C6BE",
+                "#00C6BE",
+                "#F7B801",
+                "#F7B801",
+                "#FF5722",
+              ]}
+              colorsTime={[
+                workTime,
+                workTime * 0.66,
+                workTime * 0.33,
+                0,
+              ]}
+              trailColor="rgba(255, 255, 255, 0.1)"
               size={240}
               strokeWidth={18}
               onComplete={handleTimerComplete}
@@ -190,9 +203,19 @@ function Timer({ activeSet, name }: TimerProps) {
             key={restKey}
             isPlaying={restTimerOn}
             duration={restTime}
-            colors={['#4CAF50', '#4CAF50', '#F7B801', '#FF5722']}
-            colorsTime={[restTime, restTime * 0.66, restTime * 0.33, 0]}
-            trailColor='rgba(255, 255, 255, 0.1)'
+            colors={[
+              "#4CAF50",
+              "#4CAF50",
+              "#F7B801",
+              "#FF5722",
+            ]}
+            colorsTime={[
+              restTime,
+              restTime * 0.66,
+              restTime * 0.33,
+              0,
+            ]}
+            trailColor="rgba(255, 255, 255, 0.1)"
             size={!isTimeBased ? 240 : 180}
             strokeWidth={!isTimeBased ? 18 : 16}
             onComplete={handleTimerComplete}
@@ -228,20 +251,24 @@ function Timer({ activeSet, name }: TimerProps) {
       <ControlsContainer>
         {isTimeBased && (
           <TimerButton
-            $variant='work'
+            $variant="work"
             $active={workTimerOn}
             onClick={() => setWorkTimerOn(!workTimerOn)}
             as={motion.button}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            {workTimerOn ? <BiPause size={22} /> : <BiPlay size={22} />}
-            {workTimerOn ? 'Pause' : 'Start'} Workout
+            {workTimerOn ? (
+              <BiPause size={22} />
+            ) : (
+              <BiPlay size={22} />
+            )}
+            {workTimerOn ? "Pause" : "Start"} Workout
           </TimerButton>
         )}
 
         <TimerButton
-          $variant='rest'
+          $variant="rest"
           $active={restTimerOn}
           onClick={() => setRestTimerOn(!restTimerOn)}
           as={motion.button}
@@ -249,12 +276,16 @@ function Timer({ activeSet, name }: TimerProps) {
           whileTap={{ scale: 0.95 }}
           $isFullWidth={!isTimeBased}
         >
-          {restTimerOn ? <BiPause size={22} /> : <BiHourglass size={22} />}
-          {restTimerOn ? 'Pause' : 'Start'} Rest
+          {restTimerOn ? (
+            <BiPause size={22} />
+          ) : (
+            <BiHourglass size={22} />
+          )}
+          {restTimerOn ? "Pause" : "Start"} Rest
         </TimerButton>
 
         <TimerButton
-          $variant='reset'
+          $variant="reset"
           onClick={resetTimers}
           as={motion.button}
           whileHover={{ scale: 1.05 }}
@@ -277,13 +308,17 @@ function Timer({ activeSet, name }: TimerProps) {
         {isTimeBased && (
           <InfoItem>
             <InfoLabel>Duration:</InfoLabel>
-            <InfoValue>{formatTime(activeSet.time || 0)}</InfoValue>
+            <InfoValue>
+              {formatTime(activeSet.time || 0)}
+            </InfoValue>
           </InfoItem>
         )}
 
         <InfoItem>
           <InfoLabel>Rest:</InfoLabel>
-          <InfoValue>{formatTime(activeSet.rest)}</InfoValue>
+          <InfoValue>
+            {formatTime(activeSet.rest)}
+          </InfoValue>
         </InfoItem>
       </TimerInfo>
     </Container>
@@ -378,10 +413,14 @@ const WorkTimer = styled.div<{ $active: boolean }>`
   justify-content: center;
   transition: all 0.3s ease;
   opacity: ${({ $active }) => ($active ? 1 : 0.9)};
-  transform: ${({ $active }) => ($active ? 'scale(1)' : 'scale(0.97)')};
+  transform: ${({ $active }) =>
+    $active ? "scale(1)" : "scale(0.97)"};
 `;
 
-const RestTimer = styled.div<{ $active: boolean; $isMainTimer?: boolean }>`
+const RestTimer = styled.div<{
+  $active: boolean;
+  $isMainTimer?: boolean;
+}>`
   position: absolute;
   inset: 0;
   display: flex;
@@ -394,13 +433,13 @@ const RestTimer = styled.div<{ $active: boolean; $isMainTimer?: boolean }>`
       // If this is the main timer (no work timer exists)
       return `
         opacity: ${$active ? 1 : 0.9};
-        transform: ${$active ? 'scale(1)' : 'scale(0.97)'};
+        transform: ${$active ? "scale(1)" : "scale(0.97)"};
       `;
     } else {
       // Secondary timer that appears behind work timer
       return `
         opacity: ${$active ? 1 : 0.7};
-        transform: ${$active ? 'scale(1)' : 'scale(0.85)'};
+        transform: ${$active ? "scale(1)" : "scale(0.85)"};
       `;
     }
   }}
@@ -417,7 +456,7 @@ const TimerDisplay = styled.div`
 const TimerValue = styled.div`
   font-size: 36px;
   font-weight: 700;
-  font-family: 'Roboto Mono', monospace;
+  font-family: "Roboto Mono", monospace;
   color: ${({ theme }) => theme.colors.white};
 `;
 
@@ -441,7 +480,7 @@ const ControlsContainer = styled.div`
 `;
 
 const TimerButton = styled(motion.button)<{
-  $variant: 'work' | 'rest' | 'reset';
+  $variant: "work" | "rest" | "reset";
   $active?: boolean;
   $isFullWidth?: boolean;
 }>`
@@ -458,27 +497,31 @@ const TimerButton = styled(motion.button)<{
   transition: all 0.2s ease;
 
   ${({ $variant, $active, $isFullWidth, theme }) => {
-    let styles = '';
+    let styles = "";
 
     switch ($variant) {
-      case 'work':
+      case "work":
         styles = `
-          background: ${$active ? '#00C6BE' : 'rgba(0, 198, 190, 0.2)'};
-          color: ${$active ? '#1A1D22' : '#00C6BE'};
+          background: ${
+            $active ? "#00C6BE" : "rgba(0, 198, 190, 0.2)"
+          };
+          color: ${$active ? "#1A1D22" : "#00C6BE"};
           flex: 1;
           border: 1px solid #00C6BE;
         `;
         break;
-      case 'rest':
+      case "rest":
         styles = `
-          background: ${$active ? '#4CAF50' : 'rgba(76, 175, 80, 0.2)'};
-          color: ${$active ? '#1A1D22' : '#4CAF50'};
-          flex: ${$isFullWidth ? '1 1 100%' : '1'};
+          background: ${
+            $active ? "#4CAF50" : "rgba(76, 175, 80, 0.2)"
+          };
+          color: ${$active ? "#1A1D22" : "#4CAF50"};
+          flex: ${$isFullWidth ? "1 1 100%" : "1"};
           border:1px solid #4CAF50;
 
         `;
         break;
-      case 'reset':
+      case "reset":
         styles = `
           background: ${theme.colors.white10};
           color: ${theme.colors.white};

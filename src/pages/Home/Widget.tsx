@@ -1,8 +1,11 @@
-import { motion } from 'framer-motion';
-import React, { PropsWithChildren } from 'react';
-import styled from 'styled-components';
+import { motion } from "framer-motion";
+import { PropsWithChildren } from "react";
+import styled from "styled-components";
 
-function Widget({ children, index }: PropsWithChildren<{ index: number }>) {
+function Widget({
+  children,
+  index,
+}: PropsWithChildren<{ index: number }>) {
   return (
     <Container
       as={motion.div}
@@ -11,7 +14,7 @@ function Widget({ children, index }: PropsWithChildren<{ index: number }>) {
       transition={{ duration: 0.3, delay: index * 0.3 }}
     >
       {/* <div className='title'>{title}</div> */}
-      <div className='content'>{children}</div>
+      <div className="content">{children}</div>
     </Container>
   );
 }

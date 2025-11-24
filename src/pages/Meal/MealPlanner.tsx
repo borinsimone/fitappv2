@@ -1,13 +1,13 @@
-import { useState } from 'react';
-import styled from 'styled-components';
-import { format, isSameDay } from 'date-fns';
-import { it } from 'date-fns/locale';
+import { useState } from "react";
+import styled from "styled-components";
+import { format, isSameDay } from "date-fns";
+import { it } from "date-fns/locale";
 
-import MealAgenda from './components/agenda/MealAgenda';
-import MacroSummary from './components/metrics/MacroSummary';
-import Meals from './components/meals/Meals';
-import NoMealPlan from './components/empty-states/NoMealPlan';
-import ComingSoonOverlay from './ComingSoonOverlay';
+import MealAgenda from "./components/agenda/MealAgenda";
+import MacroSummary from "./components/metrics/MacroSummary";
+import Meals from "./components/meals/Meals";
+import NoMealPlan from "./components/empty-states/NoMealPlan";
+import ComingSoonOverlay from "./ComingSoonOverlay";
 
 export interface Meal {
   id: string;
@@ -31,15 +31,17 @@ export interface MealItem {
 }
 
 function MealPlanner() {
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date>(
+    new Date()
+  );
   const [dummyMeals, setDummyMeals] = useState([
     {
-      id: '1',
-      date: '2025-03-19',
+      id: "1",
+      date: "2025-03-19",
       meals: {
         breakfast: [
           {
-            name: 'Oatmeal with Berries',
+            name: "Oatmeal with Berries",
             calories: 350,
             protein: 12,
             carbs: 56,
@@ -50,7 +52,7 @@ function MealPlanner() {
         ],
         lunch: [
           {
-            name: 'Chicken Salad',
+            name: "Chicken Salad",
             calories: 450,
             protein: 35,
             carbs: 25,
@@ -61,7 +63,7 @@ function MealPlanner() {
         ],
         dinner: [
           {
-            name: 'Salmon with Vegetables',
+            name: "Salmon with Vegetables",
             calories: 550,
             protein: 42,
             carbs: 30,
@@ -72,7 +74,7 @@ function MealPlanner() {
         ],
         snacks: [
           {
-            name: 'Protein Bar',
+            name: "Protein Bar",
             calories: 200,
             protein: 15,
             carbs: 20,
@@ -84,12 +86,12 @@ function MealPlanner() {
       },
     },
     {
-      id: '2',
-      date: '2025-03-20',
+      id: "2",
+      date: "2025-03-20",
       meals: {
         breakfast: [
           {
-            name: 'Greek Yogurt with Honey',
+            name: "Greek Yogurt with Honey",
             calories: 300,
             protein: 20,
             carbs: 35,
@@ -100,7 +102,7 @@ function MealPlanner() {
         ],
         lunch: [
           {
-            name: 'Turkey Sandwich',
+            name: "Turkey Sandwich",
             calories: 400,
             protein: 30,
             carbs: 45,
@@ -111,7 +113,7 @@ function MealPlanner() {
         ],
         dinner: [
           {
-            name: 'Grilled Chicken with Rice',
+            name: "Grilled Chicken with Rice",
             calories: 500,
             protein: 40,
             carbs: 50,
@@ -122,7 +124,7 @@ function MealPlanner() {
         ],
         snacks: [
           {
-            name: 'Apple with Almond Butter',
+            name: "Apple with Almond Butter",
             calories: 180,
             protein: 5,
             carbs: 25,
@@ -144,11 +146,15 @@ function MealPlanner() {
         <MealAgenda
           onSelectDay={setSelectedDate}
           selectedDate={selectedDate}
-          meals={dummyMeals}
+          meals={[]}
         />
         <MainContent>
           <Header>
-            <h1>{format(selectedDate, 'EEEE d MMMM', { locale: it })}</h1>
+            <h1>
+              {format(selectedDate, "EEEE d MMMM", {
+                locale: it,
+              })}
+            </h1>
           </Header>
 
           {selectedMeal ? (
@@ -164,7 +170,13 @@ function MealPlanner() {
                   setDummyMeals((prevMeals) =>
                     prevMeals.map((meal) =>
                       meal.id === selectedMeal.id
-                        ? { ...meal, meals: { ...meal.meals, [type]: items } }
+                        ? {
+                            ...meal,
+                            meals: {
+                              ...meal.meals,
+                              [type]: items,
+                            },
+                          }
                         : meal
                     )
                   );
@@ -178,7 +190,9 @@ function MealPlanner() {
                 // Funzione per creare un nuovo piano pasti
                 const newMeal = {
                   id: Date.now().toString(),
-                  date: selectedDate.toISOString().split('T')[0],
+                  date: selectedDate
+                    .toISOString()
+                    .split("T")[0],
                   meals: {
                     breakfast: [],
                     lunch: [],
