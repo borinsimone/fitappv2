@@ -1,12 +1,19 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
-import { BiPlus, BiTrash, BiSave } from "react-icons/bi";
+import {
+  BiPlus,
+  BiTrash,
+  BiSave,
+  BiSearch,
+} from "react-icons/bi";
 import { useWorkouts } from "../../context/WorkoutContext";
 import { useNavigate } from "react-router-dom";
 import { MdClose } from "react-icons/md";
 import { AnimatePresence, motion } from "framer-motion";
 import SuggestionsInput from "./SuggestionsInput";
+import ExerciseSelector from "../../components/exercises/ExerciseSelector";
+import { ExerciseDBItem } from "../../service/exerciseDbApi";
 
 interface ExerciseSet {
   weight?: number;
@@ -21,6 +28,9 @@ interface Exercise {
   timeBased: boolean;
   exerciseSets: ExerciseSet[];
   notes?: string;
+  gifUrl?: string; // Add gifUrl to Exercise interface
+  bodyPart?: string;
+  equipment?: string;
 }
 
 interface WorkoutSection {
@@ -71,6 +81,14 @@ const WorkoutForm = ({
   });
   const [workoutNotes, setWorkoutNotes] =
     useState<string>("");
+
+  // State for Exercise Selector
+  const [isSelectorOpen, setIsSelectorOpen] =
+    useState(false);
+  const [targetSectionId, setTargetSectionId] = useState<
+    string | null
+  >(null);
+
   const handleNotesChange = (
     e: React.ChangeEvent<HTMLTextAreaElement>
   ) => {
@@ -154,6 +172,51 @@ const WorkoutForm = ({
           : section
       ),
     }));
+  };
+
+  const openExerciseSelector = (sectionId: string) => {
+    setTargetSectionId(sectionId);
+    setIsSelectorOpen(true);
+  };
+
+  const handleExerciseSelect = (
+    exerciseItem: ExerciseDBItem
+  ) => {
+    if (!targetSectionId) return;
+
+    const newExercise: Exercise = {
+      id: uuidv4(),
+      name: exerciseItem.name,
+      timeBased: false,
+      exerciseSets: [
+        {
+          weight: 0,
+          reps: 10,
+          rest: 60,
+        },
+      ],
+      gifUrl: exerciseItem.gifUrl,
+      bodyPart: exerciseItem.bodyPart,
+      equipment: exerciseItem.equipment,
+    };
+
+    setWorkout((prev) => ({
+      ...prev,
+      sections: prev.sections.map((section) =>
+        section.id === targetSectionId
+          ? {
+              ...section,
+              exercises: [
+                ...section.exercises,
+                newExercise,
+              ],
+            }
+          : section
+      ),
+    }));
+
+    setIsSelectorOpen(false);
+    setTargetSectionId(null);
   };
 
   const removeExercise = (
@@ -353,6 +416,9 @@ const WorkoutForm = ({
             })
           ),
           notes: exercise.notes,
+          gifUrl: exercise.gifUrl, // Persist gifUrl
+          bodyPart: exercise.bodyPart,
+          equipment: exercise.equipment,
         })),
       })),
       notes: workout.notes,
@@ -648,7 +714,20 @@ const WorkoutForm = ({
                     onClick={() => addExercise(section.id)}
                     type="button"
                   >
-                    <BiPlus /> Add Exercise
+                    <BiPlus /> Add Custom Exercise
+                  </ActionButton>
+                  <ActionButton
+                    onClick={() =>
+                      openExerciseSelector(section.id)
+                    }
+                    type="button"
+                    style={{
+                      marginTop: "10px",
+                      borderColor: "#00C6BE",
+                      color: "#00C6BE",
+                    }}
+                  >
+                    <BiSearch /> Add from Library
                   </ActionButton>
                 </ExercisesList>
               </SectionCard>
@@ -675,6 +754,12 @@ const WorkoutForm = ({
           <BiSave /> Save Workout
         </SubmitButton>
       </form>
+
+      <ExerciseSelector
+        isOpen={isSelectorOpen}
+        onClose={() => setIsSelectorOpen(false)}
+        onSelect={handleExerciseSelect}
+      />
     </FormContainer>
   );
 };

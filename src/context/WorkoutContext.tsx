@@ -26,6 +26,9 @@ export interface Exercise {
   exerciseSets: WorkoutSet[];
   notes?: string;
   timeBased: boolean;
+  gifUrl?: string;
+  bodyPart?: string;
+  equipment?: string;
 }
 
 export interface Section {
