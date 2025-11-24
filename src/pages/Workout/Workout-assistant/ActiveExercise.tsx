@@ -18,62 +18,19 @@ interface ActiveExerciseProps {
   >;
   currentSectionIndex: number;
   currentExerciseIndex: number;
+  completedSets: Record<string, boolean[]>;
+  handleSetComplete: (index: number) => void;
 }
 function ActiveExercise({
   currentExercise,
   setCurrentExercise,
   currentSectionIndex,
   currentExerciseIndex,
+  completedSets,
+  handleSetComplete,
 }: ActiveExerciseProps) {
   const { activeWorkout } = useWorkouts();
 
-  interface CompletedSets {
-    [key: string]: boolean[];
-  }
-
-  const handleSetComplete = (setIndex: number) => {
-    const key = `${currentSectionIndex}-${currentExerciseIndex}`;
-
-    setCompletedSets((prev: CompletedSets) => ({
-      ...prev,
-      [key]: prev[key].map(
-        (completed: boolean, index: number) =>
-          index === setIndex ? !completed : completed
-      ),
-    }));
-  };
-  const [completedSets, setCompletedSets] =
-    useState<CompletedSets>({});
-
-  // Add this useEffect to initialize completedSets
-  // Modifica l'initializzazione di completedSets per evitare aggiornamenti continui
-  useEffect(() => {
-    if (activeWorkout?.sections) {
-      // Controlla se completedSets è già stato inizializzato
-      const isAlreadyInitialized =
-        Object.keys(completedSets).length > 0;
-
-      // Se è già inizializzato, non fare nulla
-      if (isAlreadyInitialized) return;
-
-      console.log("Initializing completedSets");
-      const initialCompletedSets: CompletedSets = {};
-      activeWorkout.sections.forEach(
-        (section: WorkoutSection, sectionIndex: number) => {
-          section.exercises.forEach(
-            (exercise: Exercise, exerciseIndex: number) => {
-              const key: string = `${sectionIndex}-${exerciseIndex}`;
-              initialCompletedSets[key] =
-                new Array<boolean>(
-                  exercise.exerciseSets.length
-                ).fill(false);
-            }
-          );
-        }
-      );
-      setCompletedSets(initialCompletedSets);
-    }
-  }, [activeWorkout, completedSets]);
   // Update the state definition with proper type
   const [activeSet, setActiveSet] = useState<
     ExerciseSet | undefined
@@ -114,10 +71,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px;
-  background-color: ${({ theme }) => theme.colors.white10};
+  gap: 24px;
   width: 100%;
-  border-radius: 10px;
-  border: 1px solid ${({ theme }) => theme.colors.neon};
-  padding: 20px;
+  padding-bottom: 20px;
 `;

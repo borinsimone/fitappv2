@@ -11,6 +11,10 @@ import { MdClose } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import FeedBackForm from "./FeedBackForm";
 import WorkoutDuration from "./WorkoutDuration";
+import {
+  Exercise,
+  Section as WorkoutSection,
+} from "../../../context/WorkoutContext";
 
 const WorkoutAssistant = () => {
   const { activeWorkout, setActiveWorkout } = useWorkouts();
@@ -20,6 +24,61 @@ const WorkoutAssistant = () => {
     useState(0);
   const [feedbackFormOpen, setFeedbackFormOpen] =
     useState(false);
+
+  interface CompletedSets {
+    [key: string]: boolean[];
+  }
+
+  const [completedSets, setCompletedSets] =
+    useState<CompletedSets>(() => {
+      const saved = localStorage.getItem("completedSets");
+      return saved ? JSON.parse(saved) : {};
+    });
+
+  useEffect(() => {
+    localStorage.setItem(
+      "completedSets",
+      JSON.stringify(completedSets)
+    );
+  }, [completedSets]);
+
+  useEffect(() => {
+    if (activeWorkout?.sections) {
+      const isAlreadyInitialized =
+        Object.keys(completedSets).length > 0;
+
+      if (isAlreadyInitialized) return;
+
+      console.log("Initializing completedSets");
+      const initialCompletedSets: CompletedSets = {};
+      activeWorkout.sections.forEach(
+        (section: WorkoutSection, sectionIndex: number) => {
+          section.exercises.forEach(
+            (exercise: Exercise, exerciseIndex: number) => {
+              const key: string = `${sectionIndex}-${exerciseIndex}`;
+              initialCompletedSets[key] =
+                new Array<boolean>(
+                  exercise.exerciseSets.length
+                ).fill(false);
+            }
+          );
+        }
+      );
+      setCompletedSets(initialCompletedSets);
+    }
+  }, [activeWorkout, completedSets]);
+
+  const handleSetComplete = (setIndex: number) => {
+    const key = `${currentSectionIndex}-${currentExerciseIndex}`;
+
+    setCompletedSets((prev: CompletedSets) => ({
+      ...prev,
+      [key]: prev[key].map(
+        (completed: boolean, index: number) =>
+          index === setIndex ? !completed : completed
+      ),
+    }));
+  };
 
   const currentSection =
     activeWorkout?.sections?.[currentSectionIndex];
@@ -117,60 +176,14 @@ const WorkoutAssistant = () => {
 
   return (
     <Container>
-      {/* <button
-        onClick={async () => {
-          console.log(activeWorkout);
-        }}
-      >
-        {new Date(activeWorkout?.startTime ?? '').toLocaleTimeString()}
-        <WorkoutDuration start={activeWorkout?.startTime} />
-      </button> */}
-
-      <Header onClick={() => console.log(activeWorkout)}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            color: "#fff",
-          }}
-        >
-          <span>
-            Start:{" "}
-            {new Date(
-              activeWorkout?.startTime ?? ""
-            ).toLocaleTimeString()}
-          </span>
+      <Header>
+        <TimerBadge>
+          <span>Time:</span>
           <WorkoutDuration
             start={activeWorkout?.startTime}
           />
-        </div>
-      </Header>
-      {/* <SectionInfo>
-        SEZIONE {currentSectionIndex + 1}/{activeWorkout?.sections?.length || 0}
-      </SectionInfo> */}
-      <Header>
-        <NavigationBar>
-          <NavButton
-            onClick={handlePrevSection}
-            disabled={currentSectionIndex === 0}
-          >
-            <BiChevronLeft size="24px" />
-          </NavButton>
-          <SectionTitle>
-            {currentSection?.name}
-          </SectionTitle>
+        </TimerBadge>
 
-          <NavButton
-            onClick={handleNextSection}
-            disabled={
-              currentSectionIndex ===
-              (activeWorkout?.sections?.length || 0) - 1
-            }
-          >
-            <BiChevronRight size="24px" />
-          </NavButton>
-        </NavigationBar>
         <CloseButton
           onClick={() => {
             if (
@@ -179,18 +192,42 @@ const WorkoutAssistant = () => {
               )
             ) {
               localStorage.removeItem("activeWorkout");
+              localStorage.removeItem("completedSets");
               setActiveWorkout(null);
             }
           }}
         >
-          <MdClose size="30px" color="red" />
+          <MdClose size="20px" />
         </CloseButton>
       </Header>
+
+      <NavigationBar>
+        <NavButton
+          onClick={handlePrevSection}
+          disabled={currentSectionIndex === 0}
+        >
+          <BiChevronLeft size="28px" />
+        </NavButton>
+        <SectionTitle>{currentSection?.name}</SectionTitle>
+
+        <NavButton
+          onClick={handleNextSection}
+          disabled={
+            currentSectionIndex ===
+            (activeWorkout?.sections?.length || 0) - 1
+          }
+        >
+          <BiChevronRight size="28px" />
+        </NavButton>
+      </NavigationBar>
+
       <ActiveExercise
         currentExercise={currentExercise}
         setCurrentExercise={setCurrentExercise}
         currentSectionIndex={currentSectionIndex}
         currentExerciseIndex={currentExerciseIndex}
+        completedSets={completedSets}
+        handleSetComplete={handleSetComplete}
       />
       <ExerciseSummary
         nextExercises={nextExercises}
@@ -198,13 +235,15 @@ const WorkoutAssistant = () => {
         currentExerciseIndex={currentExerciseIndex}
         setCurrentExerciseIndex={setCurrentExerciseIndex}
         setCurrentExercise={setCurrentExercise}
+        completedSets={completedSets}
+        currentSectionIndex={currentSectionIndex}
       />
       <EndButton
         onClick={() => {
           endWorkout();
         }}
       >
-        Fine Allenamento
+        Finish Workout
       </EndButton>
       <FeedBackForm
         isOpen={feedbackFormOpen}
@@ -220,57 +259,84 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
-  padding: 20px;
+  gap: 16px;
+  padding: 16px;
+  padding-bottom: 100px; /* Space for fixed bottom button */
   background: ${({ theme }) => theme.colors.dark};
-  height: 100vh;
-  width: 100vw;
-  overflow-y: auto;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
 `;
 
 const Header = styled.div`
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-
-  border-radius: 100px;
-
-  padding: 5px 16px;
-  background-color: ${({ theme }) =>
-    `${theme.colors.neon}10`};
+  width: 100%;
+  padding: 0 8px;
+  margin-bottom: 8px;
 `;
 
-const CloseButton = styled.div`
-  font-size: 24px;
+const TimerBadge = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: ${({ theme }) => theme.colors.white10};
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
   color: ${({ theme }) => theme.colors.white};
+`;
+
+const CloseButton = styled.button`
+  all: unset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: ${({ theme }) => theme.colors.white05};
+  color: ${({ theme }) => theme.colors.white50};
   cursor: pointer;
-  position: absolute;
-  top: 0;
-  right: 0;
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.white10};
+    color: ${({ theme }) => theme.colors.error};
+  }
 `;
 
 const SectionTitle = styled.div`
-  font-size: 18px;
+  font-size: 16px;
+  font-weight: 700;
   color: ${({ theme }) => theme.colors.neon};
+  text-align: center;
+  flex: 1;
 `;
 
 const NavigationBar = styled.div`
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px;
+  background: ${({ theme }) => theme.colors.white05};
+  border-radius: 16px;
+  margin-bottom: 8px;
 `;
 
 const NavButton = styled.button<{ disabled?: boolean }>`
   all: unset;
   cursor: ${({ disabled }) =>
     disabled ? "not-allowed" : "pointer"};
-  opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
+  opacity: ${({ disabled }) => (disabled ? 0.3 : 1)};
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   color: ${({ theme }) => theme.colors.neon};
   background: ${({ theme }) => theme.colors.white10};
   transition: all 0.2s ease;
@@ -285,20 +351,29 @@ const NavButton = styled.button<{ disabled?: boolean }>`
 `;
 
 const EndButton = styled.button`
-  all: unset;
-  cursor: pointer;
-  padding: 12px 24px;
-  border-radius: 100px;
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 400px;
+  padding: 16px;
+  border-radius: 16px;
   background: ${({ theme }) => theme.colors.error};
   color: ${({ theme }) => theme.colors.white};
-  font-weight: 600;
-  transition: all 0.2s ease;
-
-  &:hover {
-    opacity: 0.9;
-  }
+  font-weight: 700;
+  font-size: 16px;
+  border: none;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  backdrop-filter: blur(10px);
 
   &:active {
-    transform: scale(0.98);
+    transform: translateX(-50%) scale(0.98);
   }
 `;

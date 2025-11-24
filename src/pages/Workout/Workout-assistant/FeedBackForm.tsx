@@ -107,6 +107,7 @@ function FeedBackForm({
 
       // Clean up
       localStorage.removeItem("activeWorkout");
+      localStorage.removeItem("completedSets");
       setActiveWorkout(null);
 
       // Navigate back to workout planner

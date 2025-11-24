@@ -14,6 +14,8 @@ interface ExerciseSummaryProps {
   currentExerciseIndex: number;
   setCurrentExerciseIndex: (index: number) => void;
   setCurrentExercise: (exercise: Exercise) => void;
+  completedSets: Record<string, boolean[]>;
+  currentSectionIndex: number;
 }
 
 function ExerciseSummary({
@@ -22,7 +24,15 @@ function ExerciseSummary({
   currentExerciseIndex,
   setCurrentExerciseIndex,
   setCurrentExercise,
+  completedSets,
+  currentSectionIndex,
 }: ExerciseSummaryProps) {
+  const isExerciseCompleted = (exerciseIndex: number) => {
+    const key = `${currentSectionIndex}-${exerciseIndex}`;
+    const sets = completedSets[key];
+    return sets && sets.length > 0 && sets.every((s) => s);
+  };
+
   return (
     <Container>
       {nextExercises?.length > 0 && (
@@ -99,60 +109,72 @@ function ExerciseSummary({
           </EmptyState>
         )}
       {prevExercises?.length > 0 && (
-        <SectionTitle>Completed Exercises</SectionTitle>
+        <SectionTitle>Previous Exercises</SectionTitle>
       )}
       <ExerciseList>
-        {prevExercises?.map((exercise, index) => (
-          <CompletedExerciseItem
-            key={`prev-${index}`}
-            as={motion.div}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{
-              duration: 0.3,
-              delay: index * 0.05,
-            }}
-          >
-            <ExerciseStatus>
-              <StatusIcon>
-                <BiCheck size={18} />
-              </StatusIcon>
-            </ExerciseStatus>
-
-            <ExerciseContent>
-              <ExerciseName>{exercise.name}</ExerciseName>
-
-              <ExerciseMetrics>
-                <MetricItem>
-                  <BiListOl size={14} />
-                  <span>
-                    {exercise.exerciseSets.length} sets
-                  </span>
-                </MetricItem>
-
-                <MetricItem>
-                  {exercise.timeBased ? (
-                    <>
-                      <BiTime size={14} />
-                      <span>
-                        {exercise.exerciseSets[0]?.time}"
-                        each
-                      </span>
-                    </>
+        {prevExercises?.map((exercise, index) => {
+          const isCompleted = isExerciseCompleted(index);
+          return (
+            <CompletedExerciseItem
+              key={`prev-${index}`}
+              as={motion.div}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{
+                duration: 0.3,
+                delay: index * 0.05,
+              }}
+              onClick={() => {
+                setCurrentExercise(exercise);
+                setCurrentExerciseIndex(index);
+              }}
+              $isCompleted={isCompleted}
+            >
+              <ExerciseStatus>
+                <StatusIcon $isCompleted={isCompleted}>
+                  {isCompleted ? (
+                    <BiCheck size={18} />
                   ) : (
-                    <>
-                      <BiDumbbell size={14} />
-                      <span>
-                        {exercise.exerciseSets[0]?.reps}{" "}
-                        reps
-                      </span>
-                    </>
+                    <BiDumbbell size={18} />
                   )}
-                </MetricItem>
-              </ExerciseMetrics>
-            </ExerciseContent>
-          </CompletedExerciseItem>
-        ))}
+                </StatusIcon>
+              </ExerciseStatus>
+
+              <ExerciseContent>
+                <ExerciseName>{exercise.name}</ExerciseName>
+
+                <ExerciseMetrics>
+                  <MetricItem>
+                    <BiListOl size={14} />
+                    <span>
+                      {exercise.exerciseSets.length} sets
+                    </span>
+                  </MetricItem>
+
+                  <MetricItem>
+                    {exercise.timeBased ? (
+                      <>
+                        <BiTime size={14} />
+                        <span>
+                          {exercise.exerciseSets[0]?.time}"
+                          each
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <BiDumbbell size={14} />
+                        <span>
+                          {exercise.exerciseSets[0]?.reps}{" "}
+                          reps
+                        </span>
+                      </>
+                    )}
+                  </MetricItem>
+                </ExerciseMetrics>
+              </ExerciseContent>
+            </CompletedExerciseItem>
+          );
+        })}
       </ExerciseList>
     </Container>
   );
@@ -225,9 +247,27 @@ const UpcomingExerciseItem = styled(BaseExerciseItem)<{
   }
 `;
 
-const CompletedExerciseItem = styled(BaseExerciseItem)`
-  background: ${({ theme }) => theme.colors.white05};
-  opacity: 0.8;
+const CompletedExerciseItem = styled(BaseExerciseItem)<{
+  $isCompleted: boolean;
+}>`
+  background: ${({ theme, $isCompleted }) =>
+    $isCompleted
+      ? `${theme.colors.success}15`
+      : theme.colors.white10};
+  opacity: 1;
+  cursor: pointer;
+  border: 1px solid
+    ${({ theme, $isCompleted }) =>
+      $isCompleted
+        ? theme.colors.success
+        : theme.colors.white20};
+
+  &:hover {
+    background: ${({ theme, $isCompleted }) =>
+      $isCompleted
+        ? `${theme.colors.success}25`
+        : theme.colors.white10};
+  }
 `;
 
 const ExerciseContent = styled.div`
@@ -301,14 +341,20 @@ const ExerciseStatus = styled.div`
   margin-right: 12px;
 `;
 
-const StatusIcon = styled.div`
+const StatusIcon = styled.div<{ $isCompleted?: boolean }>`
   width: 28px;
   height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${({ theme }) => theme.colors.success}30;
-  color: ${({ theme }) => theme.colors.success};
+  background: ${({ theme, $isCompleted }) =>
+    $isCompleted
+      ? `${theme.colors.success}30`
+      : theme.colors.white10};
+  color: ${({ theme, $isCompleted }) =>
+    $isCompleted
+      ? theme.colors.success
+      : theme.colors.white50};
   border-radius: 50%;
 `;
 

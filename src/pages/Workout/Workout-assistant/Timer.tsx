@@ -263,7 +263,7 @@ function Timer({ activeSet, name }: TimerProps) {
             ) : (
               <BiPlay size={22} />
             )}
-            {workTimerOn ? "Pause" : "Start"} Workout
+            {workTimerOn ? "Pause" : "Start"}
           </TimerButton>
         )}
 
@@ -294,33 +294,6 @@ function Timer({ activeSet, name }: TimerProps) {
           <BiReset size={22} />
         </TimerButton>
       </ControlsContainer>
-
-      <TimerInfo>
-        {activeSet.weight || activeSet.reps ? (
-          <InfoItem>
-            <InfoLabel>Target:</InfoLabel>
-            <InfoValue>
-              {activeSet.reps} reps × {activeSet.weight} kg
-            </InfoValue>
-          </InfoItem>
-        ) : null}
-
-        {isTimeBased && (
-          <InfoItem>
-            <InfoLabel>Duration:</InfoLabel>
-            <InfoValue>
-              {formatTime(activeSet.time || 0)}
-            </InfoValue>
-          </InfoItem>
-        )}
-
-        <InfoItem>
-          <InfoLabel>Rest:</InfoLabel>
-          <InfoValue>
-            {formatTime(activeSet.rest)}
-          </InfoValue>
-        </InfoItem>
-      </TimerInfo>
     </Container>
   );
 }
@@ -525,9 +498,9 @@ const TimerButton = styled(motion.button)<{
         styles = `
           background: ${theme.colors.white10};
           color: ${theme.colors.white};
-          position: absolute;
-          top: -70px;
-          right: 0;
+          width: 48px;
+          padding: 0;
+          flex: 0 0 48px;
         `;
         break;
     }

@@ -1,13 +1,15 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
-  BiCheckCircle,
-  BiMinusCircle,
+  BiCheck,
+  BiMinus,
   BiPlay,
   BiTimer,
-  BiEdit,
+  BiEditAlt,
   BiSave,
   BiTrash,
   BiX,
+  BiDumbbell,
+  BiReset,
 } from "react-icons/bi";
 import styled from "styled-components";
 import {
@@ -80,13 +82,6 @@ function SetActive({
     e.stopPropagation();
     setEditingSetIndex(index);
     setEditValues({ ...set });
-
-    // Focus the first input after state update
-    setTimeout(() => {
-      if (inputRefs.current[0]) {
-        inputRefs.current[0].focus();
-      }
-    }, 50);
   };
 
   const handleEditCancel = (e: React.MouseEvent) => {
@@ -138,32 +133,6 @@ function SetActive({
     setEditValues(null);
   };
 
-  // Handle key press for inputs
-  const handleKeyDown = (
-    e: React.KeyboardEvent,
-    index: number
-  ) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleSaveEdit(
-        e as unknown as React.MouseEvent,
-        index
-      );
-    } else if (e.key === "Escape") {
-      e.preventDefault();
-      handleEditCancel(e as unknown as React.MouseEvent);
-    } else if (e.key === "Tab") {
-      // Focus will naturally move to next input
-      if (
-        e.shiftKey &&
-        document.activeElement === inputRefs.current[0]
-      ) {
-        e.preventDefault();
-        handleEditCancel(e as unknown as React.MouseEvent);
-      }
-    }
-  };
-
   const handleDragEnd = (info: PanInfo, index: number) => {
     const threshold = -80; // px to trigger delete action
 
@@ -202,370 +171,284 @@ function SetActive({
 
   return (
     <Container>
-      <TableHeader>
-        <SetColumn>Set</SetColumn>
-        {isTimeBased ? (
-          <>
-            <Column>Time</Column>
-            <Column>Rest</Column>
-            <TimerColumn>Timer</TimerColumn>
-          </>
-        ) : (
-          <>
-            <Column>Weight</Column>
-            <Column>Reps</Column>
-            <Column>Rest</Column>
-            <TimerColumn>Timer</TimerColumn>
-          </>
-        )}
-        <StatusColumn>Status</StatusColumn>
-      </TableHeader>
-
       <SetsList>
         <AnimatePresence>
           {currentExercise.exerciseSets.map(
-            (set, index) => (
-              <motion.div key={index}>
-                <SetRow
-                  as={motion.div}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 0.2,
-                    delay: index * 0.05,
-                  }}
-                  drag={
-                    editingSetIndex !== index ? "x" : false
-                  }
-                  dragConstraints={{ left: 0, right: 0 }}
-                  dragElastic={0.1}
-                  onDragEnd={(_, info) =>
-                    handleDragEnd(info, index)
-                  }
-                  $isActive={activeSet === set}
-                  $isCompleted={
-                    completedSets[setKey]?.[index]
-                  }
-                  $isEditing={editingSetIndex === index}
-                  onClick={() => {
-                    // if (editingSetIndex !== index) {
-                    //   handleSetClick(set);
-                    // }
-                  }}
-                >
-                  {/* Swipe hint indicator */}
-                  {/* <SwipeHintContainer>
-                  <SwipeHint>
-                    <BiTrash size={18} />
-                    Swipe to delete
-                  </SwipeHint>
-                </SwipeHintContainer> */}
+            (set, index) => {
+              const isCompleted =
+                completedSets[setKey]?.[index];
+              const isActive = activeSet === set;
+              const isEditing = editingSetIndex === index;
 
-                  <SetNumberCell>
-                    <SetNumber
-                      $isActive={activeSet === set}
+              return (
+                <motion.div key={index} layout>
+                  <SetCard
+                    as={motion.div}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      duration: 0.2,
+                      delay: index * 0.05,
+                    }}
+                    drag={!isEditing ? "x" : false}
+                    dragConstraints={{ left: 0, right: 0 }}
+                    dragElastic={0.1}
+                    onDragEnd={(_, info) =>
+                      handleDragEnd(info, index)
+                    }
+                    $isActive={isActive}
+                    $isCompleted={isCompleted}
+                    $isEditing={isEditing}
+                    onClick={() => {
+                      if (!isEditing) {
+                        handleSetClick(set);
+                      }
+                    }}
+                  >
+                    <SetNumberBadge
+                      $isActive={isActive}
+                      $isCompleted={isCompleted}
                     >
                       {index + 1}
-                    </SetNumber>
-                  </SetNumberCell>
+                    </SetNumberBadge>
 
-                  {editingSetIndex === index ? (
-                    // Editing mode
-                    isTimeBased ? (
-                      <>
-                        <Cell>
-                          <EditInput
-                            ref={(el) => {
-                              inputRefs.current[0] = el;
-                            }}
-                            type="number"
-                            min="0"
-                            value={
-                              editValues?.time === undefined
-                                ? ""
-                                : editValues.time
-                            }
-                            onChange={(e) =>
-                              handleValueChange(
-                                "time",
-                                e.target.value
-                              )
-                            }
-                            onKeyDown={(e) =>
-                              handleKeyDown(e, index)
-                            }
-                            onClick={(e) =>
-                              e.stopPropagation()
-                            }
-                          />
-                          <InputLabel>sec</InputLabel>
-                        </Cell>
-                        <Cell>
-                          <EditInput
-                            ref={(el) => {
-                              inputRefs.current[1] = el;
-                            }}
-                            type="number"
-                            min="0"
-                            value={
-                              editValues?.rest === undefined
-                                ? ""
-                                : editValues.rest
-                            }
-                            onChange={(e) =>
-                              handleValueChange(
-                                "rest",
-                                e.target.value
-                              )
-                            }
-                            onKeyDown={(e) =>
-                              handleKeyDown(e, index)
-                            }
-                            onClick={(e) =>
-                              e.stopPropagation()
-                            }
-                          />
-                          <InputLabel>sec</InputLabel>
-                        </Cell>
-                      </>
-                    ) : (
-                      <>
-                        <Cell>
-                          <EditInput
-                            ref={(el) => {
-                              inputRefs.current[0] = el;
-                            }}
-                            type="number"
-                            min="0"
-                            step="0.5"
-                            value={
-                              editValues?.weight ===
-                              undefined
-                                ? ""
-                                : editValues.weight
-                            }
-                            onChange={(e) =>
-                              handleValueChange(
-                                "weight",
-                                e.target.value
-                              )
-                            }
-                            onKeyDown={(e) =>
-                              handleKeyDown(e, index)
-                            }
-                            onClick={(e) =>
-                              e.stopPropagation()
-                            }
-                          />
-                          <InputLabel>kg</InputLabel>
-                        </Cell>
-                        <Cell>
-                          <EditInput
-                            ref={(el) => {
-                              inputRefs.current[1] = el;
-                            }}
-                            type="number"
-                            min="0"
-                            value={
-                              editValues?.reps === undefined
-                                ? ""
-                                : editValues.reps
-                            }
-                            onChange={(e) =>
-                              handleValueChange(
-                                "reps",
-                                e.target.value
-                              )
-                            }
-                            onKeyDown={(e) =>
-                              handleKeyDown(e, index)
-                            }
-                            onClick={(e) =>
-                              e.stopPropagation()
-                            }
-                          />
-                          <InputLabel>rep</InputLabel>
-                        </Cell>
-                        <Cell>
-                          <EditInput
-                            ref={(el) => {
-                              inputRefs.current[2] = el;
-                            }}
-                            type="number"
-                            min="0"
-                            value={
-                              editValues?.rest === undefined
-                                ? ""
-                                : editValues.rest
-                            }
-                            onChange={(e) =>
-                              handleValueChange(
-                                "rest",
-                                e.target.value
-                              )
-                            }
-                            onKeyDown={(e) =>
-                              handleKeyDown(e, index)
-                            }
-                            onClick={(e) =>
-                              e.stopPropagation()
-                            }
-                          />
-                          <InputLabel>sec</InputLabel>
-                        </Cell>
-                      </>
-                    )
-                  ) : // Display mode
-                  isTimeBased ? (
-                    <>
-                      <Cell>
-                        <CellValue>
-                          <BiTimer size={16} />
-                          {set.time}"
-                        </CellValue>
-                      </Cell>
-                      <Cell>
-                        <CellValue>{set.rest}"</CellValue>
-                      </Cell>
-                    </>
-                  ) : (
-                    <>
-                      <Cell>
-                        <CellValue>
-                          {set.weight} kg
-                        </CellValue>
-                      </Cell>
-                      <Cell>
-                        <CellValue>
-                          {set.reps} rep
-                        </CellValue>
-                      </Cell>
-                      <Cell>
-                        <CellValue>{set.rest}"</CellValue>
-                      </Cell>
-                    </>
-                  )}
+                    <SetContent>
+                      {isEditing ? (
+                        <EditContainer>
+                          {isTimeBased ? (
+                            <EditGroup>
+                              <EditField>
+                                <Label>Time (s)</Label>
+                                <LargeInput
+                                  type="number"
+                                  value={
+                                    editValues?.time ?? ""
+                                  }
+                                  onChange={(e) =>
+                                    handleValueChange(
+                                      "time",
+                                      e.target.value
+                                    )
+                                  }
+                                  onClick={(e) =>
+                                    e.stopPropagation()
+                                  }
+                                />
+                              </EditField>
+                              <EditField>
+                                <Label>Rest (s)</Label>
+                                <LargeInput
+                                  type="number"
+                                  value={
+                                    editValues?.rest ?? ""
+                                  }
+                                  onChange={(e) =>
+                                    handleValueChange(
+                                      "rest",
+                                      e.target.value
+                                    )
+                                  }
+                                  onClick={(e) =>
+                                    e.stopPropagation()
+                                  }
+                                />
+                              </EditField>
+                            </EditGroup>
+                          ) : (
+                            <EditGroup>
+                              <EditField>
+                                <Label>Weight (kg)</Label>
+                                <LargeInput
+                                  type="number"
+                                  value={
+                                    editValues?.weight ?? ""
+                                  }
+                                  onChange={(e) =>
+                                    handleValueChange(
+                                      "weight",
+                                      e.target.value
+                                    )
+                                  }
+                                  onClick={(e) =>
+                                    e.stopPropagation()
+                                  }
+                                />
+                              </EditField>
+                              <EditField>
+                                <Label>Reps</Label>
+                                <LargeInput
+                                  type="number"
+                                  value={
+                                    editValues?.reps ?? ""
+                                  }
+                                  onChange={(e) =>
+                                    handleValueChange(
+                                      "reps",
+                                      e.target.value
+                                    )
+                                  }
+                                  onClick={(e) =>
+                                    e.stopPropagation()
+                                  }
+                                />
+                              </EditField>
+                              <EditField>
+                                <Label>Rest (s)</Label>
+                                <LargeInput
+                                  type="number"
+                                  value={
+                                    editValues?.rest ?? ""
+                                  }
+                                  onChange={(e) =>
+                                    handleValueChange(
+                                      "rest",
+                                      e.target.value
+                                    )
+                                  }
+                                  onClick={(e) =>
+                                    e.stopPropagation()
+                                  }
+                                />
+                              </EditField>
+                            </EditGroup>
+                          )}
+                          <EditActions>
+                            <ActionButton
+                              $variant="cancel"
+                              onClick={handleEditCancel}
+                            >
+                              <BiX size={24} />
+                            </ActionButton>
+                            <ActionButton
+                              $variant="save"
+                              onClick={(e) =>
+                                handleSaveEdit(e, index)
+                              }
+                            >
+                              <BiCheck size={24} />
+                            </ActionButton>
+                          </EditActions>
+                        </EditContainer>
+                      ) : (
+                        <DisplayContainer>
+                          <MetricsGroup>
+                            {isTimeBased ? (
+                              <>
+                                <Metric>
+                                  <MetricValue>
+                                    {set.time}"
+                                  </MetricValue>
+                                  <MetricLabel>
+                                    TIME
+                                  </MetricLabel>
+                                </Metric>
+                                <Metric>
+                                  <MetricValue>
+                                    {set.rest}"
+                                  </MetricValue>
+                                  <MetricLabel>
+                                    REST
+                                  </MetricLabel>
+                                </Metric>
+                              </>
+                            ) : (
+                              <>
+                                <Metric>
+                                  <MetricValue>
+                                    {set.weight}
+                                    <small>kg</small>
+                                  </MetricValue>
+                                  <MetricLabel>
+                                    WEIGHT
+                                  </MetricLabel>
+                                </Metric>
+                                <Metric>
+                                  <MetricValue>
+                                    {set.reps}
+                                  </MetricValue>
+                                  <MetricLabel>
+                                    REPS
+                                  </MetricLabel>
+                                </Metric>
+                                <Metric>
+                                  <MetricValue>
+                                    {set.rest}"
+                                  </MetricValue>
+                                  <MetricLabel>
+                                    REST
+                                  </MetricLabel>
+                                </Metric>
+                              </>
+                            )}
+                          </MetricsGroup>
+                        </DisplayContainer>
+                      )}
+                    </SetContent>
 
-                  <TimerCell>
-                    {editingSetIndex === index ? (
-                      <ActionButtonGroup>
-                        <ActionButton
-                          $variant="save"
-                          onClick={(e) =>
-                            handleSaveEdit(e, index)
-                          }
-                          as={motion.button}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <BiSave size={16} />
-                        </ActionButton>
-
-                        <ActionButton
-                          $variant="cancel"
-                          onClick={handleEditCancel}
-                          as={motion.button}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <BiMinusCircle size={16} />
-                        </ActionButton>
-                      </ActionButtonGroup>
-                    ) : activeSet === set ? (
-                      <ActiveBadge>
-                        <BiPlay size={14} />
-                        Active
-                      </ActiveBadge>
-                    ) : (
-                      <ActionButtonGroup>
-                        <SelectButton
-                          as={motion.button}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() =>
-                            handleSetClick(set)
-                          }
-                        >
-                          Select
-                        </SelectButton>
-
+                    {!isEditing && (
+                      <ActionsColumn>
                         <EditButton
                           onClick={(e) =>
                             handleEditClick(e, set, index)
                           }
-                          as={motion.button}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
                         >
-                          <BiEdit size={16} />
+                          <BiEditAlt size={20} />
                         </EditButton>
-                      </ActionButtonGroup>
+                        <CompleteButton
+                          $isCompleted={isCompleted}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSetComplete(index);
+                          }}
+                          whileTap={{ scale: 0.9 }}
+                        >
+                          {isCompleted ? (
+                            <BiCheck size={28} />
+                          ) : (
+                            <div />
+                          )}
+                        </CompleteButton>
+                      </ActionsColumn>
                     )}
-                  </TimerCell>
+                  </SetCard>
 
-                  <StatusCell>
-                    <CompletionButton
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (editingSetIndex !== index) {
-                          handleSetComplete(index);
-                        }
-                      }}
-                      $completed={
-                        completedSets[setKey]?.[index]
-                      }
-                      disabled={editingSetIndex === index}
-                      as={motion.button}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                    >
-                      {completedSets[setKey]?.[index] ? (
-                        <BiCheckCircle size={24} />
-                      ) : (
-                        <BiMinusCircle size={24} />
+                  {/* Delete confirmation overlay */}
+                  <AnimatePresence>
+                    {confirmDelete &&
+                      deleteIndex === index && (
+                        <DeleteConfirm
+                          as={motion.div}
+                          initial={{
+                            opacity: 0,
+                            height: 0,
+                          }}
+                          animate={{
+                            opacity: 1,
+                            height: "auto",
+                          }}
+                          exit={{ opacity: 0, height: 0 }}
+                        >
+                          <DeleteMessage>
+                            Delete this set?
+                          </DeleteMessage>
+                          <DeleteButtonGroup>
+                            <DeleteCancelButton
+                              onClick={handleCancelDelete}
+                            >
+                              Cancel
+                            </DeleteCancelButton>
+                            <DeleteConfirmButton
+                              onClick={handleDeleteSet}
+                            >
+                              Delete
+                            </DeleteConfirmButton>
+                          </DeleteButtonGroup>
+                        </DeleteConfirm>
                       )}
-                    </CompletionButton>
-                  </StatusCell>
-                </SetRow>
-
-                {/* Delete confirmation overlay */}
-                <AnimatePresence>
-                  {confirmDelete && deleteIndex === index && (
-                    <DeleteConfirm
-                      as={motion.div}
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <DeleteMessage>
-                        Delete this set?
-                      </DeleteMessage>
-                      <DeleteButtonGroup>
-                        <DeleteCancelButton
-                          onClick={handleCancelDelete}
-                          as={motion.button}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <BiX size={16} />
-                          Cancel
-                        </DeleteCancelButton>
-                        <DeleteConfirmButton
-                          onClick={handleDeleteSet}
-                          as={motion.button}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <BiTrash size={16} />
-                          Delete
-                        </DeleteConfirmButton>
-                      </DeleteButtonGroup>
-                    </DeleteConfirm>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            )
+                  </AnimatePresence>
+                </motion.div>
+              );
+            }
           )}
         </AnimatePresence>
       </SetsList>
@@ -580,357 +463,273 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  border-radius: 12px;
-  overflow: hidden;
-  background: ${({ theme }) => theme.colors.white05};
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  gap: 12px;
 `;
 
 const EmptyState = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 200px;
-  width: 100%;
+  height: 100px;
   color: ${({ theme }) => theme.colors.white50};
-  font-size: 16px;
-`;
-
-const TableHeader = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 14px 0;
-  background: ${({ theme }) => theme.colors.white10};
-  border-bottom: 1px solid
-    ${({ theme }) => theme.colors.white10};
-  z-index: 2;
-`;
-
-const Column = styled.div`
-  flex: 1;
-  font-size: 13px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.white70};
-  text-align: center;
-`;
-
-const SetColumn = styled(Column)`
-  flex: 0 0 60px;
-`;
-
-const TimerColumn = styled(Column)`
-  flex: 1.5;
-`;
-
-const StatusColumn = styled(Column)`
-  flex: 0 0 70px;
 `;
 
 const SetsList = styled.div`
   display: flex;
   flex-direction: column;
-  width: 100%;
-  position: relative;
+  gap: 12px;
 `;
 
-const SetRow = styled(motion.div)<{
+const SetCard = styled(motion.div)<{
   $isActive: boolean;
   $isCompleted: boolean;
-  $isEditing?: boolean;
+  $isEditing: boolean;
 }>`
   display: flex;
-  align-items: center;
-  padding: 12px 0px;
-  cursor: ${({ $isEditing }) =>
-    $isEditing ? "default" : "pointer"};
-  transition: all 0.2s ease;
-  border-left: 3px solid transparent;
+  align-items: stretch;
+  background: ${({ theme }) => theme.colors.white05};
+  border-radius: 16px;
+  overflow: hidden;
   position: relative;
-  background-color: ${({ theme }) => theme.colors.white05};
-  z-index: 1;
+  border: 1px solid
+    ${({ $isActive, theme }) =>
+      $isActive ? theme.colors.neon : "transparent"};
+  transition: all 0.2s ease;
 
-  ${({ $isActive, $isCompleted, $isEditing, theme }) => {
-    if ($isEditing) {
-      return `
-        background: ${theme.colors.white10};
-        border-left-color: ${theme.colors.neon};
-      `;
-    }
-    if ($isActive) {
-      return `
-        background: ${theme.colors.neon}10;
-        border-left-color: ${theme.colors.neon};
-      `;
-    }
-    if ($isCompleted) {
-      return `
-        background: ${theme.colors.success}10;
-        border-left-color: transparent;
-      `;
-    }
-    return "";
-  }}
+  ${({ $isCompleted, theme }) =>
+    $isCompleted &&
+    `
+    background: ${theme.colors.success}20;
+    border-color: ${theme.colors.success};
+  `}
+`;
 
-  &:not(:last-child) {
-    border-bottom: 1px solid
-      ${({ theme }) => theme.colors.white05};
-  }
+const SetNumberBadge = styled.div<{
+  $isActive: boolean;
+  $isCompleted: boolean;
+}>`
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  background: ${({ $isActive, $isCompleted, theme }) => {
+    if ($isActive) return theme.colors.neon;
+    if ($isCompleted) return theme.colors.success;
+    return theme.colors.white10;
+  }};
+  color: ${({ $isActive, $isCompleted, theme }) => {
+    if ($isActive || $isCompleted) return theme.colors.dark;
+    return theme.colors.white;
+  }};
+`;
 
-  &:hover {
-    background: ${({ $isActive, $isEditing, theme }) => {
-      if ($isEditing) return theme.colors.white10;
-      return $isActive
-        ? `${theme.colors.neon}15`
-        : theme.colors.white10;
-    }};
+const SetContent = styled.div`
+  flex: 1;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+`;
+
+const DisplayContainer = styled.div`
+  width: 100%;
+`;
+
+const MetricsGroup = styled.div`
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+`;
+
+const Metric = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+`;
+
+const MetricValue = styled.div`
+  font-size: 20px;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.white};
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+
+  small {
+    font-size: 12px;
+    font-weight: 500;
+    color: ${({ theme }) => theme.colors.white50};
   }
 `;
 
-const Cell = styled.div`
+const MetricLabel = styled.div`
+  font-size: 10px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.white50};
+  letter-spacing: 0.5px;
+`;
+
+const ActionsColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid
+    ${({ theme }) => theme.colors.white10};
+`;
+
+const EditButton = styled.button`
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: ${({ theme }) => theme.colors.white30};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  cursor: pointer;
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.white};
+    background: ${({ theme }) => theme.colors.white05};
+  }
+`;
+
+const CompleteButton = styled(motion.button)<{
+  $isCompleted: boolean;
+}>`
+  flex: 1;
+  border: none;
+  background: ${({ $isCompleted, theme }) =>
+    $isCompleted
+      ? theme.colors.success
+      : theme.colors.white10};
+  color: ${({ theme }) => theme.colors.dark};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: ${({ $isCompleted, theme }) =>
+      $isCompleted
+        ? theme.colors.success
+        : theme.colors.white20};
+  }
+`;
+
+const EditContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+`;
+
+const EditGroup = styled.div`
+  display: flex;
+  gap: 12px;
+`;
+
+const EditField = styled.div`
   flex: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const SetNumberCell = styled(Cell)`
-  flex: 0 0 60px;
-`;
-
-const SetNumber = styled.div<{ $isActive: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  font-size: 14px;
-  font-weight: 600;
-  background: ${({ $isActive, theme }) =>
-    $isActive ? theme.colors.neon : theme.colors.white10};
-  color: ${({ $isActive, theme }) =>
-    $isActive ? theme.colors.dark : theme.colors.white};
-`;
-
-const CellValue = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.colors.white};
-`;
-
-const TimerCell = styled(Cell)`
-  flex: 1.5;
-  justify-content: center;
-`;
-
-const StatusCell = styled(Cell)`
-  flex: 0 0 70px;
-`;
-
-const ActiveBadge = styled.div`
-  display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 4px;
-  padding: 5px 10px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  background: ${({ theme }) => theme.colors.neon};
-  color: ${({ theme }) => theme.colors.dark};
 `;
 
-const ActionButtonGroup = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
+const Label = styled.span`
+  font-size: 11px;
+  color: ${({ theme }) => theme.colors.white50};
 `;
 
-const SelectButton = styled(motion.button)`
-  all: unset;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 5px 10px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
+const LargeInput = styled.input`
+  width: 100%;
   background: ${({ theme }) => theme.colors.white10};
+  border: 1px solid ${({ theme }) => theme.colors.white20};
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 18px;
+  font-weight: 600;
   color: ${({ theme }) => theme.colors.white};
-  cursor: pointer;
-  transition: all 0.2s ease;
+  text-align: center;
 
-  &:hover {
+  &:focus {
+    outline: none;
+    border-color: ${({ theme }) => theme.colors.neon};
     background: ${({ theme }) => theme.colors.white20};
   }
 `;
 
-const EditButton = styled(motion.button)`
-  all: unset;
+const EditActions = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  font-size: 13px;
-  background: ${({ theme }) => theme.colors.white05};
-  color: ${({ theme }) => theme.colors.white50};
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: ${({ theme }) => theme.colors.white10};
-    color: ${({ theme }) => theme.colors.white};
-  }
+  justify-content: flex-end;
+  gap: 8px;
 `;
 
-const ActionButton = styled(motion.button)<{
+const ActionButton = styled.button<{
   $variant: "save" | "cancel";
 }>`
-  all: unset;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: none;
   cursor: pointer;
-  transition: all 0.2s ease;
 
   ${({ $variant, theme }) =>
     $variant === "save"
       ? `
-        background: ${theme.colors.neon}20;
-        color: ${theme.colors.neon};
-        &:hover {
-          background: ${theme.colors.neon}40;
-        }
-      `
+    background: ${theme.colors.neon};
+    color: ${theme.colors.dark};
+  `
       : `
-        background: ${theme.colors.error}20;
-        color: ${theme.colors.error};
-        &:hover {
-          background: ${theme.colors.error}40;
-        }
-      `}
+    background: ${theme.colors.white10};
+    color: ${theme.colors.white};
+  `}
 `;
 
-const CompletionButton = styled(motion.button)<{
-  $completed: boolean;
-  disabled?: boolean;
-}>`
-  all: unset;
-  cursor: ${({ disabled }) =>
-    disabled ? "not-allowed" : "pointer"};
+const DeleteConfirm = styled.div`
+  background: ${({ theme }) => theme.colors.error}20;
+  border-radius: 0 0 16px 16px;
+  margin-top: -10px;
+  padding: 20px 16px 12px;
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  padding: 4px;
-  border-radius: 50%;
-  transition: all 0.2s ease;
-  opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
-  color: ${({ $completed, theme }) =>
-    $completed
-      ? theme.colors.success
-      : theme.colors.white30};
 `;
 
-const EditInput = styled.input`
-  width: 45px;
-  height: 30px;
-  padding: 0 6px;
-  border: none;
-  border-radius: 6px;
-  background: ${({ theme }) => theme.colors.white20};
-  color: ${({ theme }) => theme.colors.white};
-  font-size: 14px;
-  font-weight: 500;
-  text-align: center;
-
-  &:focus {
-    outline: 2px solid ${({ theme }) => theme.colors.neon};
-    background: ${({ theme }) => theme.colors.white30};
-  }
-
-  /* Hide arrow buttons on number inputs */
-  &::-webkit-outer-spin-button,
-  &::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-
-  /* Firefox */
-  &[type="number"] {
-    -moz-appearance: textfield;
-  }
-`;
-
-const InputLabel = styled.span`
-  margin-left: 6px;
-  font-size: 13px;
-  color: ${({ theme }) => theme.colors.white50};
-`;
-
-const DeleteConfirm = styled(motion.div)`
-  position: relative;
-  margin-top: -1px;
-  margin-bottom: 8px;
-  background: ${({ theme }) => theme.colors.error}15;
-  padding: 12px 16px;
-  border-left: 3px solid
-    ${({ theme }) => theme.colors.error};
-  border-radius: 0 0 12px 12px;
-  z-index: 0;
-`;
-
-const DeleteMessage = styled.div`
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 12px;
+const DeleteMessage = styled.span`
   color: ${({ theme }) => theme.colors.error};
+  font-weight: 500;
+  font-size: 14px;
 `;
 
 const DeleteButtonGroup = styled.div`
   display: flex;
-  gap: 10px;
-  justify-content: flex-end;
+  gap: 8px;
 `;
 
-const DeleteCancelButton = styled(motion.button)`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: none;
-  background: ${({ theme }) => theme.colors.white10};
+const DeleteCancelButton = styled.button`
+  background: transparent;
+  border: 1px solid ${({ theme }) => theme.colors.white20};
   color: ${({ theme }) => theme.colors.white};
-  font-size: 13px;
-  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
   cursor: pointer;
-
-  &:hover {
-    background: ${({ theme }) => theme.colors.white20};
-  }
 `;
 
-const DeleteConfirmButton = styled(motion.button)`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: none;
+const DeleteConfirmButton = styled.button`
   background: ${({ theme }) => theme.colors.error};
+  border: none;
   color: white;
-  font-size: 13px;
-  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
   cursor: pointer;
-
-  &:hover {
-    background: ${({ theme }) => theme.colors.error}80;
-  }
 `;
