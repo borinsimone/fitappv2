@@ -29,14 +29,30 @@ const Navbar = () => {
     []
   );
 
-  useEffect(() => {
-    const index = routes.indexOf(location.pathname);
+  const updateIndicator = () => {
+    const index = routes.findIndex((route) =>
+      location.pathname.startsWith(route)
+    );
     if (index !== -1 && iconRefs.current[index]) {
-      const iconPosition =
-        iconRefs.current[index]?.offsetLeft || 0;
-      setIndicatorX(iconPosition);
+      const el = iconRefs.current[index];
+      if (el) {
+        // Center the indicator: element center - half indicator width (30px)
+        const newX =
+          el.offsetLeft + el.offsetWidth / 2 - 30;
+        setIndicatorX(newX);
+      }
     }
+  };
+
+  useEffect(() => {
+    updateIndicator();
+    window.addEventListener("resize", updateIndicator);
+    return () =>
+      window.removeEventListener("resize", updateIndicator);
   }, [location.pathname, routes]);
+
+  const isActive = (path: string) =>
+    location.pathname.startsWith(path);
 
   return (
     <Container
@@ -45,7 +61,7 @@ const Navbar = () => {
       animate={{ y: 0, opacity: 1 }}
       exit={{ y: 100, opacity: 0 }}
       transition={{ duration: 0.5 }}
-      hidden={
+      $hidden={
         location.pathname === "/login" ||
         location.pathname === "/register"
       }
@@ -68,9 +84,7 @@ const Navbar = () => {
                     transitionDelay: "400ms",
                   }}
                   color={
-                    location.pathname === "/home"
-                      ? "#1e1e1e"
-                      : "#d0d0d0"
+                    isActive(path) ? "#1e1e1e" : "#d0d0d0"
                   }
                 />
               )}
@@ -83,9 +97,7 @@ const Navbar = () => {
                     transitionDelay: "400ms",
                   }}
                   color={
-                    location.pathname === "/workout-planner"
-                      ? "#1e1e1e"
-                      : "#d0d0d0"
+                    isActive(path) ? "#1e1e1e" : "#d0d0d0"
                   }
                 />
               )}
@@ -97,9 +109,7 @@ const Navbar = () => {
                     transitionDelay: "400ms",
                   }}
                   color={
-                    location.pathname === "/meal-planner"
-                      ? "#1e1e1e"
-                      : "#d0d0d0"
+                    isActive(path) ? "#1e1e1e" : "#d0d0d0"
                   }
                 />
               )}
@@ -111,9 +121,7 @@ const Navbar = () => {
                     transitionDelay: "400ms",
                   }}
                   color={
-                    location.pathname === "/account"
-                      ? "#1e1e1e"
-                      : "#d0d0d0"
+                    isActive(path) ? "#1e1e1e" : "#d0d0d0"
                   }
                 />
               )}
@@ -126,14 +134,14 @@ const Navbar = () => {
 };
 
 export default Navbar;
-const Container = styled.nav`
+const Container = styled.nav<{ $hidden?: boolean }>`
   position: fixed;
   width: 100%;
   height: 10vh;
   /* bottom: 20px; */
   bottom: 0;
   z-index: 1001;
-  display: ${(props) => (props.hidden ? "none" : "flex")};
+  display: ${(props) => (props.$hidden ? "none" : "flex")};
 
   align-items: center;
   justify-content: center;
@@ -153,10 +161,13 @@ const Container = styled.nav`
       display: flex;
       align-items: center;
       justify-content: center;
+      width: 60px; /* Ensure consistent width for centering */
       a {
         display: grid;
         place-content: center;
         z-index: 100;
+        width: 100%;
+        height: 100%;
       }
       .dumbbell {
         transform: rotate(-45deg);
@@ -171,7 +182,6 @@ const Indicator = styled.div`
   height: 40px;
   background: linear-gradient(180deg, #00736e, #00c6be);
   border-radius: 25px;
-  transition: left 0.3s ease-in-out,
-    transform 0.3s ease-in-out;
-  transform: translateX(-25%);
+  transition: left 0.3s ease-in-out;
+  /* transform removed as we calculate exact center */
 `;
