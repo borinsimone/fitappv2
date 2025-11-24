@@ -44,7 +44,8 @@ function Timer({ activeSet, name }: TimerProps) {
   const initAudio = () => {
     if (!audioContextRef.current) {
       const AudioContext =
-        window.AudioContext || (window as any).webkitAudioContext;
+        window.AudioContext ||
+        (window as any).webkitAudioContext;
       if (AudioContext) {
         audioContextRef.current = new AudioContext();
       }
@@ -91,12 +92,15 @@ function Timer({ activeSet, name }: TimerProps) {
     }
   }, [restTimerOn]);
 
-  const playSound = (type: "work" | "rest" | "tick" | "go") => {
+  const playSound = (
+    type: "work" | "rest" | "tick" | "go"
+  ) => {
     try {
       // Ensure context exists
       if (!audioContextRef.current) {
         const AudioContext =
-          window.AudioContext || (window as any).webkitAudioContext;
+          window.AudioContext ||
+          (window as any).webkitAudioContext;
         if (AudioContext) {
           audioContextRef.current = new AudioContext();
         }
@@ -159,7 +163,13 @@ function Timer({ activeSet, name }: TimerProps) {
       } else if (type === "rest") {
         // Relaxing descending chime
         createOscillator("sine", 880, now, 0.6, 0.05);
-        createOscillator("sine", 659.25, now + 0.2, 0.8, 0.05);
+        createOscillator(
+          "sine",
+          659.25,
+          now + 0.2,
+          0.8,
+          0.05
+        );
       } else if (type === "tick") {
         // Short woodblock-like tick
         const osc = ctx.createOscillator();
@@ -318,7 +328,8 @@ function Timer({ activeSet, name }: TimerProps) {
                   strokeWidth={18}
                   onComplete={handlePrepComplete}
                   onUpdate={(remainingTime) => {
-                    const seconds = Math.ceil(remainingTime);
+                    const seconds =
+                      Math.ceil(remainingTime);
                     if (
                       seconds <= 3 &&
                       seconds > 0 &&
