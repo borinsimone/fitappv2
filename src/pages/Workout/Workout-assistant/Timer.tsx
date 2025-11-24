@@ -30,6 +30,12 @@ function Timer({ activeSet, name }: TimerProps) {
   const [restKey, setRestKey] = useState(0);
   const [timerCompleted, setTimerCompleted] =
     useState(false);
+  
+  // Preparation timer state
+  const [isPreparing, setIsPreparing] = useState(false);
+  const [prepKey, setPrepKey] = useState(0);
+  const [hasStartedWork, setHasStartedWork] = useState(false);
+  const PREP_TIME = 5;
 
   // Get values from active set
   const workTime = activeSet?.time || 0;
@@ -43,6 +49,8 @@ function Timer({ activeSet, name }: TimerProps) {
     setWorkTimerOn(false);
     setRestTimerOn(false);
     setTimerCompleted(false);
+    setIsPreparing(false);
+    setHasStartedWork(false);
   }, [activeSet]);
   useEffect(() => {
     if (timerCompleted || workTimerOn) {
@@ -84,12 +92,29 @@ function Timer({ activeSet, name }: TimerProps) {
     }
   };
 
+  const handlePrepComplete = () => {
+    setIsPreparing(false);
+    setWorkTimerOn(true);
+    setHasStartedWork(true);
+    
+    // Play "Go" sound or beep
+    const audio = new Audio("/notification.mp3"); 
+    // Ideally use a different sound for "Go"
+    audio.play().catch(() => {});
+    
+    if (navigator.vibrate) {
+      navigator.vibrate(200);
+    }
+  };
+
   const resetTimers = () => {
     setWorkKey((prev) => prev + 1);
     setRestKey((prev) => prev + 1);
     setWorkTimerOn(false);
     setRestTimerOn(false);
     setTimerCompleted(false);
+    setIsPreparing(false);
+    setHasStartedWork(false);
   };
 
   const formatTime = (seconds: number) => {
@@ -151,48 +176,75 @@ function Timer({ activeSet, name }: TimerProps) {
         </AnimatePresence>
 
         {isTimeBased && (
-          <WorkTimer $active={workTimerOn}>
-            <CountdownCircleTimer
-              key={workKey}
-              isPlaying={workTimerOn}
-              duration={workTime}
-              colors={[
-                "#00C6BE",
-                "#00C6BE",
-                "#F7B801",
-                "#F7B801",
-                "#FF5722",
-              ]}
-              colorsTime={[
-                workTime,
-                workTime * 0.66,
-                workTime * 0.33,
-                0,
-              ]}
-              trailColor="rgba(255, 255, 255, 0.1)"
-              size={240}
-              strokeWidth={18}
-              onComplete={handleTimerComplete}
-            >
-              {({ remainingTime, color }) => (
-                <TimerDisplay>
-                  {workTimerOn ? (
-                    <>
-                      <TimerValue style={{ color }}>
-                        {formatTime(remainingTime)}
+          <>
+            {isPreparing ? (
+              <WorkTimer $active={true}>
+                <CountdownCircleTimer
+                  key={`prep-${prepKey}`}
+                  isPlaying={isPreparing}
+                  duration={PREP_TIME}
+                  colors={["#F7B801", "#F7B801"]}
+                  colorsTime={[PREP_TIME, 0]}
+                  trailColor="rgba(255, 255, 255, 0.1)"
+                  size={240}
+                  strokeWidth={18}
+                  onComplete={handlePrepComplete}
+                >
+                  {({ remainingTime }) => (
+                    <TimerDisplay>
+                      <TimerValue style={{ color: "#F7B801" }}>
+                        {remainingTime}
                       </TimerValue>
-                      <TimerLabel>WORK</TimerLabel>
-                    </>
-                  ) : (
-                    <>
-                      {/* <TimerValue>{formatTime(workTime)}</TimerValue>
-                      <TimerLabel>WORK TIME</TimerLabel> */}
-                    </>
+                      <TimerLabel>GET READY</TimerLabel>
+                    </TimerDisplay>
                   )}
-                </TimerDisplay>
-              )}
-            </CountdownCircleTimer>
-          </WorkTimer>
+                </CountdownCircleTimer>
+              </WorkTimer>
+            ) : (
+              <WorkTimer $active={workTimerOn}>
+                <CountdownCircleTimer
+                  key={workKey}
+                  isPlaying={workTimerOn}
+                  duration={workTime}
+                  colors={[
+                    "#00C6BE",
+                    "#00C6BE",
+                    "#F7B801",
+                    "#F7B801",
+                    "#FF5722",
+                  ]}
+                  colorsTime={[
+                    workTime,
+                    workTime * 0.66,
+                    workTime * 0.33,
+                    0,
+                  ]}
+                  trailColor="rgba(255, 255, 255, 0.1)"
+                  size={240}
+                  strokeWidth={18}
+                  onComplete={handleTimerComplete}
+                >
+                  {({ remainingTime, color }) => (
+                    <TimerDisplay>
+                      {workTimerOn ? (
+                        <>
+                          <TimerValue style={{ color }}>
+                            {formatTime(remainingTime)}
+                          </TimerValue>
+                          <TimerLabel>WORK</TimerLabel>
+                        </>
+                      ) : (
+                        <>
+                          {/* <TimerValue>{formatTime(workTime)}</TimerValue>
+                      <TimerLabel>WORK TIME</TimerLabel> */}
+                        </>
+                      )}
+                    </TimerDisplay>
+                  )}
+                </CountdownCircleTimer>
+              </WorkTimer>
+            )}
+          </>
         )}
 
         <RestTimer
@@ -252,18 +304,31 @@ function Timer({ activeSet, name }: TimerProps) {
         {isTimeBased && (
           <TimerButton
             $variant="work"
-            $active={workTimerOn}
-            onClick={() => setWorkTimerOn(!workTimerOn)}
+            $active={workTimerOn || isPreparing}
+            onClick={() => {
+              if (workTimerOn) {
+                setWorkTimerOn(false);
+              } else if (isPreparing) {
+                setIsPreparing(false);
+              } else {
+                if (!hasStartedWork) {
+                  setIsPreparing(true);
+                  setPrepKey((prev) => prev + 1);
+                } else {
+                  setWorkTimerOn(true);
+                }
+              }
+            }}
             as={motion.button}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            {workTimerOn ? (
+            {workTimerOn || isPreparing ? (
               <BiPause size={22} />
             ) : (
               <BiPlay size={22} />
             )}
-            {workTimerOn ? "Pause" : "Start"}
+            {workTimerOn || isPreparing ? "Pause" : "Start"}
           </TimerButton>
         )}
 
