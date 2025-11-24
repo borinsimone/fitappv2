@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import {
   BiPlay,
@@ -30,12 +30,29 @@ function Timer({ activeSet, name }: TimerProps) {
   const [restKey, setRestKey] = useState(0);
   const [timerCompleted, setTimerCompleted] =
     useState(false);
-  
+
   // Preparation timer state
   const [isPreparing, setIsPreparing] = useState(false);
   const [prepKey, setPrepKey] = useState(0);
-  const [hasStartedWork, setHasStartedWork] = useState(false);
+  const [hasStartedWork, setHasStartedWork] =
+    useState(false);
   const PREP_TIME = 5;
+  const lastPlayedRef = useRef<number | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+
+  // Initialize audio context
+  const initAudio = () => {
+    if (!audioContextRef.current) {
+      const AudioContext =
+        window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioContext) {
+        audioContextRef.current = new AudioContext();
+      }
+    }
+    if (audioContextRef.current?.state === "suspended") {
+      audioContextRef.current.resume();
+    }
+  };
 
   // Get values from active set
   const workTime = activeSet?.time || 0;
@@ -51,6 +68,7 @@ function Timer({ activeSet, name }: TimerProps) {
     setTimerCompleted(false);
     setIsPreparing(false);
     setHasStartedWork(false);
+    lastPlayedRef.current = null;
   }, [activeSet]);
   useEffect(() => {
     if (timerCompleted || workTimerOn) {
@@ -73,18 +91,131 @@ function Timer({ activeSet, name }: TimerProps) {
     }
   }, [restTimerOn]);
 
-  const handleTimerComplete = () => {
+  const playSound = (type: "work" | "rest" | "tick" | "go") => {
+    try {
+      // Ensure context exists
+      if (!audioContextRef.current) {
+        const AudioContext =
+          window.AudioContext || (window as any).webkitAudioContext;
+        if (AudioContext) {
+          audioContextRef.current = new AudioContext();
+        }
+      }
+
+      const ctx = audioContextRef.current;
+      if (!ctx) return;
+
+      // Resume if suspended (though should be handled by initAudio)
+      if (ctx.state === "suspended") {
+        ctx.resume();
+      }
+
+      const now = ctx.currentTime;
+
+      const createOscillator = (
+        type: OscillatorType,
+        freq: number,
+        startTime: number,
+        duration: number,
+        gainValue: number = 0.1
+      ) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, startTime);
+
+        gain.gain.setValueAtTime(0, startTime);
+        gain.gain.linearRampToValueAtTime(
+          gainValue,
+          startTime + 0.02
+        );
+        gain.gain.exponentialRampToValueAtTime(
+          0.001,
+          startTime + duration
+        );
+
+        osc.start(startTime);
+        osc.stop(startTime + duration);
+        return { osc, gain };
+      };
+
+      if (type === "work") {
+        // Victory fanfare (C Major Arpeggio: C5, E5, G5, C6) - More expressive
+        const notes = [523.25, 659.25, 783.99, 1046.5];
+        notes.forEach((freq, i) => {
+          createOscillator(
+            "triangle",
+            freq,
+            now + i * 0.1,
+            0.4,
+            0.1
+          );
+        });
+        // Add a bass note
+        createOscillator("sine", 261.63, now, 0.6, 0.15);
+      } else if (type === "rest") {
+        // Relaxing descending chime
+        createOscillator("sine", 880, now, 0.6, 0.05);
+        createOscillator("sine", 659.25, now + 0.2, 0.8, 0.05);
+      } else if (type === "tick") {
+        // Short woodblock-like tick
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(800, now);
+        osc.frequency.exponentialRampToValueAtTime(
+          400,
+          now + 0.08
+        );
+
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(
+          0.001,
+          now + 0.08
+        );
+
+        osc.start(now);
+        osc.stop(now + 0.08);
+      } else if (type === "go") {
+        // High energy "GO" sound
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.type = "square";
+        osc.frequency.setValueAtTime(880, now); // A5
+        osc.frequency.linearRampToValueAtTime(
+          1760,
+          now + 0.1
+        ); // A6
+
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(
+          0.001,
+          now + 0.4
+        );
+
+        osc.start(now);
+        osc.stop(now + 0.4);
+      }
+    } catch (e) {
+      console.error("Audio playback failed", e);
+    }
+  };
+
+  const handleTimerComplete = (type: "work" | "rest") => {
     setTimerCompleted(true);
     setWorkTimerOn(false);
     setRestTimerOn(false);
 
-    // Play notification sound
-    const audio = new Audio("/notification.mp3");
-    audio
-      .play()
-      .catch((e) =>
-        console.log("Audio playback error:", e)
-      );
+    playSound(type);
 
     // Vibrate if supported
     if (navigator.vibrate) {
@@ -96,12 +227,9 @@ function Timer({ activeSet, name }: TimerProps) {
     setIsPreparing(false);
     setWorkTimerOn(true);
     setHasStartedWork(true);
-    
-    // Play "Go" sound or beep
-    const audio = new Audio("/notification.mp3"); 
-    // Ideally use a different sound for "Go"
-    audio.play().catch(() => {});
-    
+
+    playSound("go");
+
     if (navigator.vibrate) {
       navigator.vibrate(200);
     }
@@ -189,10 +317,23 @@ function Timer({ activeSet, name }: TimerProps) {
                   size={240}
                   strokeWidth={18}
                   onComplete={handlePrepComplete}
+                  onUpdate={(remainingTime) => {
+                    const seconds = Math.ceil(remainingTime);
+                    if (
+                      seconds <= 3 &&
+                      seconds > 0 &&
+                      lastPlayedRef.current !== seconds
+                    ) {
+                      playSound("tick");
+                      lastPlayedRef.current = seconds;
+                    }
+                  }}
                 >
                   {({ remainingTime }) => (
                     <TimerDisplay>
-                      <TimerValue style={{ color: "#F7B801" }}>
+                      <TimerValue
+                        style={{ color: "#F7B801" }}
+                      >
                         {remainingTime}
                       </TimerValue>
                       <TimerLabel>GET READY</TimerLabel>
@@ -222,7 +363,9 @@ function Timer({ activeSet, name }: TimerProps) {
                   trailColor="rgba(255, 255, 255, 0.1)"
                   size={240}
                   strokeWidth={18}
-                  onComplete={handleTimerComplete}
+                  onComplete={() =>
+                    handleTimerComplete("work")
+                  }
                 >
                   {({ remainingTime, color }) => (
                     <TimerDisplay>
@@ -270,7 +413,7 @@ function Timer({ activeSet, name }: TimerProps) {
             trailColor="rgba(255, 255, 255, 0.1)"
             size={!isTimeBased ? 240 : 180}
             strokeWidth={!isTimeBased ? 18 : 16}
-            onComplete={handleTimerComplete}
+            onComplete={() => handleTimerComplete("rest")}
           >
             {({ remainingTime, color }) => (
               <TimerDisplay>
@@ -306,6 +449,7 @@ function Timer({ activeSet, name }: TimerProps) {
             $variant="work"
             $active={workTimerOn || isPreparing}
             onClick={() => {
+              initAudio();
               if (workTimerOn) {
                 setWorkTimerOn(false);
               } else if (isPreparing) {
